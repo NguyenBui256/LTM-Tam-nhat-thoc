@@ -1,4 +1,4 @@
-package server.command;
+package server.model;
 
 public enum CommandType {
     LOGIN,

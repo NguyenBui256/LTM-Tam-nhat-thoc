@@ -1,13 +1,13 @@
 package server.model;
 
 public class Status {
-	private String msg;
+	private StatusType type;
 	private String content;
-	public String getMsg() {
-		return msg;
+	public void setMsg(StatusType  type) {
+		this.type = type;
 	}
-	public void setMsg(String msg) {
-		this.msg = msg;
+	public StatusType getType() {
+		return type;
 	}
 	public String getContent() {
 		return content;
@@ -15,9 +15,9 @@ public class Status {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public Status(String msg, String content) {
+	public Status(StatusType type, String content) {
 		super();
-		this.msg = msg;
+		this.type = type;
 		this.content = content;
 	}
 }

@@ -2,6 +2,8 @@ package server;
 
 import java.io.*;
 import java.net.Socket;
+
+import server.model.CommandType;
 import server.model.Message;
 import server.command.*;
 
@@ -46,6 +48,7 @@ public class ClientHandler extends Thread {
 
         Command command;
         switch (type) {
+        	case REGISTRY: command = new RegistryCommand(); break; 
             case LOGIN:  command = new LoginCommand(); break;
             case LOGOUT: command = new LogoutCommand(); break;
             default: throw new IllegalArgumentException("Unknown command");
