@@ -4,10 +4,10 @@ import java.io.IOException;
 
 import DAO.UserDAO;
 import server.ClientHandler;
-import server.model.Message;
+import server.dto.Message;
 import server.model.RegistryRequest;
-import server.model.Status;
-import server.model.StatusType;
+import server.dto.Status;
+import server.common.StatusType;
 import server.model.User;
 
 public class RegistryCommand implements Command {

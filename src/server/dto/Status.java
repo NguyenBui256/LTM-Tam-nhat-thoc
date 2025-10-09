@@ -1,4 +1,6 @@
-package server.model;
+package server.dto;
+
+import server.common.StatusType;
 
 public class Status {
 	private StatusType type;

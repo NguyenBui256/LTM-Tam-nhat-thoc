@@ -3,8 +3,8 @@ package server;
 import java.io.*;
 import java.net.Socket;
 
-import server.model.CommandType;
-import server.model.Message;
+import server.common.CommandType;
+import server.dto.Message;
 import server.command.*;
 
 public class ClientHandler extends Thread {

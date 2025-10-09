@@ -2,9 +2,9 @@ package server.command;
 
 import server.ClientHandler;
 import server.OnlineUserManager;
-import server.model.Message;
-import server.model.Status;
-import server.model.StatusType;
+import server.dto.Message;
+import server.dto.Status;
+import server.common.StatusType;
 
 public class LogoutCommand implements Command {
     @Override
