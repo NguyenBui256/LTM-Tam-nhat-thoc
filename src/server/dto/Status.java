@@ -1,8 +1,11 @@
 package server.dto;
 
+import java.io.Serializable;
+
 import server.common.StatusType;
 
-public class Status {
+public class Status implements Serializable {
+	private static final long serialVersionUID = 103L;
 	private StatusType type;
 	private String content;
 	public void setMsg(StatusType  type) {

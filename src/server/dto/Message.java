@@ -2,8 +2,9 @@ package server.dto;
 
 import java.io.Serializable;
 
+
 public class Message implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 100L;
     private String sender; // SERVER - CLIENT
     private Object content;
     private String command;

@@ -1,6 +1,9 @@
-package server.model;
+package server.dto;
 
-public class LoginRequest {
+import java.io.Serializable;
+
+public class LoginRequest implements Serializable {
+	private static final long serialVersionUID = 101L;
 	private String username;
 	private String password;
 	public String getUsername() {
