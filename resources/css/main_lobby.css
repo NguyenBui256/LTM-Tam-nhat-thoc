@@ -1,0 +1,37 @@
+.menu-card {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-padding: 20;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 3);
+    -fx-cursor: hand;
+    -fx-alignment: center;
+}
+
+.menu-card:hover {
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.menu-button {
+    -fx-background-color: #c43c3c;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-padding: 6 20;
+}
+
+.menu-button:hover {
+    -fx-background-color: #a52b2b;
+}
+
+.logout-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-padding: 4 16;
+}
+
+.logout-button:hover {
+    -fx-background-color: #c0392b;
+}
