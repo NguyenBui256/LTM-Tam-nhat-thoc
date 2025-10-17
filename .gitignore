@@ -1,2 +1,4 @@
 /bin/
 /.idea
+src/server/.idea
+src/server/out

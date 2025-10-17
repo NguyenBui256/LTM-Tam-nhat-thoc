@@ -6,6 +6,9 @@ import java.net.Socket;
 import server.common.CommandType;
 import server.dto.Message;
 import server.command.*;
+import server.command.InviteCommand;
+import server.command.MoveCommand;
+import server.command.LeaderboardCommand;
 
 public class ClientHandler extends Thread {
     private Socket socket;
@@ -39,7 +42,6 @@ public class ClientHandler extends Thread {
             }
         } catch (Exception e) {
             System.out.println("Client disconnected: " + username);
-            OnlineUserManager.removeOnlineUser(username);
         }
     }
 
@@ -48,9 +50,12 @@ public class ClientHandler extends Thread {
 
         Command command;
         switch (type) {
-        	case REGISTRY: command = new RegistryCommand(); break; 
+            case REGISTRY: command = new RegistryCommand(); break; 
             case LOGIN:  command = new LoginCommand(); break;
             case LOGOUT: command = new LogoutCommand(); break;
+            case INVITE: command = new InviteCommand(); break;
+            case MOVE: command = new MoveCommand(); break;
+            case GET_LEADERBOARD: command = new LeaderboardCommand(); break;
             default: throw new IllegalArgumentException("Unknown command");
         }
 

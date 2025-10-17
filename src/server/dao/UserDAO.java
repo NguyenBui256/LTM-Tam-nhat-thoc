@@ -1,9 +1,10 @@
-package DAO;
+package server.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import server.dao.DAO;
 import server.model.User;
 
 public class UserDAO extends DAO {

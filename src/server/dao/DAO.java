@@ -5,14 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public abstract class DAO {
-	protected Connection conn; 
-	public DAO() {
-        try {
-            conn = DriverManager.getConnection("jdbc:sqlserver://localhost;databaseName=TestDB", "root", "123456");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+	protected Connection conn;
 
     protected void closeConnection() {
         try {

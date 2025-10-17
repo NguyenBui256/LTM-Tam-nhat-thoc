@@ -6,4 +6,5 @@ public enum CommandType {
     REGISTRY,
     INVITE,
     MOVE
+    ,GET_LEADERBOARD
 }
