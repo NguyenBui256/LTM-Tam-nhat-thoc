@@ -2,7 +2,7 @@ package server.command;
 
 import server.ClientHandler;
 import server.OnlineUserManager;
-import server.model.LoginRequest;
+import server.dto.LoginRequest;
 import server.dto.Message;
 import server.dto.Status;
 import server.common.StatusType;

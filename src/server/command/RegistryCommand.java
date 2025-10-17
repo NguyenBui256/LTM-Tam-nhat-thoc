@@ -2,7 +2,7 @@ package server.command;
 
 import java.io.IOException;
 
-import DAO.UserDAO;
+import server.dao.UserDAO;
 import server.ClientHandler;
 import server.dto.Message;
 import server.model.RegistryRequest;

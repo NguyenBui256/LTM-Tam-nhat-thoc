@@ -1,0 +1,52 @@
+.table-view {
+    -fx-background-color: rgba(255, 255, 255, 0.8);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-padding: 10;
+}
+
+/* Header */
+.table-view .column-header-background {
+    -fx-background-color: #e76f8c; /* hồng */
+    -fx-background-radius: 15 15 0 0;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-size: 35px;
+    -fx-border-color: transparent;
+    -fx-alignment: CENTER;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* Dòng trong bảng */
+.table-row-cell {
+    -fx-cell-size: 40px;
+    -fx-font-size: 14px;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: #fcd5ce;
+}
+
+/* Cột trạng thái */
+.status-available {
+    -fx-text-fill: green;
+    -fx-font-weight: bold;
+}
+.status-busy {
+    -fx-text-fill: red;
+    -fx-font-weight: bold;
+}
+
+/* Nút trong cột Hành động */
+.button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 5 10;
+}
+.button:disabled {
+    -fx-background-color: gray;
+}

@@ -1,0 +1,51 @@
+.title {
+    -fx-font-family: "UTM Bebas";
+    -fx-font-size: 32px;
+    -fx-text-fill: #2e3a59;
+    -fx-font-weight: bold;
+    -fx-padding: 20 0 10 0;
+}
+
+.tab-button {
+    -fx-background-color: #f3f0e7;
+    -fx-text-fill: #5a3e1b;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 8 20;
+}
+
+.tab-button:selected {
+    -fx-background-color: #ffd37b;
+    -fx-text-fill: #3e1c00;
+}
+
+.search-field {
+    -fx-background-radius: 20;
+    -fx-padding: 6 15;
+    -fx-background-color: #fff;
+    -fx-border-color: #d0c4a7;
+    -fx-border-radius: 20;
+}
+
+.back-button {
+    -fx-background-color: #6d4c41;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-padding: 6 16;
+}
+
+.table-view {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-border-color: #e0d8c3;
+}
+
+.table-column {
+    -fx-alignment: CENTER-LEFT;
+}
+
+.pagination {
+    -fx-padding: 10 0 20 0;
+}
+
