@@ -1,15 +1,50 @@
-package server.model;
+package server.dto;
 
-public class RegistryRequest {
-	private User u;
-	public User getU() {
-		return u;
+import java.io.Serializable;
+
+public class RegistryRequest implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private String username;
+	private String password;
+	private String email;
+	private String name;
+
+	public RegistryRequest(String username, String password, String email, String name) {
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.name = name;
 	}
-	public void setU(User u) {
-		this.u = u;
+
+	public String getUsername() {
+		return username;
 	}
-	public RegistryRequest(User u) {
-		super();
-		this.u = u;
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

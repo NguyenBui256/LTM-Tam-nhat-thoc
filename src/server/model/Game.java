@@ -1,6 +1,9 @@
 package server.model;
 
-public class Game {
+import java.io.Serializable;
+
+public class Game implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String id;
     private int userId_1;
     private int userId_2;
@@ -12,7 +15,8 @@ public class Game {
     public Game() {
     }
 
-    public Game(String id, int userId_1, int userId_2, String userResult_1, String userResult_2, int winnerId, int scoreDiff) {
+    public Game(String id, int userId_1, int userId_2, String userResult_1, String userResult_2, int winnerId,
+            int scoreDiff) {
         this.id = id;
         this.userId_1 = userId_1;
         this.userId_2 = userId_2;
