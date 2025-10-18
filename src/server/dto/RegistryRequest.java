@@ -1,6 +1,11 @@
-package server.model;
+package server.dto;
 
-public class RegistryRequest {
+import java.io.Serializable;
+
+import server.model.User;
+
+public class RegistryRequest implements Serializable {
+	private static final long serialVersionUID = 102L;
 	private User u;
 	public User getU() {
 		return u;

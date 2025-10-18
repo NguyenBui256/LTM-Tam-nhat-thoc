@@ -12,7 +12,9 @@ public class OnlineUserManager {
     }
 
     public static void removeOnlineUser(String username) {
-        onlineUsers.remove(username);
+    	if (username != null) {
+            onlineUsers.remove(username);
+        }
     }
 
     public static boolean isOnline(String username) {

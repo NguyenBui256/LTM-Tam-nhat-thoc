@@ -8,7 +8,10 @@ public abstract class DAO {
 	protected Connection conn; 
 	public DAO() {
         try {
-            conn = DriverManager.getConnection("jdbc:sqlserver://localhost;databaseName=TestDB", "root", "123456");
+        	String url = "jdbc:mysql://localhost:3306/ltm?useSSL=false&serverTimezone=UTC";
+        	String user = "ltm";
+        	String pass = "123456789LTM";
+            conn = DriverManager.getConnection(url, user, pass);
         } catch (SQLException e) {
             e.printStackTrace();
         }

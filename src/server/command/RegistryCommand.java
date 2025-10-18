@@ -2,12 +2,12 @@ package server.command;
 
 import java.io.IOException;
 
-import DAO.UserDAO;
 import server.ClientHandler;
 import server.dto.Message;
-import server.model.RegistryRequest;
+import server.dto.RegistryRequest;
 import server.dto.Status;
 import server.common.StatusType;
+import server.dao.UserDAO;
 import server.model.User;
 
 public class RegistryCommand implements Command {
