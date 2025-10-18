@@ -54,7 +54,9 @@ public class WaitingRoomController {
         new Thread(() -> {
             try {
                 Thread.sleep(5000); // Giả lập người chơi kia bấm OK sau 5 giây
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
 
             Platform.runLater(this::setPlayer2Ready); // cập nhật UI trên luồng JavaFX
         }).start();

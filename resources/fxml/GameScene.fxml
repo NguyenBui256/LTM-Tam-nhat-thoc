@@ -58,7 +58,7 @@
     </VBox>
 
     <!-- Nút Thoát -->
-    <Button fx:id="exitButton" layoutX="10" layoutY="17" prefHeight="26" prefWidth="80" styleClass="exit-button" text="Thoát" />
+    <Button fx:id="exitButton" layoutY="17.0" prefHeight="26" prefWidth="80" styleClass="exit-button" text="Thoát" />
 
     <stylesheets>
         <URL value="@../css/game.css" />

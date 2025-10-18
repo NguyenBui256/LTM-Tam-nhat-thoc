@@ -38,7 +38,7 @@
         </VBox>
 
         <!-- Bảng dữ liệu -->
-        <TableView fx:id="matchTable" style="fx-border-color: #e0cda9; -fx-border-radius: 10; fx-background-radius: 10; -fx-background-color: #fff8f0;" stylesheets="@../css/MatchHistory.css">
+        <TableView fx:id="matchTable" style="-fx-border-color: #e0cda9; -fx-border-radius: 10; -fx-background-radius: 10; -fx-background-color: #fff8f0;" stylesheets="@../css/MatchHistory.css">
             <columns>
                 <TableColumn fx:id="opponentColumn" prefWidth="224.80001831054688" text="Đối thủ" />
                 <TableColumn fx:id="resultColumn" prefWidth="171.20001220703125" text="Kết quả" />

@@ -28,6 +28,7 @@ public class GameController {
     private Timeline timer;
     private final Random random = new Random();
 
+
     @FXML
     public void initialize() {
         startTimer();
@@ -56,17 +57,24 @@ public class GameController {
         timerLabel.setText("Hết giờ!");
     }
 
-    /** Tạo ngẫu nhiên 10 hạt bay thử (3 loại: gạo, thóc, ngô) */
     private void generateMockSeeds() {
-        for (int i = 0; i < 10; i++) {
+        double width = boardPane.getPrefWidth();   // hoặc boardPane.getWidth()
+        double height = boardPane.getPrefHeight();
+
+        for (int i = 0; i < 50; i++) {
             String type = switch (random.nextInt(3)) {
                 case 0 -> "rice";
                 case 1 -> "paddy";
                 default -> "corn";
             };
-            addSeed(type, 100 + random.nextInt(400), 100 + random.nextInt(180));
+
+            // Random toàn bộ vùng bàn
+            double x = random.nextDouble() * (width - 80);  // trừ bớt kích thước hạt
+            double y = random.nextDouble() * (height - 80);
+            addSeed(type, x, y);
         }
     }
+
 
     /** Thêm 1 hạt lên bàn chung */
     private void addSeed(String type, double x, double y) {

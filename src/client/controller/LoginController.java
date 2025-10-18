@@ -1,8 +1,22 @@
 package client.controller;
 
+import client.network.Network;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.stage.Stage;
+import server.dto.LoginRequest;
+import server.dto.Message;
+import server.dto.Status;
+import server.common.StatusType;
+import javafx.scene.Node;
+import server.dto.Message;
+import server.dto.Status;
+
+import java.io.IOException;
 
 public class LoginController {
 
@@ -25,7 +39,16 @@ public class LoginController {
     private Hyperlink registerLink;
 
     @FXML
-    private void onLoginClicked(ActionEvent event) {
+    private Label lblLoginError;
+
+    private Network network;
+    public void setNetwork(Network network){
+        this.network = network;
+    }
+
+    @FXML
+    private void onLoginClicked(ActionEvent event) throws IOException {
+        lblLoginError.setVisible(false);
         String username = usernameField.getText();
         String password = passwordField.getText();
 
@@ -34,10 +57,35 @@ public class LoginController {
             return;
         }
 
-        System.out.println("Đang đăng nhập với tài khoản: " + username + " / " + password);
+        LoginRequest loginRequest = new LoginRequest(username,password);
+        Message msg = new Message("LOGIN","CLIENT",loginRequest);
+        network.send(msg);
 
+        try{
+            Message received = network.receive();
+            Status status = (Status) received.getContent();
+            if (status.getType() == StatusType.SUCCESS){
 
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_lobby.fxml"));
+                Parent root = loader.load();
+
+                MainLobbyController controller =    loader.getController();
+                controller.setNetwork(this.network);
+
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            }else{
+                String error = status.getContent();
+                lblLoginError.setText(error);
+                lblLoginError.setVisible(true);
+            }
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể kết nối tới server. Vui lòng thử lại sau.");
+        }
     }
+
 
     @FXML
     private void onForgotPasswordClicked(ActionEvent event) {

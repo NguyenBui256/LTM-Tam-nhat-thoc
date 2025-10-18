@@ -36,7 +36,7 @@ public class ChallengeInviteController {
 
         try {
             // Load ảnh avatar mẫu
-            Image img = new Image(getClass().getResourceAsStream("@../images/user.png"));
+            Image img = new Image(getClass().getResourceAsStream("/images/user.png"));
             avatarImage.setImage(img);
         } catch (Exception e) {
             System.out.println("Không tìm thấy ảnh user.png");

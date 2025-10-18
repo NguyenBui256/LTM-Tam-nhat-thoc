@@ -7,7 +7,7 @@ public class Player {
     private String status;
     private int wins;
 
-    // 👉 Constructor cho PlayerList
+
     public Player(String name, int elo, String status, int wins) {
         this.name = name;
         this.elo = elo;
@@ -15,7 +15,7 @@ public class Player {
         this.wins = wins;
     }
 
-    // 👉 Constructor cho Leaderboard
+
     public Player(int rank, String name, int elo, int wins) {
         this.rank = rank;
         this.name = name;

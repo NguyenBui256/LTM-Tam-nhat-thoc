@@ -14,7 +14,7 @@
     <Label alignment="CENTER" layoutX="269.0" layoutY="52.0" prefHeight="18.0" prefWidth="256.0" style="-fx-font-weight: bold; -fx-font-size: 20px; -fx-background-color: red; -fx-background-radius: 15;" text="PHÒNG CHỜ" textFill="WHITE" />
 
     <!-- Khung người chơi 1 -->
-    <VBox fx:id="player1Box" layoutX="50.0" layoutY="125.0" prefHeight="286.0" prefWidth="229.0" spacing="10" style="-fx-alignment: CENTER; -fx-background-color: rgba(255,255,255,0.78); -fx-padding: 20; -fx-background-radius: 10;">
+    <VBox fx:id="player1Box" layoutX="50.0" layoutY="125.0" prefHeight="286.0" prefWidth="229.0" spacing="10" style="-fx-alignment: CENTER; -fx-background-color: rgba(255,255,255,0.68); -fx-padding: 20; -fx-background-radius: 10;">
       <ImageView fitHeight="59.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../images/user.png" />
@@ -26,7 +26,7 @@
     </VBox>
 
     <!-- Khung người chơi 2 -->
-    <VBox fx:id="player2Box" layoutX="523.0" layoutY="124.0" prefHeight="286.0" prefWidth="230.0" spacing="10" style="-fx-alignment: CENTER; -fx-background-color: rgba(255,255,255,0.78); -fx-padding: 20; -fx-background-radius: 10;">
+    <VBox fx:id="player2Box" layoutX="523.0" layoutY="124.0" prefHeight="286.0" prefWidth="230.0" spacing="10" style="-fx-alignment: CENTER; -fx-background-color: rgba(255,255,255,0.68); -fx-padding: 20; -fx-background-radius: 10;">
       <ImageView fitHeight="59.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../images/user.png" />
