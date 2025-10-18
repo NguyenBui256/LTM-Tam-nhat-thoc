@@ -3,7 +3,7 @@ package server.dto;
 import java.io.Serializable;
 
 public class LoginRequest implements Serializable {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 101L;
 	private String username;
 	private String password;
 

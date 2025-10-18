@@ -40,9 +40,11 @@ public class ClientHandler extends Thread {
         try {
             while (!socket.isClosed()) {
                 Message msg = (Message) in.readObject();
+                System.out.println(msg.getSender());
                 handleCommand(msg);
             }
         } catch (Exception e) {
+        	System.out.println(e);
             System.out.println("Client disconnected: " + username);
             if (username != null) {
                 OnlineUserManager.removeOnlineUser(username);
@@ -52,7 +54,7 @@ public class ClientHandler extends Thread {
 
     private void handleCommand(Message msg) throws Exception {
         CommandType type = CommandType.valueOf(msg.getCommand());
-
+        System.out.println(type);
         Command command;
         switch (type) {
             case REGISTRY:
@@ -82,7 +84,7 @@ public class ClientHandler extends Thread {
             default:
                 throw new IllegalArgumentException("Unknown command");
         }
-
+        
         command.execute(this, msg);
     }
 }

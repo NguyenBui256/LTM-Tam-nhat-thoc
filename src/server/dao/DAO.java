@@ -9,12 +9,11 @@ public abstract class DAO {
 
     public DAO() {
         try {
-            // Load MySQL driver
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/game_server", "root", "minhanh2722004");
-        } catch (ClassNotFoundException e) {
-            System.err.println("MySQL Driver not found. Please add mysql-connector-java to classpath.");
-            e.printStackTrace();
+
+        	String url = "jdbc:mysql://localhost:3306/ltm?useSSL=false&serverTimezone=UTC";
+        	String user = "ltm";
+        	String pass = "123456789LTM";
+            conn = DriverManager.getConnection(url, user, pass);
         } catch (SQLException e) {
             System.err.println("Database connection failed: " + e.getMessage());
             e.printStackTrace();

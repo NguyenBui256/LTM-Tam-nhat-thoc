@@ -2,30 +2,14 @@ package server.dto;
 
 import java.io.Serializable;
 
+
+import server.model.User;
+
 public class RegistryRequest implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private String username;
-	private String password;
-	private String email;
-	private String name;
-
-	public RegistryRequest(String username, String password, String email, String name) {
-		this.username = username;
-		this.password = password;
-		this.email = email;
-		this.name = name;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
+	private static final long serialVersionUID = 102L;
+	private User u;
+	public User getU() {
+		return u;
 	}
 
 	public void setPassword(String password) {

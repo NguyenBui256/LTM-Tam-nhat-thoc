@@ -1,11 +1,11 @@
 package server.dto;
 
-import server.common.StatusType;
-
 import java.io.Serializable;
 
+import server.common.StatusType;
+
 public class Status implements Serializable {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 103L;
 	private StatusType type;
 	private String content;
 

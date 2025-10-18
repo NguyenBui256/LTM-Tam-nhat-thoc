@@ -1,11 +1,16 @@
 package server.command;
 
+import java.io.IOException;
+
 import server.ClientHandler;
 import server.common.StatusType;
 import server.dao.UserDAO;
 import server.dto.Message;
 import server.dto.RegistryRequest;
 import server.dto.Status;
+
+import server.common.StatusType;
+import server.dao.UserDAO;
 import server.model.User;
 
 import java.io.IOException;
