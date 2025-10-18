@@ -5,7 +5,7 @@ import java.io.IOException;
 import server.dao.UserDAO;
 import server.ClientHandler;
 import server.dto.Message;
-import server.model.RegistryRequest;
+import server.dto.RegistryRequest;
 import server.dto.Status;
 import server.common.StatusType;
 import server.model.User;
