@@ -1,0 +1,63 @@
+.root {
+    -fx-font-family: "Quicksand", "Segoe UI", sans-serif;
+    -fx-background-color: linear-gradient(to bottom, #ffffffdd, #ffffffcc);
+}
+
+.header-bar {
+    -fx-background-color: #fff8f0;
+    -fx-padding: 10 20 10 20;
+    -fx-border-color: #d8b88a;
+    -fx-border-width: 0 0 2 0;
+}
+
+.title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6c3d00;
+}
+
+.player-name {
+    -fx-font-size: 16px;
+    -fx-text-fill: #5a3a1e;
+}
+
+.player-elo, .player-rank {
+    -fx-text-fill: #875b2b;
+}
+
+.back-button {
+    -fx-background-color: #b6762c;
+    -fx-text-fill: white;
+    -fx-padding: 5 15;
+    -fx-background-radius: 15;
+}
+.back-button:hover {
+    -fx-background-color: #c08a45;
+}
+
+/* Table */
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #e0cda9;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.table-column {
+    -fx-alignment: CENTER;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: #fff3d6;
+}
+
+/* Pagination */
+.pagination {
+    -fx-page-information-visible: false;
+    -fx-arrows-visible: true;
+}
+
+.footer {
+    -fx-text-fill: #6e4d22;
+    -fx-font-style: italic;
+}

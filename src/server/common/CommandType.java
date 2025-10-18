@@ -5,6 +5,11 @@ public enum CommandType {
     LOGOUT,
     REGISTRY,
     INVITE,
+    ACCEPT,
+    REJECT,
+    START_GAME,
+    END_GAME,
+    REMATCH,
     MOVE
     ,GET_LEADERBOARD
 }
