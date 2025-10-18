@@ -13,22 +13,30 @@ public class RegistryRequest implements Serializable {
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+		this.u.setPassword(password);
 	}
 
 	public String getEmail() {
-		return email;
+		return getU().getEmail();
 	}
 
 	public void setEmail(String email) {
-		this.email = email;
+		this.setEmail(email);
 	}
 
 	public String getName() {
-		return name;
+		return getU().getName();
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.setName(name);
 	}
+
+    public String getUsername() {
+        return this.getU().getUsername();
+    }
+
+    public String getPassword(){
+        return this.getU().getPassword();
+    }
 }
