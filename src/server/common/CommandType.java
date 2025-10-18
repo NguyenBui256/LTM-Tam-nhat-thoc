@@ -11,4 +11,5 @@ public enum CommandType {
     END_GAME,
     REMATCH,
     MOVE
+    ,GET_LEADERBOARD
 }
