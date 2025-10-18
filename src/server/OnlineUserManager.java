@@ -6,30 +6,52 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class OnlineUserManager {
     private static ConcurrentHashMap<String, ClientHandler> onlineUsers = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, String> userStatus = new ConcurrentHashMap<>(); // username -> status
 
     public static void addOnlineUser(String username, ClientHandler handler) {
-        onlineUsers.put(username, handler);
+        if (username != null && handler != null) {
+            onlineUsers.put(username, handler);
+            userStatus.put(username, "ONLINE");
+        }
     }
 
     public static void removeOnlineUser(String username) {
-    	if (username != null) {
+        if (username != null) {
             onlineUsers.remove(username);
+            userStatus.remove(username);
         }
     }
 
     public static boolean isOnline(String username) {
-        return onlineUsers.containsKey(username);
+        return username != null && onlineUsers.containsKey(username);
     }
 
     public static ClientHandler getHandler(String username) {
-        return onlineUsers.get(username);
+        return username != null ? onlineUsers.get(username) : null;
     }
 
-	public static List<ClientHandler> getAllHandlers() {
-		List<ClientHandler> ch = new ArrayList<>();
-		for (ClientHandler handler : onlineUsers.values()) {
-		    ch.add(handler);
-		}
-		return ch;
-	}
+    public static List<ClientHandler> getAllHandlers() {
+        List<ClientHandler> ch = new ArrayList<>();
+        for (ClientHandler handler : onlineUsers.values()) {
+            ch.add(handler);
+        }
+        return ch;
+    }
+
+    public static void setUserStatus(String username, String status) {
+        if (username != null && status != null) {
+            userStatus.put(username, status);
+        }
+    }
+
+    public static String getUserStatus(String username) {
+        return username != null ? userStatus.get(username) : null;
+    }
+
+    public static boolean isUserAvailable(String username) {
+        if (username == null)
+            return false;
+        String status = userStatus.get(username);
+        return status != null && status.equals("ONLINE");
+    }
 }

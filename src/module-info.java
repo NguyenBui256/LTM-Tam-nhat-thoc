@@ -1,13 +1,11 @@
-/**
- * 
- */
-/**
- * 
- */
 module BTL_LTM {
-	requires java.sql;
 	requires javafx.graphics;
 	requires javafx.controls;
 	requires javafx.fxml;
-	requires javafx.base;
+	requires java.sql;
+  requires javafx.base;
+
+
+	// Cho phép javafx.graphics tạo instance của ClientMain bằng reflection
+	exports client;
 }

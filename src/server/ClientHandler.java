@@ -1,11 +1,11 @@
 package server;
 
-import java.io.*;
-import java.net.Socket;
-
+import server.command.*;
 import server.common.CommandType;
 import server.dto.Message;
-import server.command.*;
+
+import java.io.*;
+import java.net.Socket;
 
 public class ClientHandler extends Thread {
     private Socket socket;
@@ -19,8 +19,13 @@ public class ClientHandler extends Thread {
         this.in = new ObjectInputStream(socket.getInputStream());
     }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public void sendMessage(Message msg) throws IOException {
         out.writeObject(msg);
@@ -41,7 +46,9 @@ public class ClientHandler extends Thread {
         } catch (Exception e) {
         	System.out.println(e);
             System.out.println("Client disconnected: " + username);
-            OnlineUserManager.removeOnlineUser(username);
+            if (username != null) {
+                OnlineUserManager.removeOnlineUser(username);
+            }
         }
     }
 
@@ -50,10 +57,32 @@ public class ClientHandler extends Thread {
         System.out.println(type);
         Command command;
         switch (type) {
-        	case REGISTRY: command = new RegistryCommand(); break; 
-            case LOGIN:  command = new LoginCommand(); break;
-            case LOGOUT: command = new LogoutCommand(); break;
-            default: throw new IllegalArgumentException("Unknown command");
+            case REGISTRY:
+                command = new RegistryCommand();
+                break;
+            case LOGIN:
+                command = new LoginCommand();
+                break;
+            case LOGOUT:
+                command = new LogoutCommand();
+                break;
+            case INVITE:
+                command = new InviteCommand();
+                break;
+            case ACCEPT:
+                command = new AcceptCommand();
+                break;
+            case REJECT:
+                command = new RejectCommand();
+                break;
+            case END_GAME:
+                command = new EndGameCommand();
+                break;
+            case REMATCH:
+                command = new RematchCommand();
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown command");
         }
         
         command.execute(this, msg);

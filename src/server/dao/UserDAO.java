@@ -1,11 +1,11 @@
 package server.dao;
 
+import server.model.User;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
-
-import server.model.User;
 
 public class UserDAO extends DAO {
 	public boolean insertUser(User user) {

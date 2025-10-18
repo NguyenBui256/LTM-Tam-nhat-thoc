@@ -5,21 +5,25 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public abstract class DAO {
-	protected Connection conn; 
-	public DAO() {
+    protected Connection conn;
+
+    public DAO() {
         try {
+
         	String url = "jdbc:mysql://localhost:3306/ltm?useSSL=false&serverTimezone=UTC";
         	String user = "ltm";
         	String pass = "123456789LTM";
             conn = DriverManager.getConnection(url, user, pass);
         } catch (SQLException e) {
+            System.err.println("Database connection failed: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     protected void closeConnection() {
         try {
-            if (conn != null && !conn.isClosed()) conn.close();
+            if (conn != null && !conn.isClosed())
+                conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
