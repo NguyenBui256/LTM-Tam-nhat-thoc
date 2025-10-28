@@ -9,6 +9,7 @@ public class User implements Serializable {
 	private String password;
 	private String email;
 	private String name;
+	private int elo;
 
 	public String getId() {
 		return id;
@@ -50,12 +51,21 @@ public class User implements Serializable {
 		this.name = name;
 	}
 
+	public int getElo() {
+		return elo;
+	}
+
+	public void setElo(int elo) {
+		this.elo = elo;
+	}
+
 	public User(String username, String password, String email, String name) {
 		super();
 		this.username = username;
 		this.password = password;
 		this.email = email;
 		this.name = name;
+		this.elo = 1000; // default elo
 	}
 
 }

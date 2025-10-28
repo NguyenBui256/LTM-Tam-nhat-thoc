@@ -28,36 +28,36 @@ public class GameDAO extends DAO {
 
     private void ensureTables() throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS games ("
-                + "id VARCHAR(128) PRIMARY KEY,"
-                + "user1 VARCHAR(128),"
-                + "user2 VARCHAR(128),"
-                + "score1 INT,"
-                + "score2 INT,"
-                + "winner VARCHAR(128),"
-                + "score_diff INT,"
-                + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-                + ") ENGINE=InnoDB;";
+        + "id VARCHAR(128) PRIMARY KEY,"
+        + "user1 VARCHAR(128),"
+        + "user2 VARCHAR(128),"
+        + "score1 DOUBLE,"
+        + "score2 DOUBLE,"
+        + "winner VARCHAR(128),"
+        + "score_diff DOUBLE,"
+        + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+        + ") ENGINE=InnoDB;";
         try (Statement st = conn.createStatement()) {
             st.execute(sql);
         }
     }
 
-    public boolean insertGame(String id, String user1, String user2, int score1, int score2) {
+    public boolean insertGame(String id, String user1, String user2, double score1, double score2) {
         if (conn == null) return false;
         String winner = null;
         if (score1 > score2) winner = user1;
         else if (score2 > score1) winner = user2;
-        int diff = Math.abs(score1 - score2);
+        double diff = Math.abs(score1 - score2);
 
         String sql = "INSERT INTO games(id,user1,user2,score1,score2,winner,score_diff) VALUES(?,?,?,?,?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, id);
-            ps.setString(2, user1);
-            ps.setString(3, user2);
-            ps.setInt(4, score1);
-            ps.setInt(5, score2);
-            ps.setString(6, winner);
-            ps.setInt(7, diff);
+        ps.setString(1, id);
+        ps.setString(2, user1);
+        ps.setString(3, user2);
+        ps.setDouble(4, score1);
+        ps.setDouble(5, score2);
+        ps.setString(6, winner);
+        ps.setDouble(7, diff);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

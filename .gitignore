@@ -32,3 +32,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+src/server/*/*.class
+src/server/*.class
