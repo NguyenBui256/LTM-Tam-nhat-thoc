@@ -9,11 +9,16 @@ public class User implements Serializable {
 	private String password;
 	private String email;
 	private String name;
-
+	private int elo;
 	public String getId() {
 		return id;
 	}
-
+	public int getElo() {
+		return elo;
+	}
+	public void setElo(int elo) {
+		this.elo = elo;
+	}
 	public void setId(String id) {
 		this.id = id;
 	}
