@@ -38,7 +38,7 @@ public class GameManager {
         GameSession s = new GameSession(gameId, p1, p2, player1Id, player2Id, seeds, seed, p1Handler, p2Handler);
         sessions.put(gameId, s);
 
-        GameStart gs = new GameStart(gameId, seeds, seed, 30); // 30 seconds
+        GameStart gs = new GameStart(gameId, seeds, seed, 60); // 60 seconds
         return gs;
     }
 
@@ -55,11 +55,11 @@ public class GameManager {
         return out;
     }
 
-    public void handleMove(String username, String gameId, int seedId, int choice, int basketType) {
+    public void handleMove(String username, String gameId, int seedIndex, int choice) {
         GameSession s = sessions.get(gameId);
         if (s == null) return;
         synchronized (s) {
-            s.processPick(username, seedId, choice, basketType);
+            s.processPick(username, seedIndex, choice);
             // send update to both players
             GameUpdate u = s.buildUpdate();
             try {
@@ -78,24 +78,10 @@ public class GameManager {
 
     private void finalizeSession(GameSession s) {
         // compute winner, score diff
-        double score1 = s.getScore1();
-        double score2 = s.getScore2();
-        double diff = Math.abs(score1 - score2);
-        int winner = score1 > score2 ? 1 : (score2 > score1 ? 2 : 0); // 1=p1 wins, 2=p2 wins, 0=draw
-
-        // update elo
-        UserDAO ud = new UserDAO();
-        int elo1 = ud.getUserElo(s.getPlayer1Id());
-        int elo2 = ud.getUserElo(s.getPlayer2Id());
-        int eloChange = (int) Math.round(diff / 2.0);
-        if (winner == 1) {
-            ud.updateUserElo(s.getPlayer1Id(), elo1 + eloChange);
-            ud.updateUserElo(s.getPlayer2Id(), elo2 - eloChange);
-        } else if (winner == 2) {
-            ud.updateUserElo(s.getPlayer1Id(), elo1 - eloChange);
-            ud.updateUserElo(s.getPlayer2Id(), elo2 + eloChange);
-        }
-        // if draw, no change
+        int score1 = s.getScore1();
+        int score2 = s.getScore2();
+        int diff = Math.abs(score1 - score2);
+        int winnerId = score1 > score2 ? 1 : (score2 > score1 ? 2 : 0);
 
         // persist via DB if possible, otherwise fallback to CSV
         try {
@@ -104,7 +90,7 @@ public class GameManager {
             if (!ok) throw new RuntimeException("DB insert failed");
         } catch (Exception ex) {
             try (PrintWriter pw = new PrintWriter(new FileWriter("game_history.csv", true))) {
-                pw.printf("%s,%s,%s,%.2f,%.2f,%d,%.2f\n", s.getId(), s.getPlayer1Id(), s.getPlayer2Id(), score1, score2, winner, diff);
+                pw.printf("%s,%s,%s,%d,%d,%d,%d\n", s.getId(), s.getPlayer1Id(), s.getPlayer2Id(), score1, score2, winnerId, diff);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -114,8 +100,8 @@ public class GameManager {
         LeaderboardEntry e1 = leaderboard.getOrDefault(s.getP1(), new LeaderboardEntry(s.getP1()));
         LeaderboardEntry e2 = leaderboard.getOrDefault(s.getP2(), new LeaderboardEntry(s.getP2()));
         e1.totalPoints += score1; e2.totalPoints += score2;
-        if (winner == 1) { e1.wins++; }
-        else if (winner == 2) { e2.wins++; }
+        if (winnerId == 1) { e1.wins++; }
+        else if (winnerId == 2) { e2.wins++; }
         leaderboard.put(s.getP1(), e1); leaderboard.put(s.getP2(), e2);
     }
 
