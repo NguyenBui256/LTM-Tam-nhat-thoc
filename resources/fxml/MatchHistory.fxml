@@ -52,8 +52,8 @@
         <Label fx:id="totalLabel" styleClass="footer" text="Tổng số trận đấu: 0" />
 
     </VBox>
-   <stylesheets>
-      <URL value="@../css/MatchHistory.css" />
-      <URL value="@../css/bg.css" />
-   </stylesheets>
+    <stylesheets>
+        <URL value="@../css/MatchHistory.css" />
+        <URL value="@../css/bg.css" />
+    </stylesheets>
 </AnchorPane>
