@@ -64,12 +64,6 @@ public class MatchHistoryController implements MessageListener {
         allMatches = FXCollections.observableArrayList();
         matchTable.setItems(allMatches);
 
-        // Cố định chiều cao bảng
-        matchTable.setFixedCellSize(40);
-        matchTable.prefHeightProperty().bind(
-                matchTable.fixedCellSizeProperty().multiply(ROWS_PER_PAGE + 1.01)
-        );
-
         // Thiết lập phân trang
         setupPagination();
 
@@ -154,7 +148,6 @@ public class MatchHistoryController implements MessageListener {
 
     @FXML
     private void onBackClicked() {
-        System.out.println("[MatchHistoryController] Back button clicked, returning to main lobby...");
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_lobby.fxml"));
             Parent root = loader.load();
@@ -163,13 +156,11 @@ public class MatchHistoryController implements MessageListener {
             System.out.println("[MatchHistoryController] main_lobby.fxml loaded successfully.");
 
             network.removeMessageListener(this);
-            System.out.println("[MatchHistoryController] Listener removed for MainLobbyController.");
-
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Main Lobby");
             stage.show();
-            System.out.println("[MatchHistoryController] Switched to Main Lobby scene.");
+
         } catch (IOException e) {
             System.err.println("[MatchHistoryController] Error loading main_lobby.fxml: " + e.getMessage());
             e.printStackTrace();

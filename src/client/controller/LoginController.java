@@ -133,7 +133,27 @@ public class LoginController implements MessageListener {
     @FXML
     private void onRegisterClicked(ActionEvent event) {
         System.out.println("[LoginController] Register link clicked.");
-        showAlert(Alert.AlertType.INFORMATION, "Đăng ký", "Chức năng đăng ký chưa được triển khai.");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/register.fxml"));
+            Parent root = loader.load();
+
+            // Nếu cần truyền network sang RegisterController
+            Object controller = loader.getController();
+            if (controller instanceof RegisterController) {
+                ((RegisterController) controller).setNetwork(this.network);
+                System.out.println("[LoginController] Network passed to RegisterController.");
+            }
+
+            Stage stage = (Stage) ((Hyperlink) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Register");
+            stage.show();
+            System.out.println("[LoginController] Switched to Register scene.");
+        } catch (IOException e) {
+            System.err.println("[LoginController] Error loading register.fxml: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Lỗi Giao Diện", "Không thể tải giao diện đăng ký: " + e.getMessage());
+        }
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
