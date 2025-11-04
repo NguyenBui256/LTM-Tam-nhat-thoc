@@ -8,42 +8,27 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/bg.css"
-            xmlns="http://javafx.com/javafx/24.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="client.controller.PlayerListController">
+<AnchorPane prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/bg.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.PlayerListController">
 
     <children>
-
-        <!-- Tiêu đề -->
-        <Text fill="#992c1c" layoutX="151.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0"
-              text="Danh sách người chơi online">
+        <Text fill="#992c1c" layoutX="151.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Danh sách người chơi online">
             <font>
                 <Font name="Segoe UI Bold" size="36.0" />
             </font>
         </Text>
 
-        <!-- Bảng danh sách người chơi -->
-        <TableView fx:id="playerTable" layoutX="63.0" layoutY="110.0"
-                   prefHeight="380.0" prefWidth="674.0"
-                   stylesheets="@../css/player_list.css">
+        <TableView fx:id="playerTable" layoutX="62.4" layoutY="96.8" prefHeight="438.0" prefWidth="675.0" stylesheets="@../css/player_list.css" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="62.0" AnchorPane.rightAnchor="63.0" AnchorPane.topAnchor="97.0">
             <columns>
                 <TableColumn fx:id="nameColumn" prefWidth="170.0" text="Tên người chơi" />
                 <TableColumn fx:id="eloColumn" prefWidth="120.0" text="Điểm Elo" />
-                <TableColumn fx:id="winsColumn" prefWidth="100.0" text="Số trận thắng" /> <!-- ✅ thêm -->
+                <TableColumn fx:id="winsColumn" prefWidth="100.0" text="Số trận thắng" />
                 <TableColumn fx:id="statusColumn" prefWidth="130.0" text="Trạng thái" />
-                <TableColumn fx:id="actionColumn" prefWidth="140.0" text="Hành động" />
+                <TableColumn fx:id="actionColumn" prefWidth="128.0" text="Hành động" />
             </columns>
         </TableView>
 
-        <!-- 🔁 Phân trang -->
-        <Pagination fx:id="pagination" layoutX="250.0" layoutY="500.0"
-                    prefHeight="35.0" prefWidth="300.0" />
+        <Pagination fx:id="pagination" prefHeight="35.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="250.0" AnchorPane.rightAnchor="250.0" />
 
-        <!-- 🔙 Nút quay lại -->
-<!--        <Button layoutX="37.0" layoutY="23.0" mnemonicParsing="false"-->
-<!--                prefHeight="26.0" prefWidth="77.0"-->
-<!--                style="-fx-background-radius: 20; -fx-background-color: pink;"-->
-<!--                text="Quay lại" onAction="#onBackClicked"/>-->
+        <Button fx:id="backButton" layoutX="37.0" layoutY="23.0" mnemonicParsing="false" onAction="#onBackClicked" prefHeight="26.0" prefWidth="77.0" style="-fx-background-radius: 20; -fx-background-color: pink;" text="Quay lại" />
     </children>
 </AnchorPane>

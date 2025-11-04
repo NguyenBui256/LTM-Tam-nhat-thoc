@@ -12,57 +12,93 @@
 
 <AnchorPane maxHeight="600" maxWidth="800" minHeight="600" minWidth="800" prefHeight="600" prefWidth="800" styleClass="game-root" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.GameController">
 
-    <!-- Điểm của bạn -->
-    <HBox alignment="CENTER" layoutX="85" layoutY="21" spacing="6" styleClass="score-box you">
+    <!-- ĐIỂM CỦA BẠN -->
+    <HBox alignment="CENTER" layoutX="118.0" layoutY="9.0" spacing="6" styleClass="score-box you">
         <Label styleClass="label-title" text="Bạn" />
         <Label fx:id="scoreYou" styleClass="label-score" text="0" />
     </HBox>
 
-    <!-- Điểm đối thủ -->
-    <HBox alignment="CENTER" layoutX="630" layoutY="21" spacing="6" styleClass="score-box opponent">
+    <!-- ĐIỂM ĐỐI THỦ -->
+    <HBox alignment="CENTER" layoutX="620.0" layoutY="9.0" spacing="6" styleClass="score-box opponent">
         <Label styleClass="label-title" text="Đối thủ" />
         <Label fx:id="scoreOpponent" styleClass="label-score" text="0" />
     </HBox>
 
-    <!-- Đồng hồ đếm ngược -->
-    <Label fx:id="timerLabel" layoutX="370" layoutY="14" styleClass="timer-label" text="00:30" />
+    <!-- ĐỒNG HỒ -->
+    <Label fx:id="timerLabel" layoutX="324.0" layoutY="15.0" styleClass="timer-label" text="00:30" />
 
-    <!-- Bàn chung -->
-    <Pane fx:id="boardPane" layoutX="88" layoutY="110" prefHeight="310" prefWidth="619" styleClass="board-area" />
+    <!-- BÀN CHƠI - QUAN TRỌNG: focusTraversable="true" -->
+    <Pane fx:id="boardPane" focusTraversable="true" layoutX="142.0" layoutY="90.0" prefHeight="450.0" prefWidth="516.0" styleClass="board-area" />
 
-    <!-- Rổ Gạo -->
-    <VBox fx:id="riceBasket" alignment="CENTER" layoutX="100" layoutY="440" spacing="5">
-        <ImageView fitHeight="80" fitWidth="120">
-            <Image url="@../images/image__1_-removebg-preview.png" />
-        </ImageView>
-        <Label styleClass="basket-name" text="Rổ Gạo" />
-        <Label fx:id="riceCount" styleClass="basket-count" text="0" />
+    <!-- === RỔ CỦA BẠN (NGƯỜI CHƠI 1) - BÊN TRÁI === -->
+    <VBox layoutX="14.0" layoutY="127.0" prefHeight="400.0" prefWidth="110.0" spacing="10">
+        <children>
+            <ImageView fitHeight="72.0" fitWidth="112.0">
+                <Image url="@../images/image__1_-removebg-preview.png" />
+            </ImageView>
+
+            <!-- RỔ GẠO -->
+            <VBox fx:id="riceBasket" alignment="CENTER" spacing="5">
+                <Label styleClass="basket-name" text="Rổ Gạo" />
+                <Label fx:id="riceCount" styleClass="basket-count" text="0" />
+            </VBox>
+            <ImageView fitHeight="80" fitWidth="120">
+                <Image url="@../images/image__2_-removebg-preview.png" />
+            </ImageView>
+
+            <!-- RỔ THÓC -->
+            <VBox fx:id="paddyBasket" alignment="CENTER" spacing="5">
+                <Label styleClass="basket-name" text="Rổ Thóc" />
+                <Label fx:id="paddyCount" styleClass="basket-count" text="0" />
+            </VBox>
+            <ImageView fitHeight="80" fitWidth="120">
+                <Image url="@../images/image__3_-removebg-preview.png" />
+            </ImageView>
+
+            <!-- RỔ NGÔ -->
+            <VBox fx:id="cornBasket" alignment="CENTER" spacing="5">
+                <Label styleClass="basket-name" text="Rổ Ngô" />
+                <Label fx:id="cornCount" styleClass="basket-count" text="0" />
+            </VBox>
+        </children>
     </VBox>
 
-    <!-- Rổ Thóc -->
-    <VBox fx:id="paddyBasket" alignment="CENTER" layoutX="340" layoutY="440" spacing="5">
-        <ImageView fitHeight="80" fitWidth="120">
-            <Image url="@../images/image__2_-removebg-preview.png" />
-        </ImageView>
-        <Label styleClass="basket-name" text="Rổ Thóc" />
-        <Label fx:id="paddyCount" styleClass="basket-count" text="0" />
+    <!-- === RỔ CỦA ĐỐI THỦ (NGƯỜI CHƠI 2) - BÊN PHẢI === -->
+    <VBox layoutX="672.0" layoutY="125.0" prefHeight="400.0" prefWidth="110.0" spacing="10">
+        <children>
+            <ImageView fitHeight="75.0" fitWidth="112.0">
+                <Image url="@../images/image__1_-removebg-preview.png" />
+            </ImageView>
+
+            <VBox fx:id="riceBasketOpp" alignment="CENTER" spacing="5">
+                <Label styleClass="basket-name" text="Rổ Gạo" />
+                <Label fx:id="riceCountOpp" styleClass="basket-count" text="0" />
+            </VBox>
+            <ImageView fitHeight="80" fitWidth="120">
+                <Image url="@../images/image__2_-removebg-preview.png" />
+            </ImageView>
+
+            <VBox fx:id="paddyBasketOpp" alignment="CENTER" spacing="5">
+                <Label styleClass="basket-name" text="Rổ Thóc" />
+                <Label fx:id="paddyCountOpp" styleClass="basket-count" text="0" />
+            </VBox>
+            <ImageView fitHeight="80" fitWidth="120">
+                <Image url="@../images/image__3_-removebg-preview.png" />
+            </ImageView>
+
+            <VBox fx:id="cornBasketOpp" alignment="CENTER" spacing="5">
+                <Label styleClass="basket-name" text="Rổ Ngô" />
+                <Label fx:id="cornCountOpp" styleClass="basket-count" text="0" />
+            </VBox>
+        </children>
     </VBox>
 
-    <!-- Rổ Ngô -->
-    <VBox fx:id="cornBasket" alignment="CENTER" layoutX="580" layoutY="440" spacing="5">
-        <ImageView fitHeight="80" fitWidth="120">
-            <Image url="@../images/image__3_-removebg-preview.png" />
-        </ImageView>
-        <Label styleClass="basket-name" text="Rổ Ngô" />
-        <Label fx:id="cornCount" styleClass="basket-count" text="0" />
-    </VBox>
+    <!-- NÚT THOÁT -->
+    <Button fx:id="exitButton" layoutX="5.0" layoutY="5.0" prefHeight="26" prefWidth="80" styleClass="exit-button" text="Thoát" />
 
-    <!-- Nút Thoát -->
-    <Button fx:id="exitButton" layoutY="17.0" prefHeight="26" prefWidth="80" styleClass="exit-button" text="Thoát" />
-
+    <!-- CSS -->
     <stylesheets>
         <URL value="@../css/game.css" />
         <URL value="@../css/bg2.css" />
     </stylesheets>
-
 </AnchorPane>

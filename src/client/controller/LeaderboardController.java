@@ -1,21 +1,31 @@
 package client.controller;
 
+import client.network.MessageListener;
+import client.network.Network;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import client.model.Player;
+import javafx.stage.Stage;
+import server.dto.Message;
+import server.dto.PlayerStatus;
 
+import java.io.IOException;
 import java.util.Comparator;
+import java.util.List;
 
-public class LeaderboardController {
+public class LeaderboardController implements MessageListener {
 
-    @FXML private TableView<Player> leaderboardTable;
-    @FXML private TableColumn<Player, Integer> rankColumn;
-    @FXML private TableColumn<Player, String> nameColumn;
-    @FXML private TableColumn<Player, Integer> eloColumn;
-    @FXML private TableColumn<Player, Integer> winsColumn;
+    @FXML private TableView<PlayerStatus> leaderboardTable;
+    @FXML private TableColumn<PlayerStatus, Integer> rankColumn;
+    @FXML private TableColumn<PlayerStatus, String> nameColumn;
+    @FXML private TableColumn<PlayerStatus, Integer> eloColumn;
+    @FXML private TableColumn<PlayerStatus, Integer> winsColumn; // Có thể bỏ nếu không cần
     @FXML private Pagination pagination;
     @FXML private ToggleButton scoreTab;
     @FXML private ToggleButton winTab;
@@ -23,59 +33,103 @@ public class LeaderboardController {
     @FXML private Button backButton;
     @FXML private ToggleGroup tabGroup;
 
-    private ObservableList<Player> allPlayers;
-    private ObservableList<Player> filteredPlayers;
-    private static final int ROWS_PER_PAGE = 8; // 🔹 8 dòng cố định
+    private ObservableList<PlayerStatus> allPlayers;
+    private ObservableList<PlayerStatus> filteredPlayers;
+    private static final int ROWS_PER_PAGE = 8;
+    private Network network;
+
+    public void setNetwork(Network network) {
+        this.network = network;
+        if (this.network != null) {
+            this.network.addMessageListener(this);
+            System.out.println("[LeaderboardController] Network set successfully and listener registered.");
+            requestRanking();
+        } else {
+            System.err.println("[LeaderboardController] Error: Network is null, cannot set up connection.");
+            Platform.runLater(() -> {
+                showAlert("Lỗi Mạng", "Không thể thiết lập kết nối mạng.");
+            });
+        }
+    }
 
     @FXML
     public void initialize() {
-        // --- Gán cột với thuộc tính ---
-        rankColumn.setCellValueFactory(new PropertyValueFactory<>("rank"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        // Gán cột với thuộc tính
+        rankColumn.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(getIndex(cellData.getValue()) + 1).asObject());
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         eloColumn.setCellValueFactory(new PropertyValueFactory<>("elo"));
-        winsColumn.setCellValueFactory(new PropertyValueFactory<>("wins"));
+        // winsColumn giả lập vì PlayerStatus không có trường wins
+        winsColumn.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(0).asObject());
 
-        // --- Tắt sắp xếp bằng click cột ---
+        // Tắt sắp xếp bằng click cột
         rankColumn.setSortable(false);
         nameColumn.setSortable(false);
         eloColumn.setSortable(false);
         winsColumn.setSortable(false);
         leaderboardTable.setSortPolicy(param -> null);
 
-        // --- Dữ liệu mẫu ---
-        allPlayers = FXCollections.observableArrayList(
-                new Player(1, "Nguyễn Văn A", 2450, 132),
-                new Player(2, "Trần Thị B", 2400, 125),
-                new Player(3, "Lê Văn C", 2380, 120),
-                new Player(4, "Phạm Văn D", 2350, 115),
-                new Player(5, "Hoàng Thị E", 2320, 110),
-                new Player(6, "Vũ Văn F", 2280, 105),
-                new Player(7, "Nguyễn Thị G", 2240, 100),
-                new Player(8, "Trần Văn H", 2210, 95),
-                new Player(9, "Đỗ Thị I", 2180, 90),
-                new Player(10, "Phan Văn K", 2150, 85),
-                new Player(11, "Ngô Thị L", 2100, 80),
-                new Player(12, "Đặng Văn M", 2050, 75)
-        );
+        // Khởi tạo danh sách
+        allPlayers = FXCollections.observableArrayList();
+        filteredPlayers = FXCollections.observableArrayList();
+        leaderboardTable.setItems(filteredPlayers);
 
-        filteredPlayers = FXCollections.observableArrayList(allPlayers);
-
-        sortByElo();
-        setupPagination();
+        // Cố định chiều cao bảng
         fixTableHeight();
 
-        // --- Cột tự chia đều ---
+        // Cột tự chia đều
         leaderboardTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
-        // --- Lọc realtime ---
+        // Lọc realtime
         searchField.textProperty().addListener((obs, oldVal, newVal) -> updateFiltered(newVal));
+
+        // Tab sắp xếp
+        scoreTab.setOnAction(e -> onScoreTabClicked());
+        winTab.setOnAction(e -> onWinTabClicked());
+
+        // Nút quay lại
+        backButton.setOnAction(e -> onBackClicked());
     }
 
-    //  CỐ ĐỊNH CHIỀU CAO BẢNG
+    private void requestRanking() {
+        try {
+            Message msg = new Message("GET_RANKING", "CLIENT", null);
+            System.out.println("[LeaderboardController] Sending request for ranking");
+            network.send(msg);
+        } catch (IOException e) {
+            System.err.println("[LeaderboardController] Error sending GET_RANKING request: " + e.getMessage());
+            e.printStackTrace();
+            Platform.runLater(() -> {
+                showAlert("Lỗi Gửi Yêu Cầu", "Không thể gửi yêu cầu lấy bảng xếp hạng: " + e.getMessage());
+            });
+        }
+    }
+
+    @Override
+    public void onMessageReceived(Message msg) {
+        System.out.println("[LeaderboardController] Received message: command=" + (msg != null ? msg.getCommand() : "null"));
+        if (msg != null && "RANKING_RESPONSE".equals(msg.getCommand())) {
+            List<PlayerStatus> ranking = (List<PlayerStatus>) msg.getContent();
+            System.out.println("[LeaderboardController] RANKING_RESPONSE received: players=" + (ranking != null ? ranking.size() : "null"));
+            if (ranking != null) {
+                Platform.runLater(() -> {
+                    allPlayers.setAll(ranking);
+                    sortByElo();
+                    System.out.println("[LeaderboardController] Updated ranking with " + allPlayers.size() + " players");
+                });
+            } else {
+                System.err.println("[LeaderboardController] Error: Ranking data is null");
+                Platform.runLater(() -> {
+                    showAlert("Lỗi Phản Hồi", "Danh sách xếp hạng từ server không hợp lệ.");
+                });
+            }
+        } else {
+            System.out.println("[LeaderboardController] Ignored message: command=" + (msg != null ? msg.getCommand() : "null"));
+        }
+    }
 
     private void fixTableHeight() {
-        leaderboardTable.setFixedCellSize(35); // mỗi dòng 35px
-        double headerHeight = 30; // chiều cao tiêu đề cột
+        leaderboardTable.setFixedCellSize(35);
+        double headerHeight = 30;
         leaderboardTable.prefHeightProperty().bind(
                 leaderboardTable.fixedCellSizeProperty().multiply(ROWS_PER_PAGE).add(headerHeight)
         );
@@ -83,22 +137,25 @@ public class LeaderboardController {
         leaderboardTable.maxHeightProperty().bind(leaderboardTable.prefHeightProperty());
     }
 
-    // TAB SẮP XẾP
     @FXML
     private void onScoreTabClicked() {
         sortByElo();
         scoreTab.setSelected(true);
         winTab.setSelected(false);
+        System.out.println("[LeaderboardController] Sorted by Elo");
     }
 
     @FXML
     private void onWinTabClicked() {
-        sortByWins();
+        // sortByWins(); // Bỏ vì PlayerStatus không có trường wins
         winTab.setSelected(true);
         scoreTab.setSelected(false);
+        System.out.println("[LeaderboardController] Win tab clicked (no sorting due to missing wins data)");
+        Platform.runLater(() -> {
+            showAlert("Thông Báo", "Sắp xếp theo số trận thắng chưa được hỗ trợ.");
+        });
     }
 
-    // PHÂN TRANG
     private void setupPagination() {
         int pageCount = (int) Math.ceil(filteredPlayers.size() * 1.0 / ROWS_PER_PAGE);
         pagination.setPageCount(Math.max(pageCount, 1));
@@ -107,6 +164,7 @@ public class LeaderboardController {
 
         pagination.currentPageIndexProperty().addListener((obs, oldIndex, newIndex) ->
                 updatePage(newIndex.intValue()));
+        System.out.println("[LeaderboardController] Pagination set up with " + pageCount + " pages");
     }
 
     private void updatePage(int pageIndex) {
@@ -117,47 +175,80 @@ public class LeaderboardController {
         } else {
             leaderboardTable.setItems(FXCollections.observableArrayList());
         }
+        leaderboardTable.refresh();
+        System.out.println("[LeaderboardController] Updated page " + pageIndex + ": " + (end - start) + " players");
     }
 
-
-    // TÌM KIẾM
     private void updateFiltered(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             filteredPlayers.setAll(allPlayers);
         } else {
             filteredPlayers.setAll(allPlayers.filtered(
-                    p -> p.getName().toLowerCase().contains(keyword.toLowerCase())
+                    p -> p.getUsername().toLowerCase().contains(keyword.toLowerCase())
             ));
         }
         setupPagination();
+        System.out.println("[LeaderboardController] Filtered players: " + filteredPlayers.size());
     }
 
-
-    //  SẮP XẾP
     private void sortByElo() {
-        allPlayers.sort(Comparator.comparingInt(Player::getElo).reversed());
-        updateRanks();
+        allPlayers.sort(Comparator.comparingInt(PlayerStatus::getElo).reversed());
         updateFiltered(searchField.getText());
+        System.out.println("[LeaderboardController] Sorted by Elo");
     }
 
-    private void sortByWins() {
-        allPlayers.sort(Comparator.comparingInt(Player::getWins).reversed());
-        updateRanks();
-        updateFiltered(searchField.getText());
+    private int getIndex(PlayerStatus player) {
+        return allPlayers.indexOf(player);
     }
-
-    private void updateRanks() {
-        for (int i = 0; i < allPlayers.size(); i++) {
-            allPlayers.get(i).setRank(i + 1);
-        }
-    }
-
-
-    // NÚT QUAY LẠI
 
     @FXML
     private void onBackClicked() {
-        System.out.println("⟲ Quay lại màn chính...");
-        // TODO: chuyển scene nếu cần
+        System.out.println("[LeaderboardController] Back button clicked, returning to main lobby...");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_lobby.fxml"));
+            Parent root = loader.load();
+            MainLobbyController controller = loader.getController();
+            controller.setNetwork(this.network);
+            System.out.println("[LeaderboardController] main_lobby.fxml loaded successfully.");
+
+            network.removeMessageListener(this);
+            System.out.println("[LeaderboardController] Listener removed for MainLobbyController.");
+
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Main Lobby");
+            stage.show();
+            System.out.println("[LeaderboardController] Switched to Main Lobby scene.");
+        } catch (IOException e) {
+            System.err.println("[LeaderboardController] Error loading main_lobby.fxml: " + e.getMessage());
+            e.printStackTrace();
+            Platform.runLater(() -> {
+                showAlert("Lỗi Giao Diện", "Không thể tải màn hình chính: " + e.getMessage());
+            });
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Platform.runLater(() -> {
+            System.out.println("[LeaderboardController] Showing alert: title=" + title + ", message=" + message);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
+    public void cleanup() {
+        if (network != null) {
+            System.out.println("[LeaderboardController] Cleaning up: removing listener and closing network.");
+            network.removeMessageListener(this);
+            try {
+                network.close();
+            } catch (IOException e) {
+                System.err.println("[LeaderboardController] Error closing network: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 }

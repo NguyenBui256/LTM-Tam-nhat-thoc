@@ -11,8 +11,8 @@ public abstract class DAO {
         try {
 
         	String url = "jdbc:mysql://localhost:3306/ltm?useSSL=false&serverTimezone=UTC";
-        	String user = "ltm";
-        	String pass = "123456789LTM";
+        	String user = "root";
+        	String pass = "nam2110do";
             conn = DriverManager.getConnection(url, user, pass);
         } catch (SQLException e) {
             System.err.println("Database connection failed: " + e.getMessage());

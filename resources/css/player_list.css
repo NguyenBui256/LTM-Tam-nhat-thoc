@@ -1,52 +1,99 @@
+/* ==================== Toàn bộ TableView ==================== */
 .table-view {
-    -fx-background-color: rgba(255, 255, 255, 0.8);
-    -fx-background-radius: 15;
-    -fx-border-radius: 15;
-    -fx-padding: 10;
+    /* Nền của bảng, màu kem hơi trong suốt */
+    -fx-background-color: rgba(255, 249, 237, 0.85);
+    -fx-background-radius: 20px; /* Bo tròn các góc */
+    -fx-border-color: #E0A3AD; /* Viền màu hồng nhạt */
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
+    -fx-padding: 5; /* Khoảng đệm bên trong */
 }
 
-/* Header */
+/* ==================== Tiêu đề cột (Header) ==================== */
 .table-view .column-header-background {
-    -fx-background-color: #e76f8c; /* hồng */
-    -fx-background-radius: 15 15 0 0;
+    /* Nền của toàn bộ dòng tiêu đề */
+    -fx-background-color: #E0A3AD; /* Màu hồng */
+    -fx-background-radius: 15px 15px 0 0; /* Chỉ bo tròn 2 góc trên */
+    -fx-background-insets: 0;
 }
 
-.table-view .column-header, .table-view .filler {
-    -fx-size: 35px;
-    -fx-border-color: transparent;
+.table-view .column-header {
+    /* Từng ô tiêu đề cột */
+    -fx-background-color: transparent;
+    -fx-size: 40px; /* Chiều cao của dòng tiêu đề */
+}
+
+.table-view .column-header .label {
+    /* Chữ của tiêu đề cột */
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
     -fx-alignment: CENTER;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
+}
+
+/* ==================== Các dòng và ô dữ liệu ==================== */
+.table-view .table-row-cell {
+    /* Nền của từng dòng, để trong suốt để thấy nền của bảng */
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #E0C097 transparent; /* Kẻ ngang mờ phân cách các dòng */
+    -fx-border-width: 1;
+}
+
+/* Bỏ đường kẻ ngang ở dòng cuối cùng */
+.table-view .table-row-cell:last-visible {
+    -fx-border-width: 0;
+}
+
+.table-view .table-cell {
+    /* Từng ô dữ liệu */
+    -fx-text-fill: #5C5470; /* Màu chữ chính */
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER;
+    -fx-border-color: transparent; /* Bỏ các đường kẻ dọc */
+    -fx-padding: 8px;
+}
+
+/* ==================== Trạng thái và Nút hành động (QUAN TRỌNG) ==================== */
+/* LƯU Ý: Để áp dụng các style này, trong code JavaFX, bạn cần tạo một Label (cho trạng thái)
+  hoặc một Button (cho hành động) và thêm các style class tương ứng này vào.
+*/
+
+/* Trạng thái "Đang rỗi" */
+.status-label-available {
+    -fx-background-color: #28a745; /* Màu xanh lá */
     -fx-text-fill: white;
-}
-
-/* Dòng trong bảng */
-.table-row-cell {
-    -fx-cell-size: 40px;
-    -fx-font-size: 14px;
-}
-
-.table-row-cell:filled:selected {
-    -fx-background-color: #fcd5ce;
-}
-
-/* Cột trạng thái */
-.status-available {
-    -fx-text-fill: green;
     -fx-font-weight: bold;
-}
-.status-busy {
-    -fx-text-fill: red;
-    -fx-font-weight: bold;
+    -fx-padding: 5px 15px;
+    -fx-background-radius: 20px;
 }
 
-/* Nút trong cột Hành động */
-.button {
-    -fx-background-color: #4CAF50;
+/* Trạng thái "Đang bận" */
+.status-label-busy {
+    -fx-background-color: #dc3545; /* Màu đỏ */
     -fx-text-fill: white;
-    -fx-background-radius: 8;
-    -fx-padding: 5 10;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 15px;
+    -fx-background-radius: 20px;
 }
-.button:disabled {
-    -fx-background-color: gray;
+
+/* Nút "Mời đấu" có thể nhấn */
+.action-button-invite {
+    -fx-background-color: #28a745;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-cursor: hand;
+}
+
+.action-button-invite:hover {
+    -fx-background-color: #218838; /* Màu xanh đậm hơn khi di chuột vào */
+}
+
+/* Nút "Mời đấu" bị vô hiệu hóa */
+.action-button-disabled {
+    -fx-background-color: #cccccc;
+    -fx-text-fill: #666666;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-opacity: 0.7; /* Làm mờ nút đi */
 }
