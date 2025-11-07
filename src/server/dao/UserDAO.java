@@ -10,7 +10,7 @@ import server.model.User;
 import server.model.Game;
 public class UserDAO extends DAO {
 	public boolean insertUser(User user) {
-		String sql = "INSERT INTO Users(username,password,email,name,elo) VALUES(?,?,?,?,?)";
+		String sql = "INSERT INTO User(username,password,email,name,elo) VALUES(?,?,?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());
@@ -24,7 +24,7 @@ public class UserDAO extends DAO {
         return false; 
 	}
 	public boolean checkExistUser(String username) {
-	    String sql = "SELECT 1 FROM Users WHERE username = ?";
+	    String sql = "SELECT 1 FROM User WHERE username = ?";
 	    try (PreparedStatement ps = conn.prepareStatement(sql)) {
 	        ps.setString(1, username);
 	        ResultSet rs = ps.executeQuery();
@@ -35,7 +35,7 @@ public class UserDAO extends DAO {
 	    return false;
 	}
 	public boolean checkLogin(String username, String password) {
-		String sql = "SELECT 1 FROM Users WHERE username =? and password =?";
+		String sql = "SELECT 1 FROM User WHERE username =? and password =?";
 		try(PreparedStatement ps = conn.prepareStatement(sql)){
 			ps.setString(1, username);
 			ps.setString(2, password);
@@ -50,8 +50,8 @@ public class UserDAO extends DAO {
 	    String sql = """
 	        SELECT g.*
 	        FROM Game g
-	        JOIN Users u1 ON u1.id = g.user1Id
-	        JOIN Users u2 ON u2.id = g.user2Id
+	        JOIN User u1 ON u1.id = g.user1Id
+	        JOIN User u2 ON u2.id = g.user2Id
 	        WHERE u1.username = ? OR u2.username = ?
 	    """;
 	    List<Game> games = new ArrayList<>();

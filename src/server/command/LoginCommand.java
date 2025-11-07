@@ -12,21 +12,19 @@ public class LoginCommand implements Command {
 	private UserDAO userdao = new UserDAO();
     @Override
     public void execute(ClientHandler handler, Message msg) throws Exception {
-//        String sender = msg.getSender();
         LoginRequest login = (LoginRequest) msg.getContent();
         String username = login.getUsername();
         String password = login.getPassword();
-        
+        System.out.println("[SERVER] LOGIN command:" + username);
         if (OnlineUserManager.isOnline(username)) {
-            handler.sendMessage(new Message("SERVER", new Status(StatusType.SUCCESS,"User is logged in")));
+            handler.sendMessage(new Message("LOGIN_RESPONSE", "SERVER", new Status(StatusType.ERROR, "User is already logged in")));
         } else {
-        	
         	if(! userdao.checkLogin(username, password)) {
-        		handler.sendMessage(new Message("SERVER", new Status(StatusType.ERROR,"Password or username is incorrect!")));
+        		handler.sendMessage(new Message("LOGIN_RESPONSE","SERVER", new Status(StatusType.ERROR,"Password or username is incorrect!")));
         	}
             handler.setUsername(username);
             OnlineUserManager.addOnlineUser(username, handler);
-            handler.sendMessage(new Message("SERVER", new Status(StatusType.SUCCESS, "Login success")));
+            handler.sendMessage(new Message("LOGIN_RESPONSE","SERVER", new Status(StatusType.SUCCESS, "Login success")));
             for (ClientHandler h : OnlineUserManager.getAllHandlers()) {
                 if (h != handler) {
                     h.sendMessage(new Message("SERVER", username));

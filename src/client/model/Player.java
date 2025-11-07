@@ -8,7 +8,7 @@ public class Player {
     private int wins;
 
 
-    public Player(String name, int elo, String status, int wins) {
+    public Player(String name, String status, int elo, int wins) {
         this.name = name;
         this.elo = elo;
         this.status = status;

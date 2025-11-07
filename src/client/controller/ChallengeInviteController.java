@@ -1,57 +1,73 @@
 package client.controller;
 
+import client.network.Network;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import server.dto.Message;
+
+import java.io.IOException;
 
 public class ChallengeInviteController {
 
-    @FXML
-    private ImageView avatarImage;
+    @FXML private ImageView avatarImage;
+    @FXML private Label playerName;
+    @FXML private Label playerElo;
+    @FXML private Text inviteText;
+    @FXML private Button acceptButton;
+    @FXML private Button declineButton;
 
-    @FXML
-    private Label playerName;
+    private Network network;
+    private String inviter;
 
-    @FXML
-    private Label playerElo;
+    // Gọi từ InviteNotificationManager
+    public void setInviterInfo(String inviter, String elo, String message) {
+        this.inviter = inviter;
+        Platform.runLater(() -> {
+            playerName.setText(inviter);
+            playerElo.setText("Điểm Elo: " + elo);
+            inviteText.setText(message);
+            // Có thể tải avatar thật ở đây
+            avatarImage.setImage(new Image(getClass().getResourceAsStream("/images/user-interface.png")));
+        });
+    }
 
-    @FXML
-    private Button acceptButton;
-
-    @FXML
-    private Button declineButton;
-
-    @FXML
-    private Text inviteText;
-
-    @FXML
-    public void initialize() {
-        // Mock dữ liệu mẫu cho UI
-        playerName.setText("Người chơi A");
-        playerElo.setText("Điểm Elo: 1850");
-        inviteText.setText("Mời bạn tham gia trận đấu phân loại hạt");
-
-        try {
-            // Load ảnh avatar mẫu
-            Image img = new Image(getClass().getResourceAsStream("/images/user.png"));
-            avatarImage.setImage(img);
-        } catch (Exception e) {
-            System.out.println("Không tìm thấy ảnh user.png");
-        }
+    public void setNetwork(Network network) {
+        this.network = network;
     }
 
     @FXML
     private void onAcceptClicked() {
-        System.out.println("✅ Đã chấp nhận lời mời thách đấu!");
-        // TODO: sau này gửi tín hiệu đến server
+        sendResponse("ACCEPT_INVITE");
+        closeDialog();
     }
 
     @FXML
     private void onDeclineClicked() {
-        System.out.println("❌ Đã từ chối lời mời thách đấu!");
-        // TODO: sau này gửi tín hiệu hủy tới server
+        sendResponse("DECLINE_INVITE");
+        closeDialog();
+    }
+
+    private void sendResponse(String command) {
+        if (network != null && inviter != null) {
+            try {
+                Message msg = new Message(command, inviter, null);
+                network.send(msg);
+                System.out.println("[ChallengeInviteController] Gửi " + command + " tới " + inviter);
+            } catch (IOException e) {
+                System.err.println("Lỗi gửi phản hồi lời mời: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void closeDialog() {
+        Stage stage = (Stage) acceptButton.getScene().getWindow();
+        stage.close();
     }
 }

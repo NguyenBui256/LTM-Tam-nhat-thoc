@@ -14,7 +14,7 @@ import java.util.Map;
 public class GameDAO extends DAO {
     private static final String URL = "jdbc:mysql://localhost:3306/game_server?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASS = "123456";
+    private static final String PASS = "nam2110do";
 
     public GameDAO() {
         try {
