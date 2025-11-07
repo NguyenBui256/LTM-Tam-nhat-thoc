@@ -37,6 +37,7 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
+    	
         try {
             while (!socket.isClosed()) {
                 Message msg = (Message) in.readObject();
@@ -81,6 +82,10 @@ public class ClientHandler extends Thread {
             case REMATCH:
                 command = new RematchCommand();
                 break;
+            case GET_HISTORY:
+            	command = new GetHistoryByUsername();
+            case GET_RANKING:
+            	command = new GetRanking();
             default:
                 throw new IllegalArgumentException("Unknown command");
         }

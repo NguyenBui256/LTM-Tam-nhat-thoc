@@ -10,9 +10,9 @@ public abstract class DAO {
     public DAO() {
         try {
 
-        	String url = "jdbc:mysql://localhost:3306/ltm?useSSL=false&serverTimezone=UTC";
+        	String url = "jdbc:mysql://localhost:3306/ltm?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
         	String user = "root";
-        	String pass = "nam2110do";
+        	String pass = "123456";
             conn = DriverManager.getConnection(url, user, pass);
         } catch (SQLException e) {
             System.err.println("Database connection failed: " + e.getMessage());
