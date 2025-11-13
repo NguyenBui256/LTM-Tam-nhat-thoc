@@ -50,13 +50,13 @@ public class UserDAO extends DAO {
 		return false;
 	}
 	public List<Game> getHistoryByUsername(String username) {
-	    String sql = """
-	        SELECT g.*
-	        FROM Game g
-	        JOIN User u1 ON u1.id = g.user1Id
-	        JOIN User u2 ON u2.id = g.user2Id
-	        WHERE u1.username = ? OR u2.username = ?
-	    """;
+		String sql = """
+			SELECT g.*
+			FROM game g
+			JOIN user u1 ON u1.id = g.userId_1
+			JOIN user u2 ON u2.id = g.userId_2
+			WHERE u1.username = ? OR u2.username = ?
+		""";
 	    List<Game> games = new ArrayList<>();
 	    try (PreparedStatement ps = conn.prepareStatement(sql)) {
 	        ps.setString(1, username);
