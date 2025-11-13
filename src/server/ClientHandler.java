@@ -84,8 +84,10 @@ public class ClientHandler extends Thread {
                 break;
             case GET_HISTORY:
             	command = new GetHistoryByUsername();
-            case GET_RANKING:
+            	break;
+            case GET_ONLINE_PLAYERS:
             	command = new GetRanking();
+            	break;
             default:
                 throw new IllegalArgumentException("Unknown command");
         }

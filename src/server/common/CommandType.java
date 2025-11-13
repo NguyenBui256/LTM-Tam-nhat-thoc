@@ -14,5 +14,6 @@ public enum CommandType {
     ,GET_LEADERBOARD,
     GET_HISTORY,
     GET_RANKING,
+    GET_ONLINE_PLAYERS,
     
 }

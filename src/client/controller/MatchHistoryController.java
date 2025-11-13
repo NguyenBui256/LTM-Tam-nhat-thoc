@@ -195,19 +195,41 @@ public class MatchHistoryController implements MessageListener {
     }
 
     public static class MatchRecord {
-        private final String opponent;
-        private final String result;
-        private final String score;
-        private final String eloChange;
-
+        private String opponent;
+        private String result;
+        private String score;
+        private String eloChange;
+        private String startTime;
         public MatchRecord(String opponent, String result, String score, String eloChange) {
             this.opponent = opponent;
             this.result = result;
             this.score = score;
             this.eloChange = eloChange;
         }
+        
+        public String getStartTime() {
+			return startTime;
+		}
+        public void setStartTime(String startTime) {
+        	this.startTime = startTime;
+        }
+		public void setOpponent(String opponent) {
+			this.opponent = opponent;
+		}
 
-        public String getOpponent() { return opponent; }
+		public void setResult(String result) {
+			this.result = result;
+		}
+
+		public void setScore(String score) {
+			this.score = score;
+		}
+
+		public void setEloChange(String eloChange) {
+			this.eloChange = eloChange;
+		}
+
+		public String getOpponent() { return opponent; }
         public String getResult() { return result; }
         public String getScore() { return score; }
         public String getEloChange() { return eloChange; }

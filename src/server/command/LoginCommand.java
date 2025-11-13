@@ -5,9 +5,10 @@ import server.OnlineUserManager;
 import server.dto.LoginRequest;
 import server.dto.Message;
 import server.dto.Status;
+import server.model.User;
 import server.common.StatusType;
 import server.dao.UserDAO;
-
+import java.util.*;
 public class LoginCommand implements Command {
 	private UserDAO userdao = new UserDAO();
     @Override
@@ -16,6 +17,7 @@ public class LoginCommand implements Command {
         String username = login.getUsername();
         String password = login.getPassword();
         System.out.println("[SERVER] LOGIN command:" + username);
+        User u = new User();
         if (OnlineUserManager.isOnline(username)) {
             handler.sendMessage(new Message("LOGIN_RESPONSE", "SERVER", new Status(StatusType.ERROR, "User is already logged in")));
         } else {
@@ -23,11 +25,13 @@ public class LoginCommand implements Command {
         		handler.sendMessage(new Message("LOGIN_RESPONSE","SERVER", new Status(StatusType.ERROR,"Password or username is incorrect!")));
         	}
             handler.setUsername(username);
+            u.setUsername(username);
+            u.setStatus("ONLINE");
             OnlineUserManager.addOnlineUser(username, handler);
             handler.sendMessage(new Message("LOGIN_RESPONSE","SERVER", new Status(StatusType.SUCCESS, "Login success")));
             for (ClientHandler h : OnlineUserManager.getAllHandlers()) {
                 if (h != handler) {
-                    h.sendMessage(new Message("SERVER", username));
+                	h.sendMessage(new Message("PLAYER_STATUS_CHANGE","SERVER", Map.of("name", username, "status", "ONLINE")));
                 }
             }
         }

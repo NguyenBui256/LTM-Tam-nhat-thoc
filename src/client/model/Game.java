@@ -1,10 +1,10 @@
-package server.model;
+package client.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class Game implements Serializable {
-    private static final long serialVersionUID = 99L;
+	private static final long serialVersionUID = 99L;
     private String id;
     private String userId_1;
     private String userId_2;

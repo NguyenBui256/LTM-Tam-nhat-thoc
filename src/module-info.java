@@ -10,6 +10,7 @@ module BTL_LTM {
     requires javafx.fxml;
     requires javafx.base;
 	requires java.sql;
+	opens server.dto to javafx.base, javafx.fxml;
     opens client to javafx.graphics, javafx.fxml;
     opens client.controller to javafx.fxml;
     exports client;
