@@ -91,7 +91,7 @@ public class ClientHandler extends Thread {
             default:
                 throw new IllegalArgumentException("Unknown command");
         }
-
+        
         command.execute(this, msg);
     }
 }

@@ -12,6 +12,6 @@ public class LogoutCommand implements Command {
         String username = handler.getUsername();
         OnlineUserManager.removeOnlineUser(username);
         handler.sendMessage(new Message("LOGOUT_RESPONSE", "SERVER", new Status(StatusType.SUCCESS, "Logout success")));
-        handler.close();
+        //handler.close();
     }
 }

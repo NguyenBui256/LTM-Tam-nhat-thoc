@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import server.model.User;
+import server.dto.PlayerRank;
 import server.model.Game;
 import server.dto.PlayerStatus;
 
@@ -95,6 +96,35 @@ public class UserDAO extends DAO {
 			e.printStackTrace();
 		}
 		return ranking;
+	}
+	public List<PlayerRank> getAllUser() {
+		List<PlayerRank> users = new ArrayList<>();
+		String sql = "SELECT \r\n"
+				+ "    u.username AS name,\r\n"
+				+ "    u.elo,\r\n"
+				+ "    COALESCE(SUM(CASE WHEN g.winnerId = u.id THEN 1 ELSE 0 END), 0) AS wins\r\n"
+				+ "FROM \r\n"
+				+ "    User u\r\n"
+				+ "LEFT JOIN \r\n"
+				+ "    game g ON u.id IN (g.userId_1, g.userId_2)\r\n"
+				+ "WHERE \r\n"
+				+ "    u.username != 'admin'\r\n"
+				+ "GROUP BY \r\n"
+				+ "    u.username, u.elo\r\n"
+				+ "ORDER BY \r\n"
+				+ "    u.elo DESC;";
+		try(PreparedStatement ps = conn.prepareStatement(sql)){
+			
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				PlayerRank u = new PlayerRank(rs.getString("name"),"OFFLINE",rs.getInt("elo"),rs.getInt("wins"));
+				users.add(u);
+				System.out.println("UserDAO" + u.getName());
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return users;
 	}
 
 }

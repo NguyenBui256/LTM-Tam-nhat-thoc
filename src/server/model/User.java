@@ -10,6 +10,14 @@ public class User implements Serializable {
 	private String email;
 	private String name;
 	private int elo;
+	private String status;
+	
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
 	public String getId() {
 		return id;
 	}
@@ -61,6 +69,9 @@ public class User implements Serializable {
 		this.password = password;
 		this.email = email;
 		this.name = name;
+	}
+	public User() {
+		// TODO Auto-generated constructor stub
 	}
 
 }
