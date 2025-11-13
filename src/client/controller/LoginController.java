@@ -41,6 +41,8 @@ public class LoginController implements MessageListener {
     private Label lblLoginError;
 
     private Network network;
+    // Tên người chơi hiện tại (được gán khi nhấn Login)
+    private String currentUser;
 
     public void setNetwork(Network network) {
         this.network = network;
@@ -60,6 +62,9 @@ public class LoginController implements MessageListener {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
+        // Lưu lại username để truyền sang màn hình khác sau khi đăng nhập thành công
+        this.currentUser = username;
+
         if (username.isEmpty() || password.isEmpty()) {
             System.out.println("[LoginController] Username or password is empty.");
             showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
@@ -75,7 +80,8 @@ public class LoginController implements MessageListener {
             System.err.println("[LoginController] Error sending login request: " + e.getMessage());
             e.printStackTrace();
             Platform.runLater(() -> {
-                showAlert(Alert.AlertType.ERROR, "Lỗi Gửi Yêu Cầu", "Không thể gửi yêu cầu đăng nhập đến server: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Lỗi Gửi Yêu Cầu",
+                        "Không thể gửi yêu cầu đăng nhập đến server: " + e.getMessage());
             });
         }
     }
@@ -85,7 +91,9 @@ public class LoginController implements MessageListener {
         System.out.println("[LoginController] Received message: command=" + (msg != null ? msg.getCommand() : "null"));
         if (msg != null && "LOGIN_RESPONSE".equals(msg.getCommand())) {
             Status status = (Status) msg.getContent();
-            System.out.println("[LoginController] LOGIN_RESPONSE received: status=" + (status != null ? status.getType() : "null") + ", content=" + (status != null ? status.getContent() : "null"));
+            System.out.println(
+                    "[LoginController] LOGIN_RESPONSE received: status=" + (status != null ? status.getType() : "null")
+                            + ", content=" + (status != null ? status.getContent() : "null"));
 
             Platform.runLater(() -> {
                 if (status != null && status.getType() == StatusType.SUCCESS) {
@@ -97,20 +105,34 @@ public class LoginController implements MessageListener {
 
                         MainLobbyController controller = loader.getController();
                         controller.setNetwork(this.network);
+                        // Truyền Stage cho MainLobbyController để InviteNotificationManager hoạt động
+                        Stage stage = (Stage) loginButton.getScene().getWindow();
+                        controller.setPrimaryStage(stage);
+                        // Lưu username vào Network để tái sử dụng khi chuyển màn hình
+                        if (this.network != null)
+                            this.network.setCurrentUser(this.currentUser);
+                        // Truyền tên người dùng đã đăng nhập cho MainLobbyController (dự phòng)
+                        controller.setCurrentUser(this.currentUser);
+                        controller.setPrimaryStage(stage);
+                        stage.setScene(new Scene(root));
+                        stage.setTitle("Main Lobby");
+                        stage.show();
                         System.out.println("[LoginController] Network passed to MainLobbyController.");
 
                         network.removeMessageListener(this);
                         System.out.println("[LoginController] Listener removed from Network.");
 
-                        Stage stage = (Stage) loginButton.getScene().getWindow();
-                        stage.setScene(new Scene(root));
-                        stage.setTitle("Main Lobby");
-                        stage.show();
+                        // Stage stage = (Stage) loginButton.getScene().getWindow(); // This line is
+                        // removed
+                        // stage.setScene(new Scene(root)); // This line is removed
+                        // stage.setTitle("Main Lobby"); // This line is removed
+                        // stage.show(); // This line is removed
                         System.out.println("[LoginController] Switched to Main Lobby scene.");
                     } catch (IOException e) {
                         System.err.println("[LoginController] Error loading main_lobby.fxml: " + e.getMessage());
                         e.printStackTrace();
-                        showAlert(Alert.AlertType.ERROR, "Lỗi Giao Diện", "Không thể tải màn hình chính: " + e.getMessage());
+                        showAlert(Alert.AlertType.ERROR, "Lỗi Giao Diện",
+                                "Không thể tải màn hình chính: " + e.getMessage());
                     }
                 } else {
                     String error = status != null ? status.getContent() : "Phản hồi từ server không hợp lệ";
@@ -120,7 +142,8 @@ public class LoginController implements MessageListener {
                 }
             });
         } else {
-            System.out.println("[LoginController] Ignored message: command=" + (msg != null ? msg.getCommand() : "null"));
+            System.out
+                    .println("[LoginController] Ignored message: command=" + (msg != null ? msg.getCommand() : "null"));
         }
     }
 
@@ -158,7 +181,8 @@ public class LoginController implements MessageListener {
 
     private void showAlert(Alert.AlertType type, String title, String message) {
         Platform.runLater(() -> {
-            System.out.println("[LoginController] Showing alert: type=" + type + ", title=" + title + ", message=" + message);
+            System.out.println(
+                    "[LoginController] Showing alert: type=" + type + ", title=" + title + ", message=" + message);
             Alert alert = new Alert(type);
             alert.setTitle(title);
             alert.setHeaderText(null);

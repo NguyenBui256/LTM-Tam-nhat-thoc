@@ -19,18 +19,39 @@ import java.util.List;
 
 public class MatchHistoryController implements MessageListener {
 
-    @FXML private TableView<MatchRecord> matchTable;
-    @FXML private TableColumn<MatchRecord, String> opponentColumn;
-    @FXML private TableColumn<MatchRecord, String> resultColumn;
-    @FXML private TableColumn<MatchRecord, String> scoreColumn;
-    @FXML private TableColumn<MatchRecord, String> eloChangeColumn;
-    @FXML private Pagination pagination;
-    @FXML private Label totalLabel;
-    @FXML private Button backButton; // Thêm nút quay lại
+    @FXML
+    private TableView<MatchRecord> matchTable;
+    @FXML
+    private TableColumn<MatchRecord, String> opponentColumn;
+    @FXML
+    private TableColumn<MatchRecord, String> resultColumn;
+    @FXML
+    private TableColumn<MatchRecord, String> scoreColumn;
+    @FXML
+    private TableColumn<MatchRecord, String> eloChangeColumn;
+    @FXML
+    private Pagination pagination;
+    @FXML
+    private Label totalLabel;
+    @FXML
+    private Button backButton; // Thêm nút quay lại
 
     private static final int ROWS_PER_PAGE = 8;
     private ObservableList<MatchRecord> allMatches;
     private Network network;
+    // Tên người chơi hiện tại (nếu cần)
+    private String currentUser;
+
+    public void setCurrentUser(String currentUser) {
+        this.currentUser = currentUser;
+        System.out.println("[MatchHistoryController] currentUser set to: " + currentUser);
+        // update total label to include current user if UI ready
+        Platform.runLater(() -> {
+            if (totalLabel != null) {
+                totalLabel.setText((currentUser != null ? "Người chơi: " + currentUser + " — " : "") + "Tổng số trận đấu: " + (allMatches == null ? 0 : allMatches.size()));
+            }
+        });
+    }
 
     public void setNetwork(Network network) {
         this.network = network;
@@ -90,16 +111,19 @@ public class MatchHistoryController implements MessageListener {
 
     @Override
     public void onMessageReceived(Message msg) {
-        System.out.println("[MatchHistoryController] Received message: command=" + (msg != null ? msg.getCommand() : "null"));
+        System.out.println(
+                "[MatchHistoryController] Received message: command=" + (msg != null ? msg.getCommand() : "null"));
         if (msg != null && "HISTORY_RESPONSE".equals(msg.getCommand())) {
             List<MatchRecord> history = (List<MatchRecord>) msg.getContent();
-            System.out.println("[MatchHistoryController] HISTORY_RESPONSE received: records=" + (history != null ? history.size() : "null"));
+            System.out.println("[MatchHistoryController] HISTORY_RESPONSE received: records="
+                    + (history != null ? history.size() : "null"));
             if (history != null) {
                 Platform.runLater(() -> {
                     allMatches.setAll(history);
-                    totalLabel.setText("Tổng số trận đấu: " + allMatches.size());
+                    totalLabel.setText((currentUser != null ? "Người chơi: " + currentUser + " — " : "") + "Tổng số trận đấu: " + allMatches.size());
                     setupPagination();
-                    System.out.println("[MatchHistoryController] Updated history with " + allMatches.size() + " records");
+                    System.out
+                            .println("[MatchHistoryController] Updated history with " + allMatches.size() + " records");
                 });
             } else {
                 System.err.println("[MatchHistoryController] Error: History data is null");
@@ -108,7 +132,8 @@ public class MatchHistoryController implements MessageListener {
                 });
             }
         } else {
-            System.out.println("[MatchHistoryController] Ignored message: command=" + (msg != null ? msg.getCommand() : "null"));
+            System.out.println(
+                    "[MatchHistoryController] Ignored message: command=" + (msg != null ? msg.getCommand() : "null"));
         }
     }
 
@@ -124,11 +149,12 @@ public class MatchHistoryController implements MessageListener {
     private void updatePage(int pageIndex) {
         int fromIndex = pageIndex * ROWS_PER_PAGE;
         int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, allMatches.size());
-        ObservableList<MatchRecord> pageData =
-                FXCollections.observableArrayList(allMatches.subList(fromIndex, toIndex));
+        ObservableList<MatchRecord> pageData = FXCollections
+                .observableArrayList(allMatches.subList(fromIndex, toIndex));
         matchTable.setItems(pageData);
         matchTable.refresh();
-        System.out.println("[MatchHistoryController] Updated page " + pageIndex + ": " + (toIndex - fromIndex) + " records");
+        System.out.println(
+                "[MatchHistoryController] Updated page " + pageIndex + ": " + (toIndex - fromIndex) + " records");
     }
 
     private <T> void centerColumn(TableColumn<MatchRecord, T> column) {
@@ -153,10 +179,12 @@ public class MatchHistoryController implements MessageListener {
             Parent root = loader.load();
             MainLobbyController controller = loader.getController();
             controller.setNetwork(this.network);
+            // Truyền Stage để InviteNotificationManager có thể hiển thị popup
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            controller.setPrimaryStage(stage);
             System.out.println("[MatchHistoryController] main_lobby.fxml loaded successfully.");
 
             network.removeMessageListener(this);
-            Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Main Lobby");
             stage.show();
@@ -200,38 +228,52 @@ public class MatchHistoryController implements MessageListener {
         private String score;
         private String eloChange;
         private String startTime;
+
         public MatchRecord(String opponent, String result, String score, String eloChange) {
             this.opponent = opponent;
             this.result = result;
             this.score = score;
             this.eloChange = eloChange;
         }
-        
+
         public String getStartTime() {
-			return startTime;
-		}
-        public void setStartTime(String startTime) {
-        	this.startTime = startTime;
+            return startTime;
         }
-		public void setOpponent(String opponent) {
-			this.opponent = opponent;
-		}
 
-		public void setResult(String result) {
-			this.result = result;
-		}
+        public void setStartTime(String startTime) {
+            this.startTime = startTime;
+        }
 
-		public void setScore(String score) {
-			this.score = score;
-		}
+        public void setOpponent(String opponent) {
+            this.opponent = opponent;
+        }
 
-		public void setEloChange(String eloChange) {
-			this.eloChange = eloChange;
-		}
+        public void setResult(String result) {
+            this.result = result;
+        }
 
-		public String getOpponent() { return opponent; }
-        public String getResult() { return result; }
-        public String getScore() { return score; }
-        public String getEloChange() { return eloChange; }
+        public void setScore(String score) {
+            this.score = score;
+        }
+
+        public void setEloChange(String eloChange) {
+            this.eloChange = eloChange;
+        }
+
+        public String getOpponent() {
+            return opponent;
+        }
+
+        public String getResult() {
+            return result;
+        }
+
+        public String getScore() {
+            return score;
+        }
+
+        public String getEloChange() {
+            return eloChange;
+        }
     }
 }

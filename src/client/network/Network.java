@@ -1,5 +1,10 @@
 package client.network;
 
+import client.controller.InviteNotificationManager;
+import server.dto.InviteRequest;
+import server.dto.Message;
+import server.dto.Status;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -7,14 +12,15 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import server.dto.Message;
-
 public class Network {
     private Socket socket;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private List<MessageListener> listeners = new ArrayList<>();
     private boolean running = true;
+
+    // Lưu username hiện tại trên client để truyền giữa các màn hình
+    private String currentUser;
 
     public Network(String host, int port) throws IOException {
         this.socket = new Socket(host, port);
@@ -36,11 +42,57 @@ public class Network {
         listeners.remove(listener);
     }
 
+    public void setCurrentUser(String username) {
+        this.currentUser = username;
+    }
+
+    public String getCurrentUser() {
+        return currentUser;
+    }
+
     private void startListening() {
         Thread thread = new Thread(() -> {
             try {
                 while (running) {
                     Message msg = (Message) ois.readObject();
+
+                    // Kích hoạt thông báo toàn cục cho INVITE / ACCEPT_NOTIFY / REJECT_NOTIFY
+                    try {
+                        String cmd = msg.getCommand();
+                        if ("INVITE".equals(cmd)) {
+                            Object content = msg.getContent();
+                            String inviter = null;
+                            if (content instanceof InviteRequest req)
+                                inviter = req.getInviter();
+                            else if (content instanceof String s)
+                                inviter = s;
+                            else if (content instanceof Status st) {
+                                String c = st.getContent();
+                                if (c != null && !c.isBlank())
+                                    inviter = c.split("\\s+")[0];
+                            }
+                            if (inviter != null && !inviter.isBlank()) {
+                                try {
+                                    InviteNotificationManager.getInstance()
+                                            .showInvite(new InviteRequest(inviter, getCurrentUser()));
+                                } catch (Exception ignore) {
+                                }
+                            }
+                        } else if ("ACCEPT_NOTIFY".equals(cmd) || "REJECT_NOTIFY".equals(cmd)) {
+                            Object content = msg.getContent();
+                            String text = content instanceof String ? (String) content
+                                    : (content instanceof Status ? ((Status) content).getContent() : null);
+                            if (text != null && !text.isBlank()) {
+                                try {
+                                    InviteNotificationManager.getInstance().showSimpleNotification(text);
+                                } catch (Exception ignore) {
+                                }
+                            }
+                        }
+                    } catch (Throwable t) {
+                        // Ignore notification errors
+                    }
+
                     notifyListeners(msg);
                 }
             } catch (IOException | ClassNotFoundException e) {

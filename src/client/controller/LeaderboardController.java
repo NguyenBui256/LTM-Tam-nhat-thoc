@@ -49,6 +49,14 @@ public class LeaderboardController implements MessageListener {
     private ObservableList<PlayerStatus> filteredPlayers;
     private static final int ROWS_PER_PAGE = 8;
     private Network network;
+    // Tên người chơi hiện tại (nếu cần hiển thị/logic)
+    private String currentUser;
+
+    public void setCurrentUser(String currentUser) {
+        this.currentUser = currentUser;
+        System.out.println("[LeaderboardController] currentUser set to: " + currentUser);
+        if (leaderboardTable != null) leaderboardTable.refresh();
+    }
 
     public void setNetwork(Network network) {
         this.network = network;
@@ -71,6 +79,22 @@ public class LeaderboardController implements MessageListener {
                 cellData -> new javafx.beans.property.SimpleIntegerProperty(getIndex(cellData.getValue()) + 1)
                         .asObject());
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
+        // mark current user in the leaderboard
+        nameColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String name, boolean empty) {
+                super.updateItem(name, empty);
+                if (empty || name == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    if (currentUser != null && currentUser.equals(name))
+                        setText(name + " (Bạn)");
+                    else
+                        setText(name);
+                }
+            }
+        });
         eloColumn.setCellValueFactory(new PropertyValueFactory<>("elo"));
         // winsColumn now bound to PlayerStatus.wins
         winsColumn.setCellValueFactory(new PropertyValueFactory<>("wins"));
@@ -104,6 +128,22 @@ public class LeaderboardController implements MessageListener {
 
         // Nút quay lại
         backButton.setOnAction(e -> onBackClicked());
+
+        // Highlight the current user row with a different background
+        leaderboardTable.setRowFactory(tv -> new TableRow<>() {
+            @Override
+            protected void updateItem(PlayerStatus item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setStyle("");
+                } else if (currentUser != null && currentUser.equals(item.getUsername())) {
+                    // light green background for self
+                    setStyle("-fx-background-color: #e8f5e9;");
+                } else {
+                    setStyle("");
+                }
+            }
+        });
     }
 
     private void requestRanking() {
@@ -208,12 +248,14 @@ public class LeaderboardController implements MessageListener {
             Parent root = loader.load();
             MainLobbyController controller = loader.getController();
             controller.setNetwork(this.network);
+            // Truyền Stage để InviteNotificationManager có thể hiển thị popup
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            controller.setPrimaryStage(stage);
             System.out.println("[LeaderboardController] main_lobby.fxml loaded successfully.");
 
             network.removeMessageListener(this);
             System.out.println("[LeaderboardController] Listener removed for MainLobbyController.");
 
-            Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Main Lobby");
             stage.show();

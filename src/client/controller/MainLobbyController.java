@@ -2,7 +2,7 @@ package client.controller;
 
 import client.network.MessageListener;
 import client.network.Network;
-import client.controller.InviteNotificationManager;  // ✅ THÊM IMPORT
+import client.controller.InviteNotificationManager; // ✅ THÊM IMPORT
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,15 +20,23 @@ import java.io.IOException;
 
 public class MainLobbyController implements MessageListener {
 
-    @FXML private Label playerInfo;
-    @FXML private Button btnOnline;
-    @FXML private Button btnRanking;
-    @FXML private Button btnHistory;
-    @FXML private Button btnLogout;
-    @FXML private Button btnTestInvite; // Nút test
+    @FXML
+    private Label playerInfo;
+    @FXML
+    private Button btnOnline;
+    @FXML
+    private Button btnRanking;
+    @FXML
+    private Button btnHistory;
+    @FXML
+    private Button btnLogout;
+    @FXML
+    private Button btnTestInvite; // Nút test
 
     private Network network;
-    private Stage primaryStage;  // ✅ THÊM: Lưu Stage chính
+    private Stage primaryStage; // ✅ THÊM: Lưu Stage chính
+    // Tên người chơi hiện tại được truyền từ LoginController
+    private String currentUser;
 
     // ✅ THÊM: Set Stage từ nơi load FXML (LoginController hoặc MainTest)
     public void setPrimaryStage(Stage stage) {
@@ -40,9 +48,19 @@ public class MainLobbyController implements MessageListener {
 
     public void setNetwork(Network network) {
         this.network = network;
+        InviteNotificationManager.getInstance().setNetwork(network);
         if (this.network != null) {
             this.network.addMessageListener(this);
             System.out.println("[MainLobbyController] Network set successfully and listener registered.");
+            // Nếu Network chứa username (được set sau khi đăng nhập), truyền luôn vào
+            // controller
+            try {
+                String nu = this.network.getCurrentUser();
+                if (nu != null && !nu.isBlank()) {
+                    setCurrentUser(nu);
+                }
+            } catch (Exception ignore) {
+            }
         } else {
             System.err.println("[MainLobbyController] Error: Network is null, cannot set up connection.");
             Platform.runLater(() -> {
@@ -51,11 +69,18 @@ public class MainLobbyController implements MessageListener {
         }
     }
 
+    // Được gọi từ LoginController để truyền tên người chơi hiện tại
+    public void setCurrentUser(String currentUser) {
+        this.currentUser = currentUser;
+        System.out.println("[MainLobbyController] currentUser set to: " + currentUser);
+        // Cập nhật thông tin hiển thị nếu UI đã được khởi tạo
+        if (playerInfo != null && currentUser != null && !currentUser.isBlank()) {
+            playerInfo.setText("Xin chào, " + currentUser);
+        }
+    }
+
     @FXML
     public void initialize() {
-        // 👤 Gán thông tin người chơi sau khi đăng nhập
-        playerInfo.setText("Xin chào, Nguyen Van A | Elo: 1800 | Hạng: #25");
-        System.out.println("[MainLobbyController] Initialized with player info: Nguyen Van A");
 
         // 👉 Điều hướng sang các màn hình khác
         btnOnline.setOnAction(e -> openPlayerList());
@@ -66,7 +91,7 @@ public class MainLobbyController implements MessageListener {
     }
 
     @FXML
-    public void testInvite() {  // ✅ ĐỔI: public thay vì private để FXML nhận diện
+    public void testInvite() { // ✅ ĐỔI: public thay vì private để FXML nhận diện
         System.out.println("[MainLobby] Bắt đầu test 3 lời mời giả lập...");
 
         // Kiểm tra Stage đã set chưa
@@ -74,20 +99,6 @@ public class MainLobbyController implements MessageListener {
             System.err.println("[MainLobby] PrimaryStage chưa được set! Gọi setPrimaryStage() trước.");
             return;
         }
-
-        // Giả lập 3 lời mời với độ trễ
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                Platform.runLater(() -> InviteNotificationManager.getInstance().showInvite("DragonKing"));
-
-                Thread.sleep(800);
-                Platform.runLater(() -> InviteNotificationManager.getInstance().showInvite("NinjaShadow"));
-
-                Thread.sleep(800);
-                Platform.runLater(() -> InviteNotificationManager.getInstance().showInvite("PhoenixRise"));
-            } catch (InterruptedException ignored) {}
-        }).start();
     }
 
     // Các phương thức điều hướng (giữ nguyên)
@@ -98,8 +109,10 @@ public class MainLobbyController implements MessageListener {
             Parent root = loader.load();
             PlayerListController controller = loader.getController();
             controller.setNetwork(this.network);
+            // Truyền tên user hiện tại sang PlayerListController (nếu có)
+            controller.setCurrentUser(this.currentUser);
             // ✅ Truyền Stage cho controller mới nếu cần
-            if (controller instanceof HasPrimaryStage) {  // Interface tùy chọn
+            if (controller instanceof HasPrimaryStage) { // Interface tùy chọn
                 ((HasPrimaryStage) controller).setPrimaryStage(primaryStage);
             }
             System.out.println("[MainLobbyController] player_list.fxml loaded successfully.");
@@ -128,6 +141,7 @@ public class MainLobbyController implements MessageListener {
             Parent root = loader.load();
             LeaderboardController controller = loader.getController();
             controller.setNetwork(this.network);
+            controller.setCurrentUser(this.currentUser);
             System.out.println("[MainLobbyController] ranking.fxml loaded successfully.");
 
             network.removeMessageListener(this);
@@ -154,6 +168,7 @@ public class MainLobbyController implements MessageListener {
             Parent root = loader.load();
             MatchHistoryController controller = loader.getController();
             controller.setNetwork(this.network);
+            controller.setCurrentUser(this.currentUser);
             System.out.println("[MainLobbyController] history.fxml loaded successfully.");
 
             network.removeMessageListener(this);
@@ -173,7 +188,7 @@ public class MainLobbyController implements MessageListener {
         }
     }
 
-    private void logout(ActionEvent event) {  // ✅ SỬA: import ActionEvent
+    private void logout(ActionEvent event) { // ✅ SỬA: import ActionEvent
         System.out.println("[MainLobbyController] Logging out...");
         try {
             Message msg = new Message("LOGOUT", "CLIENT", null);
@@ -190,54 +205,84 @@ public class MainLobbyController implements MessageListener {
 
     @Override
     public void onMessageReceived(Message msg) {
-        System.out.println("[MainLobbyController] Received message: command=" + (msg != null ? msg.getCommand() : "null"));
-        if (msg != null && "LOGOUT_RESPONSE".equals(msg.getCommand())) {
-            Status status = (Status) msg.getContent();
-            System.out.println("[MainLobbyController] LOGOUT_RESPONSE received: status=" + (status != null ? status.getType() : "null") + ", content=" + (status != null ? status.getContent() : "null"));
-            if (status != null) {
+        System.out.println(
+                "[MainLobbyController] Received message: command=" + (msg != null ? msg.getCommand() : "null"));
+        if (msg == null)
+            return;
+        switch (msg.getCommand()) {
+            case "ACCEPT_NOTIFY" -> {
+                String content = msg.getContent() instanceof String ? (String) msg.getContent()
+                        : "Đối phương đã chấp nhận lời mời. Vào phòng chờ...";
                 Platform.runLater(() -> {
-                    if (status.getType() == StatusType.SUCCESS) {
-                        System.out.println("[MainLobbyController] Logout successful, switching to login screen...");
+                    try {
                         try {
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/waiting_room.fxml"));
                             Parent root = loader.load();
-                            LoginController controller = loader.getController();
-                            controller.setNetwork(this.network);
-                            System.out.println("[MainLobbyController] login.fxml loaded successfully.");
-
-                            network.removeMessageListener(this);
-                            System.out.println("[MainLobbyController] Listener removed for LoginController.");
-
-                            Stage stage = (Stage) btnLogout.getScene().getWindow();
-                            stage.setScene(new Scene(root));
-                            stage.setTitle("Login");
-                            stage.show();
-                            System.out.println("[MainLobbyController] Switched to Login scene.");
+                            WaitingRoomController controller = loader.getController();
+                            // Optionally pass network to waiting room: controller.setNetwork(network);
+                            primaryStage.setScene(new Scene(root));
+                            primaryStage.setTitle("Waiting Room");
+                            primaryStage.show();
                         } catch (IOException e) {
-                            System.err.println("[MainLobbyController] Error loading login.fxml: " + e.getMessage());
-                            e.printStackTrace();
-                            showAlert("Lỗi Giao Diện", "Không thể tải màn hình đăng nhập: " + e.getMessage());
+                            System.err.println("Lỗi load waiting_room.fxml: " + e.getMessage());
                         }
-                    } else {
-                        System.err.println("[MainLobbyController] Logout failed: " + status.getContent());
-                        showAlert("Lỗi Đăng Xuất", "Đăng xuất thất bại: " + status.getContent());
+                    } catch (Exception e) {
+                        // fallback to simple alert/notification
+                        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                                javafx.scene.control.Alert.AlertType.INFORMATION);
+                        alert.setTitle("Đã chấp nhận lời mời");
+                        alert.setHeaderText(null);
+                        alert.setContentText(content);
+                        alert.showAndWait();
                     }
                 });
-            } else {
-                System.err.println("[MainLobbyController] Error: Status is null in LOGOUT_RESPONSE");
+            }
+            case "REJECT_NOTIFY" -> {
+                String content = msg.getContent() instanceof String ? (String) msg.getContent()
+                        : "Đối phương đã từ chối lời mời.";
                 Platform.runLater(() -> {
-                    showAlert("Lỗi Dữ Liệu", "Phản hồi từ server không hợp lệ.");
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                            javafx.scene.control.Alert.AlertType.INFORMATION);
+                    alert.setTitle("Đã từ chối lời mời");
+                    alert.setHeaderText(null);
+                    alert.setContentText(content);
+                    alert.showAndWait();
                 });
             }
-        } else {
-            System.out.println("[MainLobbyController] Ignored message: command=" + (msg != null ? msg.getCommand() : "null"));
+            // Các xử lý cũ giữ nguyên bên dưới
+            case "LOGOUT_RESPONSE" -> {
+                Status status = (Status) msg.getContent();
+                System.out.println("[MainLobbyController] LOGOUT_RESPONSE received: status="
+                        + (status != null ? status.getType() : "null") + ", content="
+                        + (status != null ? status.getContent() : "null"));
+                if (status != null) {
+                    Platform.runLater(() -> {
+                        if (status.getType() == StatusType.SUCCESS) {
+                            System.out.println("[MainLobbyController] Logout successful, switching to login screen...");
+                            try {
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+                                Parent root = loader.load();
+                                Stage stage = (Stage) btnLogout.getScene().getWindow();
+                                stage.setScene(new Scene(root));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                showAlert("Lỗi", "Không thể trở về màn hình đăng nhập." + ex.getMessage());
+                            }
+                        } else {
+                            showAlert("Lỗi Đăng Xuất", status.getContent());
+                        }
+                    });
+                }
+            }
+            // Bạn có thể bổ sung thêm các trường hợp khác nếu cần
         }
     }
 
     private void showAlert(String title, String message) {
         Platform.runLater(() -> {
             System.out.println("[MainLobbyController] Showing alert: title=" + title + ", message=" + message);
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.ERROR);
             alert.setTitle(title);
             alert.setHeaderText(null);
             alert.setContentText(message);

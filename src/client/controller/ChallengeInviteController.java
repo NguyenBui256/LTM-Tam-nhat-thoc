@@ -1,5 +1,6 @@
 package client.controller;
 
+import client.network.MessageListener;
 import client.network.Network;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -10,20 +11,36 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import server.dto.Message;
+import server.dto.InviteRequest;
+import server.dto.Status;
+import server.common.StatusType;
+import javafx.stage.Window;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import client.controller.WaitingRoomController;
 
 import java.io.IOException;
 
-public class ChallengeInviteController {
+public class ChallengeInviteController implements MessageListener {
 
-    @FXML private ImageView avatarImage;
-    @FXML private Label playerName;
-    @FXML private Label playerElo;
-    @FXML private Text inviteText;
-    @FXML private Button acceptButton;
-    @FXML private Button declineButton;
+    @FXML
+    private ImageView avatarImage;
+    @FXML
+    private Label playerName;
+    @FXML
+    private Label playerElo;
+    @FXML
+    private Text inviteText;
+    @FXML
+    private Button acceptButton;
+    @FXML
+    private Button declineButton;
 
     private Network network;
     private String inviter;
+    private InviteRequest inviteRequest;
+    private Stage primaryStage;
 
     // Gọi từ InviteNotificationManager
     public void setInviterInfo(String inviter, String elo, String message) {
@@ -41,24 +58,41 @@ public class ChallengeInviteController {
         this.network = network;
     }
 
+    public void setInviteRequest(InviteRequest req) {
+        this.inviteRequest = req;
+        this.inviter = req.getInviter();
+        Platform.runLater(() -> {
+            playerName.setText(inviter);
+            playerElo.setText("");
+            inviteText.setText(inviter + " đã mời bạn tham gia trận đấu. Bạn có muốn chấp nhận?");
+            avatarImage.setImage(new Image(getClass().getResourceAsStream("/images/user-interface.png")));
+            if (!acceptButton.getScene().getWindow().isShowing()) {
+                ((Stage) acceptButton.getScene().getWindow()).show();
+            }
+        });
+    }
+
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+    }
+
     @FXML
     private void onAcceptClicked() {
-        sendResponse("ACCEPT_INVITE");
+        sendResponse("ACCEPT");
         closeDialog();
     }
 
     @FXML
     private void onDeclineClicked() {
-        sendResponse("DECLINE_INVITE");
+        sendResponse("REJECT");
         closeDialog();
     }
 
     private void sendResponse(String command) {
-        if (network != null && inviter != null) {
+        if (network != null && inviteRequest != null) {
             try {
-                Message msg = new Message(command, inviter, null);
+                Message msg = new Message(command, "CLIENT", inviteRequest);
                 network.send(msg);
-                System.out.println("[ChallengeInviteController] Gửi " + command + " tới " + inviter);
             } catch (IOException e) {
                 System.err.println("Lỗi gửi phản hồi lời mời: " + e.getMessage());
                 e.printStackTrace();
@@ -69,5 +103,89 @@ public class ChallengeInviteController {
     private void closeDialog() {
         Stage stage = (Stage) acceptButton.getScene().getWindow();
         stage.close();
+    }
+
+    @Override
+    public void onMessageReceived(Message msg) {
+        if (msg == null)
+            return;
+
+        switch (msg.getCommand()) {
+            case "ACCEPT_RESPONSE" -> handleAccept(msg);
+            case "REJECT_RESPONSE" -> handleReject(msg);
+        }
+    }
+
+    private void handleAccept(Message msg) {
+        if (msg == null)
+            return;
+        Object content = msg.getContent();
+        if (content instanceof Status st) {
+            if (st.getType() == StatusType.SUCCESS) {
+                // Close dialog and navigate to waiting room (owner stage)
+                Platform.runLater(() -> {
+                    try {
+                        // close this invite dialog
+                        closeDialog();
+
+                        // switch main stage to waiting room if available
+                        if (primaryStage != null) {
+                            try {
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/waiting_room.fxml"));
+                                Parent root = loader.load();
+                                WaitingRoomController controller = loader.getController();
+                                // Optionally pass network to waiting room: controller.setNetwork(network);
+                                primaryStage.setScene(new Scene(root));
+                                primaryStage.setTitle("Waiting Room");
+                                primaryStage.show();
+                            } catch (IOException e) {
+                                System.err.println("Lỗi load waiting_room.fxml: " + e.getMessage());
+                                InviteNotificationManager.getInstance()
+                                        .showSimpleNotification("Đã chấp nhận. Vào phòng chờ...");
+                            }
+                        } else {
+                            InviteNotificationManager.getInstance()
+                                    .showSimpleNotification("Đã chấp nhận. Vào phòng chờ...");
+                        }
+                        // Unregister listener now that we've handled server response
+                        try {
+                            if (network != null)
+                                network.removeMessageListener(this);
+                        } catch (Exception ignore) {
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            } else {
+                Platform.runLater(() -> {
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                            javafx.scene.control.Alert.AlertType.ERROR);
+                    alert.setTitle("Không thể chấp nhận");
+                    alert.setHeaderText(null);
+                    alert.setContentText(st.getContent());
+                    alert.showAndWait();
+                });
+            }
+        }
+    }
+
+    private void handleReject(Message msg) {
+        if (msg == null)
+            return;
+        Object content = msg.getContent();
+        if (content instanceof Status st) {
+            Platform.runLater(() -> {
+                // Close dialog and show simple notification
+                closeDialog();
+                String text = st.getContent() != null && !st.getContent().isBlank() ? st.getContent() : "Đã từ chối.";
+                InviteNotificationManager.getInstance().showSimpleNotification(text);
+                try {
+                    if (network != null)
+                        network.removeMessageListener(this);
+                } catch (Exception ignore) {
+                }
+            });
+        }
     }
 }

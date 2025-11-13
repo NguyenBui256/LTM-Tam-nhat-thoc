@@ -1,12 +1,11 @@
 package client.controller;
 
-
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import client.network.Network;
 
 /**
  * Controller cho màn hình phòng chờ (Waiting Room).
@@ -14,19 +13,35 @@ import javafx.scene.layout.VBox;
  */
 public class WaitingRoomController {
 
-    @FXML private Label player1Name;
-    @FXML private Label player1Elo;
-    @FXML private Label player1Status;
+    private Network network;
 
-    @FXML private Label player2Name;
-    @FXML private Label player2Elo;
-    @FXML private Label player2Status;
+    public void setNetwork(Network network) {
+        this.network = network;
+    }
 
-    @FXML private Label waitingLabel;
-    @FXML private Button exitButton;
+    @FXML
+    private Label player1Name;
+    @FXML
+    private Label player1Elo;
+    @FXML
+    private Label player1Status;
 
-    @FXML private VBox player1Box;
-    @FXML private VBox player2Box;
+    @FXML
+    private Label player2Name;
+    @FXML
+    private Label player2Elo;
+    @FXML
+    private Label player2Status;
+
+    @FXML
+    private Label waitingLabel;
+    @FXML
+    private Button exitButton;
+
+    @FXML
+    private VBox player1Box;
+    @FXML
+    private VBox player2Box;
 
     @FXML
     public void initialize() {
