@@ -83,13 +83,15 @@ public class ClientHandler extends Thread {
                 command = new RematchCommand();
                 break;
             case GET_HISTORY:
-            	command = new GetHistoryByUsername();
+                command = new GetHistoryByUsername();
+                break;
             case GET_RANKING:
-            	command = new GetRanking();
+                command = new GetRankingCommand();
+                break;
             default:
                 throw new IllegalArgumentException("Unknown command");
         }
-        
+
         command.execute(this, msg);
     }
 }

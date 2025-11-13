@@ -12,17 +12,15 @@ import java.util.Map;
  * Default credentials used: root / 123456. Change the URL/credentials below if your DB differs.
  */
 public class GameDAO extends DAO {
-    private static final String URL = "jdbc:mysql://localhost:3306/game_server?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASS = "nam2110do";
-
     public GameDAO() {
-        try {
-            conn = DriverManager.getConnection(URL, USER, PASS);
-            ensureTables();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            conn = null;
+        if (conn != null) {
+            try {
+                ensureTables();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("[GameDAO] Warning: inherited DB connection is null. Ensure DAO can connect to DB.");
         }
     }
 
@@ -101,5 +99,24 @@ public class GameDAO extends DAO {
             e.printStackTrace();
         }
         return out;
+    }
+
+    public Map<String, Integer> getWinsForAllUsers() {
+        // Count wins by joining game.winnerId to user.id
+        String sql = "SELECT u.username, COALESCE(COUNT(g.id),0) AS wins "
+                + "FROM user u LEFT JOIN game g ON g.winnerId = u.id "
+                + "GROUP BY u.id";
+        Map<String, Integer> map = new HashMap<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String username = rs.getString("username");
+                int wins = rs.getInt("wins");
+                map.put(username, wins);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 }

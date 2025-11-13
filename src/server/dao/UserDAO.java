@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import server.model.User;
 import server.model.Game;
+import server.dto.PlayerStatus;
+
 public class UserDAO extends DAO {
 	public boolean insertUser(User user) {
 		String sql = "INSERT INTO User(username,password,email,name,elo) VALUES(?,?,?,?,?)";
@@ -74,7 +76,25 @@ public class UserDAO extends DAO {
 	        e.printStackTrace();
 	    }
 
-	    return games;
+		return games;
+	}
+
+	public List<PlayerStatus> getRanking() {
+		String sql = "SELECT username, elo FROM user ORDER BY elo DESC";
+		List<PlayerStatus> ranking = new ArrayList<>();
+		try (PreparedStatement ps = conn.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				String username = rs.getString("username");
+				int elo = rs.getInt("elo");
+				// default status will be resolved by server-side manager when needed
+				PlayerStatus p = new PlayerStatus(username, "OFFLINE", elo);
+				ranking.add(p);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ranking;
 	}
 
 }

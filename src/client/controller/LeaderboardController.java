@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.Region;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import server.dto.Message;
@@ -21,17 +22,28 @@ import java.util.List;
 
 public class LeaderboardController implements MessageListener {
 
-    @FXML private TableView<PlayerStatus> leaderboardTable;
-    @FXML private TableColumn<PlayerStatus, Integer> rankColumn;
-    @FXML private TableColumn<PlayerStatus, String> nameColumn;
-    @FXML private TableColumn<PlayerStatus, Integer> eloColumn;
-    @FXML private TableColumn<PlayerStatus, Integer> winsColumn; // Có thể bỏ nếu không cần
-    @FXML private Pagination pagination;
-    @FXML private ToggleButton scoreTab;
-    @FXML private ToggleButton winTab;
-    @FXML private TextField searchField;
-    @FXML private Button backButton;
-    @FXML private ToggleGroup tabGroup;
+    @FXML
+    private TableView<PlayerStatus> leaderboardTable;
+    @FXML
+    private TableColumn<PlayerStatus, Integer> rankColumn;
+    @FXML
+    private TableColumn<PlayerStatus, String> nameColumn;
+    @FXML
+    private TableColumn<PlayerStatus, Integer> eloColumn;
+    @FXML
+    private TableColumn<PlayerStatus, Integer> winsColumn; // Có thể bỏ nếu không cần
+    @FXML
+    private Pagination pagination;
+    @FXML
+    private ToggleButton scoreTab;
+    @FXML
+    private ToggleButton winTab;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private Button backButton;
+    @FXML
+    private ToggleGroup tabGroup;
 
     private ObservableList<PlayerStatus> allPlayers;
     private ObservableList<PlayerStatus> filteredPlayers;
@@ -55,11 +67,13 @@ public class LeaderboardController implements MessageListener {
     @FXML
     public void initialize() {
         // Gán cột với thuộc tính
-        rankColumn.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(getIndex(cellData.getValue()) + 1).asObject());
+        rankColumn.setCellValueFactory(
+                cellData -> new javafx.beans.property.SimpleIntegerProperty(getIndex(cellData.getValue()) + 1)
+                        .asObject());
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         eloColumn.setCellValueFactory(new PropertyValueFactory<>("elo"));
-        // winsColumn giả lập vì PlayerStatus không có trường wins
-        winsColumn.setCellValueFactory(cellData -> new javafx.beans.property.SimpleIntegerProperty(0).asObject());
+        // winsColumn now bound to PlayerStatus.wins
+        winsColumn.setCellValueFactory(new PropertyValueFactory<>("wins"));
 
         // Tắt sắp xếp bằng click cột
         rankColumn.setSortable(false);
@@ -75,6 +89,8 @@ public class LeaderboardController implements MessageListener {
 
         // Cố định chiều cao bảng
         fixTableHeight();
+        if (pagination != null)
+            pagination.setVisible(false);
 
         // Cột tự chia đều
         leaderboardTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
@@ -106,15 +122,18 @@ public class LeaderboardController implements MessageListener {
 
     @Override
     public void onMessageReceived(Message msg) {
-        System.out.println("[LeaderboardController] Received message: command=" + (msg != null ? msg.getCommand() : "null"));
+        System.out.println(
+                "[LeaderboardController] Received message: command=" + (msg != null ? msg.getCommand() : "null"));
         if (msg != null && "RANKING_RESPONSE".equals(msg.getCommand())) {
             List<PlayerStatus> ranking = (List<PlayerStatus>) msg.getContent();
-            System.out.println("[LeaderboardController] RANKING_RESPONSE received: players=" + (ranking != null ? ranking.size() : "null"));
+            System.out.println("[LeaderboardController] RANKING_RESPONSE received: players="
+                    + (ranking != null ? ranking.size() : "null"));
             if (ranking != null) {
                 Platform.runLater(() -> {
                     allPlayers.setAll(ranking);
                     sortByElo();
-                    System.out.println("[LeaderboardController] Updated ranking with " + allPlayers.size() + " players");
+                    System.out
+                            .println("[LeaderboardController] Updated ranking with " + allPlayers.size() + " players");
                 });
             } else {
                 System.err.println("[LeaderboardController] Error: Ranking data is null");
@@ -123,18 +142,17 @@ public class LeaderboardController implements MessageListener {
                 });
             }
         } else {
-            System.out.println("[LeaderboardController] Ignored message: command=" + (msg != null ? msg.getCommand() : "null"));
+            System.out.println(
+                    "[LeaderboardController] Ignored message: command=" + (msg != null ? msg.getCommand() : "null"));
         }
     }
 
     private void fixTableHeight() {
         leaderboardTable.setFixedCellSize(35);
-        double headerHeight = 30;
-        leaderboardTable.prefHeightProperty().bind(
-                leaderboardTable.fixedCellSizeProperty().multiply(ROWS_PER_PAGE).add(headerHeight)
-        );
-        leaderboardTable.minHeightProperty().bind(leaderboardTable.prefHeightProperty());
-        leaderboardTable.maxHeightProperty().bind(leaderboardTable.prefHeightProperty());
+        // Let the table compute its preferred height and allow scrolling
+        leaderboardTable.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        leaderboardTable.setMinHeight(0);
+        leaderboardTable.setMaxHeight(Double.MAX_VALUE);
     }
 
     @FXML
@@ -156,38 +174,18 @@ public class LeaderboardController implements MessageListener {
         });
     }
 
-    private void setupPagination() {
-        int pageCount = (int) Math.ceil(filteredPlayers.size() * 1.0 / ROWS_PER_PAGE);
-        pagination.setPageCount(Math.max(pageCount, 1));
-        pagination.setCurrentPageIndex(0);
-        updatePage(0);
-
-        pagination.currentPageIndexProperty().addListener((obs, oldIndex, newIndex) ->
-                updatePage(newIndex.intValue()));
-        System.out.println("[LeaderboardController] Pagination set up with " + pageCount + " pages");
-    }
-
-    private void updatePage(int pageIndex) {
-        int start = pageIndex * ROWS_PER_PAGE;
-        int end = Math.min(start + ROWS_PER_PAGE, filteredPlayers.size());
-        if (start < end) {
-            leaderboardTable.setItems(FXCollections.observableArrayList(filteredPlayers.subList(start, end)));
-        } else {
-            leaderboardTable.setItems(FXCollections.observableArrayList());
-        }
-        leaderboardTable.refresh();
-        System.out.println("[LeaderboardController] Updated page " + pageIndex + ": " + (end - start) + " players");
-    }
+    // Pagination removed — using scroll to show all rows
 
     private void updateFiltered(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             filteredPlayers.setAll(allPlayers);
         } else {
             filteredPlayers.setAll(allPlayers.filtered(
-                    p -> p.getUsername().toLowerCase().contains(keyword.toLowerCase())
-            ));
+                    p -> p.getUsername().toLowerCase().contains(keyword.toLowerCase())));
         }
-        setupPagination();
+        // show all filtered players in the table (scrollable)
+        leaderboardTable.setItems(filteredPlayers);
+        leaderboardTable.refresh();
         System.out.println("[LeaderboardController] Filtered players: " + filteredPlayers.size());
     }
 
@@ -198,7 +196,8 @@ public class LeaderboardController implements MessageListener {
     }
 
     private int getIndex(PlayerStatus player) {
-        return allPlayers.indexOf(player);
+        // Show ranking index relative to the currently displayed (filtered) list
+        return filteredPlayers.indexOf(player);
     }
 
     @FXML

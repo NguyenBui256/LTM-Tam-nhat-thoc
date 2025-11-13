@@ -14,5 +14,7 @@ module BTL_LTM {
     opens client.controller to javafx.fxml;
     exports client;
     opens client.model to javafx.base;
+    opens server.dto to javafx.base, javafx.fxml;
+    opens server.model to javafx.base;
 
 }
