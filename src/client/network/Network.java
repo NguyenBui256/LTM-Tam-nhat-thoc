@@ -19,6 +19,7 @@ public class Network {
     public Network(String host, int port) throws IOException {
         this.socket = new Socket(host, port);
         oos = new ObjectOutputStream(socket.getOutputStream());
+        oos.flush(); // Write stream header immediately
         ois = new ObjectInputStream(socket.getInputStream());
         startListening();
     }

@@ -12,13 +12,9 @@ import java.util.Map;
  * Default credentials used: root / 123456. Change the URL/credentials below if your DB differs.
  */
 public class GameDAO extends DAO {
-    private static final String URL = "jdbc:mysql://localhost:3306/game_server?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASS = "nam2110do";
 
     public GameDAO() {
         try {
-            conn = DriverManager.getConnection(URL, USER, PASS);
             ensureTables();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -58,6 +54,44 @@ public class GameDAO extends DAO {
             ps.setInt(5, score2);
             ps.setString(6, winner);
             ps.setInt(7, diff);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateGame(String id, int score1, int score2) {
+        if (conn == null) return false;
+        
+        // Lấy user1 và user2 từ database để xác định winner
+        String user1 = null, user2 = null;
+        try (PreparedStatement ps = conn.prepareStatement("SELECT user1, user2 FROM games WHERE id=?")) {
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                user1 = rs.getString("user1");
+                user2 = rs.getString("user2");
+            } else {
+                return false; // Game không tồn tại
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        String winner = null;
+        if (score1 > score2) winner = user1;
+        else if (score2 > score1) winner = user2;
+        int diff = Math.abs(score1 - score2);
+
+        String sql = "UPDATE games SET score1=?, score2=?, winner=?, score_diff=? WHERE id=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, score1);
+            ps.setInt(2, score2);
+            ps.setString(3, winner);
+            ps.setInt(4, diff);
+            ps.setString(5, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

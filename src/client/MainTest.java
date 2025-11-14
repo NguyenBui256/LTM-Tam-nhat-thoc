@@ -19,7 +19,7 @@ import java.io.IOException;
 public class MainTest extends Application {
 
     private Network network;
-    private static final String SERVER_IP = "26.122.138.5";  // Thay IP server nếu cần
+    private static final String SERVER_IP = "127.0.0.1";  // Thay IP server nếu cần
     private static final int SERVER_PORT = 2206;
 
     @Override

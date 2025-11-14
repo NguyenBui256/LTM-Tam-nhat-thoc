@@ -7,7 +7,7 @@ import server.dto.Message;
 import java.io.*;
 import java.net.Socket;
 
-public class ClientHandler extends Thread {
+public class ClientHandler extends Thread implements Serializable {
     private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
@@ -16,6 +16,7 @@ public class ClientHandler extends Thread {
     public ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
         this.out = new ObjectOutputStream(socket.getOutputStream());
+        this.out.flush(); // Write stream header immediately
         this.in = new ObjectInputStream(socket.getInputStream());
     }
 
@@ -29,6 +30,7 @@ public class ClientHandler extends Thread {
 
     public void sendMessage(Message msg) throws IOException {
         out.writeObject(msg);
+        out.flush();
     }
 
     public void close() throws IOException {
@@ -80,6 +82,9 @@ public class ClientHandler extends Thread {
                 break;
             case REMATCH:
                 command = new RematchCommand();
+                break;
+            case MOVE:
+                command = new MoveCommand();
                 break;
             default:
                 throw new IllegalArgumentException("Unknown command");
