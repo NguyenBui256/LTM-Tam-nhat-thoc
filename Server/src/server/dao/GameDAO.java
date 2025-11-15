@@ -27,34 +27,34 @@ public class GameDAO extends DAO {
     private void ensureTables() throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS games ("
                 + "id VARCHAR(128) PRIMARY KEY,"
-                + "user1 VARCHAR(128),"
-                + "user2 VARCHAR(128),"
-                + "score1 INT,"
-                + "score2 INT,"
-                + "winner VARCHAR(128),"
-                + "score_diff INT,"
-                + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+                + "userId_1 VARCHAR(128),"
+                + "userId_2 VARCHAR(128),"
+                + "userResult_1 INT,"
+                + "userResult_2 INT,"
+                + "winnerId  VARCHAR(128),"
+                + "scoreDiff INT,"
+                + "time TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
                 + ") ENGINE=InnoDB;";
         try (Statement st = conn.createStatement()) {
             st.execute(sql);
         }
     }
 
-    public boolean insertGame(String id, String user1, String user2, int score1, int score2) {
+    public boolean insertGame(String id, String userId_1, String userId_2, int userResult_1, int userResult_2) {
         if (conn == null) return false;
-        String winner = null;
-        if (score1 > score2) winner = user1;
-        else if (score2 > score1) winner = user2;
-        int diff = Math.abs(score1 - score2);
+        String winnerId = null;
+        if (userResult_1 > userResult_2) winnerId = userId_1;
+        else if (userResult_2 > userResult_1) winnerId = userId_2;
+        int diff = Math.abs(userResult_1 - userResult_2);
 
-        String sql = "INSERT INTO games(id,user1,user2,score1,score2,winner,score_diff) VALUES(?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO games(id,userId_1,userId_2,userResult_1,userResult_2,winnerId,scoreDiff) VALUES(?,?,?,?,?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
-            ps.setString(2, user1);
-            ps.setString(3, user2);
-            ps.setInt(4, score1);
-            ps.setInt(5, score2);
-            ps.setString(6, winner);
+            ps.setString(2, userId_1);
+            ps.setString(3, userId_2);
+            ps.setInt(4, userResult_1);
+            ps.setInt(5, userResult_2);
+            ps.setString(6, winnerId);
             ps.setInt(7, diff);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -63,17 +63,17 @@ public class GameDAO extends DAO {
         }
     }
 
-    public boolean updateGame(String id, int score1, int score2) {
+    public boolean updateGame(String id, int userResult_1, int userResult_2) {
         if (conn == null) return false;
 
-        // Lấy user1 và user2 từ database để xác định winner
-        String user1 = null, user2 = null;
-        try (PreparedStatement ps = conn.prepareStatement("SELECT user1, user2 FROM games WHERE id=?")) {
+        // Lấy userId_1 và userId_2 từ database để xác định winnerId
+        String userId_1 = null, userId_2 = null;
+        try (PreparedStatement ps = conn.prepareStatement("SELECT userId_1, userId_2 FROM games WHERE id=?")) {
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                user1 = rs.getString("user1");
-                user2 = rs.getString("user2");
+                userId_1 = rs.getString("userId_1");
+                userId_2 = rs.getString("userId_2");
             } else {
                 return false; // Game không tồn tại
             }
@@ -82,16 +82,16 @@ public class GameDAO extends DAO {
             return false;
         }
 
-        String winner = null;
-        if (score1 > score2) winner = user1;
-        else if (score2 > score1) winner = user2;
-        int diff = Math.abs(score1 - score2);
+        String winnerId = null;
+        if (userResult_1 > userResult_2) winnerId = userId_1;
+        else if (userResult_2 > userResult_1) winnerId = userId_2;
+        int diff = Math.abs(userResult_1 - userResult_2);
 
-        String sql = "UPDATE games SET score1=?, score2=?, winner=?, score_diff=? WHERE id=?";
+        String sql = "UPDATE games SET userResult_1=?, userResult_2=?, winnerId=?, scoreDiff=? WHERE id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, score1);
-            ps.setInt(2, score2);
-            ps.setString(3, winner);
+            ps.setInt(1, userResult_1);
+            ps.setInt(2, userResult_2);
+            ps.setString(3, winnerId);
             ps.setInt(4, diff);
             ps.setString(5, id);
             return ps.executeUpdate() > 0;
@@ -105,9 +105,9 @@ public class GameDAO extends DAO {
         List<Map<String, Object>> out = new ArrayList<>();
         if (conn == null) return out;
         String sql = "SELECT player, SUM(points) AS total FROM ("
-                + " SELECT user1 AS player, score1 AS points FROM games"
+                + " SELECT userId_1 AS player, userResult_1 AS points FROM games"
                 + " UNION ALL"
-                + " SELECT user2 AS player, score2 AS points FROM games"
+                + " SELECT userId_2 AS player, userResult_2 AS points FROM games"
                 + " ) t GROUP BY player ORDER BY total DESC";
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
@@ -125,7 +125,7 @@ public class GameDAO extends DAO {
     public List<Map<String, Object>> getLeaderboardByWins() {
         List<Map<String, Object>> out = new ArrayList<>();
         if (conn == null) return out;
-        String sql = "SELECT winner AS player, COUNT(*) AS wins FROM games WHERE winner IS NOT NULL GROUP BY winner ORDER BY wins DESC";
+        String sql = "SELECT winnerId AS player, COUNT(*) AS wins FROM games WHERE winnerId IS NOT NULL GROUP BY winnerId ORDER BY wins DESC";
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();

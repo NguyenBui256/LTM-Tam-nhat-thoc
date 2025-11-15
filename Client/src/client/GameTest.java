@@ -12,12 +12,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import server.dto.InviteRequest;
-import server.dto.LoginRequest;
-import server.dto.Message;
-import server.dto.Status;
-import server.common.CommandType;
-import server.common.StatusType;
+import dto.InviteRequest;
+import dto.LoginRequest;
+import dto.Message;
+import dto.Status;
+import common.CommandType;
+import common.StatusType;
 
 public class GameTest extends Application implements MessageListener {
     private Network networkA;

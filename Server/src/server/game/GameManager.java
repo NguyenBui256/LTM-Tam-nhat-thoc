@@ -122,6 +122,7 @@ public class GameManager {
             System.out.println("[SERVER LOG] DB error when inserting game: " + e.getMessage());
         }
         try {
+            System.out.println("[SERVER LOG] Sending start game message to clients");
             if (p1Handler != null) p1Handler.sendMessage(new Message("START_GAME", "SERVER", gs1));
             if (p2Handler != null) p2Handler.sendMessage(new Message("START_GAME", "SERVER", gs2));
         } catch (Exception e) {

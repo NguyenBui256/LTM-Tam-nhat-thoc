@@ -126,18 +126,39 @@ public class ChallengeInviteController implements MessageListener {
                         // close this invite dialog
                         closeDialog();
 
-                        // switch main stage to waiting room if available
+                        // Try to switch main stage to the Game scene for both players
                         if (primaryStage != null) {
                             try {
-                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/waiting_room.fxml"));
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GameScene.fxml"));
                                 Parent root = loader.load();
-                                WaitingRoomController controller = loader.getController();
-                                // Optionally pass network to waiting room: controller.setNetwork(network);
+                                GameController controller = loader.getController();
+                                // pass network if available
+                                if (network != null)
+                                    controller.setNetwork(network);
+
+                                // determine players from inviteRequest if possible
+                                String inviterName = null;
+                                String invitedName = null;
+                                if (inviteRequest != null) {
+                                    inviterName = inviteRequest.getInviter();
+                                    invitedName = inviteRequest.getInvited();
+                                } else if (inviter != null) {
+                                    inviterName = inviter;
+                                }
+
+                                // assume this controller is shown to the invited user, so current = invitedName
+                                if (invitedName != null) {
+                                    controller.setPlayers(invitedName, inviterName);
+                                } else if (inviterName != null) {
+                                    // fallback: set inviter as current and no opponent
+                                    controller.setPlayers(inviterName, null);
+                                }
+
                                 primaryStage.setScene(new Scene(root));
-                                primaryStage.setTitle("Waiting Room");
+                                primaryStage.setTitle("Game");
                                 primaryStage.show();
                             } catch (IOException e) {
-                                System.err.println("Lỗi load waiting_room.fxml: " + e.getMessage());
+                                System.err.println("Lỗi load GameScene.fxml: " + e.getMessage());
                                 InviteNotificationManager.getInstance()
                                         .showSimpleNotification("Đã chấp nhận. Vào phòng chờ...");
                             }

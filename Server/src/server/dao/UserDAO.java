@@ -38,7 +38,7 @@ public class UserDAO extends DAO {
 	    return false;
 	}
 	public boolean checkLogin(String username, String password) {
-		String sql = "SELECT 1 FROM User WHERE username =? and password =?";
+		String sql = "SELECT 1 FROM user WHERE username =? and password =?";
 		try(PreparedStatement ps = conn.prepareStatement(sql)){
 			ps.setString(1, username);
 			ps.setString(2, password);

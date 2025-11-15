@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import dto.GameUpdate;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -18,11 +20,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.web.WebView;
-import server.common.CommandType;
-import server.dto.Message;
-import server.dto.MoveRequest;
+import common.CommandType;
+import dto.Message;
+import dto.MoveRequest;
+import dto.GameStart;
 
 public class GameController implements MessageListener {
 
@@ -121,6 +125,15 @@ public class GameController implements MessageListener {
 
     public void setUsername(String username) {
         this.username = username;
+        // Set current user on network for invite notifications
+        if (this.network != null) {
+            this.network.setCurrentUser(username);
+        }
+    }
+
+    public void setPrimaryStage(Stage stage) {
+        InviteNotificationManager.getInstance().setPrimaryStage(stage);
+        InviteNotificationManager.getInstance().setNetwork(this.network);
     }
 
     // === VẼ HẠT LÊN BÀN (TRÁNH CHỒNG LẤN) ===
@@ -279,15 +292,15 @@ public class GameController implements MessageListener {
                 }
 
                 int basketType = switch (event.getCode()) {
-                    case KeyCode.DIGIT1 -> {
+                    case DIGIT1 -> {
                         System.out.println("[LOG]: " + currentPlayerName + "   Nhận phím 1 → Rổ Gạo");
                         yield 0;
                     }
-                    case KeyCode.DIGIT2 -> {
+                    case DIGIT2 -> {
                         System.out.println("[LOG]: " + currentPlayerName + "   Nhận phím 2 → Rổ Thóc");
                         yield 1;
                     }
-                    case KeyCode.DIGIT3 -> {
+                    case DIGIT3 -> {
                         System.out.println("[LOG]: " + currentPlayerName + "   Nhận phím 3 → Rổ Ngô");
                         yield 2;
                     }
@@ -402,7 +415,7 @@ public class GameController implements MessageListener {
         Platform.runLater(() -> {
             if ("START_GAME".equals(msg.getCommand())) {
                 // Handle start game from server
-                if (msg.getContent() instanceof server.dto.GameStart gs) {
+                if (msg.getContent() instanceof GameStart gs) {
                     System.out.println(
                         "[LOG]: " + currentPlayerName + "   Received START_GAME for game: " + gs.getGameId()
                     );
@@ -472,7 +485,7 @@ public class GameController implements MessageListener {
                 }
             } else if ("GAME_UPDATE".equals(msg.getCommand())) {
                 // Handle game update from server
-                if (msg.getContent() instanceof server.dto.GameUpdate update) {
+                if (msg.getContent() instanceof GameUpdate update) {
                     System.out.println(
                         "[LOG]: " + currentPlayerName + "   Received GAME_UPDATE for game: " +
                             update.getGameId()
@@ -906,5 +919,11 @@ public class GameController implements MessageListener {
         } catch (Exception e) {
             return "Elo: ?";
         }
+    }
+
+    public void setPlayers(String currentUser, String opponent) {
+        this.currentPlayerName = currentUser;
+        this.opponentName = opponent;
+        System.out.println("[GameController] Players set: you=" + currentUser + " opponent=" + opponent);
     }
 }

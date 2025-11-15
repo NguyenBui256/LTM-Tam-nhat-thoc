@@ -51,7 +51,8 @@ public class PlayerListController implements MessageListener {
     public void setCurrentUser(String currentUser) {
         this.currentUser = currentUser;
         System.out.println("[PlayerListController] currentUser set to: " + currentUser);
-        if (playerTable != null) playerTable.refresh();
+        if (playerTable != null)
+            playerTable.refresh();
     }
 
     // --- Khởi tạo ---
@@ -195,22 +196,40 @@ public class PlayerListController implements MessageListener {
     }
 
     private void handleAcceptNotify(Message msg) {
-        String text = msg.getContent() instanceof String ? (String) msg.getContent()
-                : "Đối phương đã chấp nhận lời mời.";
+        Object content = msg.getContent();
+        String text = content instanceof String ? (String) content : "Đối phương đã chấp nhận lời mời.";
+
+        // Try to extract opponent from InviteRequest if present
+        String opponent = null;
+        if (content instanceof InviteRequest ir) {
+            if (currentUser != null && currentUser.equals(ir.getInviter()))
+                opponent = ir.getInvited();
+            else
+                opponent = ir.getInviter();
+        }
+
+        // Make effectively-final copies for use inside the lambda
+        final String opponentFinal = opponent;
+        final String textFinal = text;
+
         Platform.runLater(() -> {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/waiting_room.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GameScene.fxml"));
                 Parent root = loader.load();
-                WaitingRoomController controller = loader.getController();
+                GameController controller = loader.getController();
                 if (this.network != null)
                     controller.setNetwork(this.network);
+                // pass player names if we know the opponent
+                if (opponentFinal != null)
+                    controller.setPlayers(this.currentUser, opponentFinal);
+
                 Stage stage = (Stage) backButton.getScene().getWindow();
                 InviteNotificationManager.getInstance().setPrimaryStage(stage);
                 stage.setScene(new Scene(root));
-                stage.setTitle("Waiting Room");
+                stage.setTitle("Game");
                 stage.show();
             } catch (Exception e) {
-                InviteNotificationManager.getInstance().showSimpleNotification(text);
+                InviteNotificationManager.getInstance().showSimpleNotification(textFinal);
             }
         });
     }
