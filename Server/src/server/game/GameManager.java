@@ -2,15 +2,14 @@ package server.game;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
+
+import dto.*;
 import server.dao.GameDAO;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import server.ClientHandler;
-import server.dto.GameResult;
-import server.dto.GameStart;
-import server.dto.GameUpdate;
 import server.model.Game;
 import dto.GameStart;
 import dto.GameUpdate;
@@ -68,8 +67,8 @@ public class GameManager {
                 GameUpdate u2 = s.buildUpdate(s.getP2(), s.getP1());
                 System.out.println("[LOG] Sending GAME_UPDATE to " + s.getP1() + " with takenBy size: " + u1.getTakenBy().size());
                 System.out.println("[LOG] Sending GAME_UPDATE to " + s.getP2() + " with takenBy size: " + u2.getTakenBy().size());
-                if (s.getP1Handler() != null) s.getP1Handler().sendMessage(new server.dto.Message("GAME_UPDATE", "SERVER", u1));
-                if (s.getP2Handler() != null) s.getP2Handler().sendMessage(new server.dto.Message("GAME_UPDATE", "SERVER", u2));
+                if (s.getP1Handler() != null) s.getP1Handler().sendMessage(new Message("GAME_UPDATE", "SERVER", u1));
+                if (s.getP2Handler() != null) s.getP2Handler().sendMessage(new Message("GAME_UPDATE", "SERVER", u2));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -91,11 +90,11 @@ public class GameManager {
 
                 try {
                     if (s.getP1Handler() != null) {
-                        s.getP1Handler().sendMessage(new server.dto.Message("END_GAME", "SERVER", p1Content));
+                        s.getP1Handler().sendMessage(new Message("END_GAME", "SERVER", p1Content));
                         System.out.println("[SERVER LOG] Sent END_GAME to P1: " + s.getP1());
                     }
                     if (s.getP2Handler() != null) {
-                        s.getP2Handler().sendMessage(new server.dto.Message("END_GAME", "SERVER", p2Content));
+                        s.getP2Handler().sendMessage(new Message("END_GAME", "SERVER", p2Content));
                         System.out.println("[SERVER LOG] Sent END_GAME to P2: " + s.getP2());
                     }
                 } catch (Exception e) {
@@ -123,8 +122,8 @@ public class GameManager {
             System.out.println("[SERVER LOG] DB error when inserting game: " + e.getMessage());
         }
         try {
-            if (p1Handler != null) p1Handler.sendMessage(new server.dto.Message("START_GAME", "SERVER", gs1));
-            if (p2Handler != null) p2Handler.sendMessage(new server.dto.Message("START_GAME", "SERVER", gs2));
+            if (p1Handler != null) p1Handler.sendMessage(new Message("START_GAME", "SERVER", gs1));
+            if (p2Handler != null) p2Handler.sendMessage(new Message("START_GAME", "SERVER", gs2));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -184,11 +183,11 @@ public class GameManager {
 
             try {
                 if (s.getP1Handler() != null) {
-                    s.getP1Handler().sendMessage(new server.dto.Message("END_GAME", "SERVER", p1Content));
+                    s.getP1Handler().sendMessage(new Message("END_GAME", "SERVER", p1Content));
                     System.out.println("[SERVER LOG] Sent END_GAME to P1: " + s.getP1());
                 }
                 if (s.getP2Handler() != null) {
-                    s.getP2Handler().sendMessage(new server.dto.Message("END_GAME", "SERVER", p2Content));
+                    s.getP2Handler().sendMessage(new Message("END_GAME", "SERVER", p2Content));
                     System.out.println("[SERVER LOG] Sent END_GAME to P2: " + s.getP2());
                 }
             } catch (Exception e) {

@@ -3,7 +3,7 @@ package server.command;
 import server.ClientHandler;
 import server.GameRoomManager;
 import server.OnlineUserManager;
-import game.GameManager;
+import server.game.GameManager;
 import dto.Message;
 import dto.Status;
 import dto.GameRoom;

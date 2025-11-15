@@ -2,7 +2,7 @@ package server.game;
 
 import java.io.Serializable;
 import java.util.*;
-import server.dto.GameUpdate;
+import dto.GameUpdate;
 
 import server.ClientHandler;
 

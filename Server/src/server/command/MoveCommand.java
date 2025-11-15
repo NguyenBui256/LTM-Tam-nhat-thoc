@@ -1,8 +1,8 @@
 package server.command;
 
 import server.ClientHandler;
-import server.dto.Message;
-import server.dto.MoveRequest;
+import dto.Message;
+import dto.MoveRequest;
 import server.game.GameManager;
 
 public class MoveCommand implements Command {
