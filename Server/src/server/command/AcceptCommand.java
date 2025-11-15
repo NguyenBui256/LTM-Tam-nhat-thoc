@@ -35,9 +35,11 @@ public class AcceptCommand implements Command {
         ClientHandler inviterHandler = OnlineUserManager.getHandler(inviter);
         if (inviterHandler != null) {
             inviterHandler.sendMessage(new Message("ACCEPT_NOTIFY", "SERVER", accepter + " đã chấp nhận lời mời."));
+            inviterHandler.sendMessage(new Message("GAME_ROOM_CREATED", "SERVER", room));
         }
         // Start the game immediately after accepting
         GameManager.getInstance().startGame(inviter, inviterHandler, accepter, handler, roomId);
+        handler.sendMessage(new Message("GAME_ROOM_CREATED", "SERVER", room));
         handler.sendMessage(new Message("ACCEPT_RESPONSE", "SERVER", new Status(StatusType.SUCCESS, "Accepted")));
     }
 }

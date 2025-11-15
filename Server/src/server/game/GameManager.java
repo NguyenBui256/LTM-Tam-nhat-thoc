@@ -123,8 +123,15 @@ public class GameManager {
         }
         try {
             System.out.println("[SERVER LOG] Sending start game message to clients");
-            if (p1Handler != null) p1Handler.sendMessage(new Message("START_GAME", "SERVER", gs1));
-            if (p2Handler != null) p2Handler.sendMessage(new Message("START_GAME", "SERVER", gs2));
+            if (p1Handler != null) {
+                System.out.println("[SERVER LOG] Sending start game message to client " + p1);
+                p1Handler.sendMessage(new Message("START_GAME", "SERVER", gs1));
+            }
+            if (p2Handler != null)
+            {
+                System.out.println("[SERVER LOG] Sending start game message to client " + p2);
+                p2Handler.sendMessage(new Message("START_GAME", "SERVER", gs2));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
