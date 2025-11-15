@@ -1,9 +1,3 @@
-/**
- * 
- */
-/**
- * 
- */
 module BTL_LTM {
     requires javafx.graphics;
     requires javafx.controls;
@@ -14,5 +8,6 @@ module BTL_LTM {
     opens client.controller to javafx.fxml;
     exports client;
     opens client.model to javafx.base;
+    opens model to javafx.base;
     opens dto to javafx.base;
 }

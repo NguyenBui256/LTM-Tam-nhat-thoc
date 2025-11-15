@@ -260,7 +260,14 @@ public class MainLobbyController implements MessageListener {
                             System.out.println("[MainLobbyController] Logout successful, switching to login screen...");
                             try {
                                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+                                
                                 Parent root = loader.load();
+
+
+                                LoginController controller = loader.getController();
+                                controller.setNetwork(network);
+                                
+                               
                                 Stage stage = (Stage) btnLogout.getScene().getWindow();
                                 stage.setScene(new Scene(root));
                             } catch (Exception ex) {

@@ -1,0 +1,140 @@
+/* === TOÀN BỘ GIAO DIỆN === */
+.root {
+    -fx-background-color: #2D3447; /* Màu nền chính (xanh than đậm) */
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* === TIÊU ĐỀ (Label) === */
+.label {
+    -fx-text-fill: #E0E0E0; /* Màu chữ xám nhạt */
+    -fx-font-size: 14px;
+}
+
+/* Dùng cho Label tiêu đề (như totalLabel) */
+.title-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF; /* Màu chữ trắng */
+}
+
+/* === NÚT BẤM (Button) === */
+.button {
+    -fx-background-color: #007BFF; /* Màu xanh dương */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px; /* Bo góc */
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand; /* Biểu tượng bàn tay khi hover */
+}
+
+.button:hover {
+    -fx-background-color: #0056b3; /* Màu xanh đậm hơn khi hover */
+}
+
+.button:pressed {
+    -fx-background-color: #004085;
+}
+
+
+/* === BẢNG (TableView) === */
+.table-view {
+    -fx-background-color: #394257; /* Nền của bảng */
+    -fx-background-radius: 8px; /* Bo góc bảng */
+    -fx-border-color: #50596E;
+    -fx-border-radius: 8px;
+    -fx-selection-bar-non-focused: #007BFF;
+}
+
+/* === TIÊU ĐỀ CỘT (Column Header) === */
+.table-view .column-header-background {
+    -fx-background-color: #333A4D; /* Nền của thanh tiêu đề */
+    -fx-background-radius: 8px 8px 0 0; /* Bo góc chỉ ở trên */
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #FFFFFF; /* Chữ tiêu đề màu trắng */
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER; /* Căn giữa tiêu đề cột */
+}
+
+/* === HÀNG (Table Row) VÀ Ô (Table Cell) === */
+.table-row-cell {
+    -fx-background-color: #394257; /* Nền của hàng */
+    -fx-border-color: transparent;
+    -fx-padding: 5px;
+}
+
+/* Màu xen kẽ cho các hàng lẻ */
+.table-row-cell:odd {
+    -fx-background-color: #40495F;
+}
+
+/* Khi hover chuột qua hàng */
+.table-row-cell:hover {
+    -fx-background-color: #50596E;
+    -fx-cursor: hand;
+}
+
+/* Khi chọn một hàng */
+.table-row-cell:selected {
+    -fx-background-color: #007BFF; /* Màu xanh khi được chọn */
+}
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: white; /* Chữ trong hàng được chọn -> màu trắng */
+}
+
+.table-cell {
+    -fx-text-fill: #E0E0E0; /* Màu chữ trong ô */
+    -fx-font-size: 13px;
+    -fx-border-color: transparent;
+    -fx-alignment: CENTER; /* Căn giữa nội dung trong ô */
+}
+
+/* === THANH PHÂN TRANG (Pagination) === */
+.pagination {
+    -fx-background-color: #2D3447; /* Nền khớp với nền chính */
+}
+
+/* Nền của thanh điều khiển */
+.pagination .pagination-control {
+    -fx-background-color: #394257;
+    -fx-border-color: #50596E;
+    -fx-border-radius: 5px;
+}
+
+/* Chữ "Trang x / y" */
+.pagination .page-information {
+    -fx-text-fill: #E0E0E0;
+}
+
+/* Các nút số trang */
+.pagination .toggle-button {
+    -fx-background-color: #50596E;
+    -fx-text-fill: #E0E0E0;
+    -fx-border-color: #50596E;
+}
+
+.pagination .toggle-button:hover {
+    -fx-background-color: #616B83;
+}
+
+/* Nút số trang đang được chọn */
+.pagination .toggle-button:selected {
+    -fx-background-color: #007BFF;
+    -fx-text-fill: white;
+}
+
+/* Nút mũi tên */
+.pagination .control-arrow {
+    -fx-background-color: #50596E;
+    -fx-shape: "M 0 0 H 1 V 1 H 0 Z"; /* Giữ mũi tên mặc định */
+}
+.pagination .control-arrow:hover {
+    -fx-background-color: #616B83;
+}
