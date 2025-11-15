@@ -1,8 +1,8 @@
 
 /bin/
 /.idea
-src/server/.idea
-src/server/out
+Server/src/server/.idea
+Server/src/server/out
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/
