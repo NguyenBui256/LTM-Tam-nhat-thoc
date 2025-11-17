@@ -44,6 +44,11 @@ public class LoginController implements MessageListener {
     // Tên người chơi hiện tại (được gán khi nhấn Login)
     private String currentUser;
 
+    @FXML
+    public void initialize() {
+        loginButton.setDefaultButton(true);
+
+    }
     public void setNetwork(Network network) {
         this.network = network;
         if (this.network != null) {
@@ -73,7 +78,7 @@ public class LoginController implements MessageListener {
 
         try {
             LoginRequest loginRequest = new LoginRequest(username, password);
-            Message msg = new Message("LOGIN", "CLIENT", loginRequest);
+            Message msg = new Message("LOGIN", currentUser, loginRequest);
             System.out.println("[LoginController] Sending login request: username=" + username);
             network.send(msg);
         } catch (IOException e) {
@@ -202,5 +207,11 @@ public class LoginController implements MessageListener {
                 e.printStackTrace();
             }
         }
+    }
+    private Stage primaryStage;
+
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+
     }
 }

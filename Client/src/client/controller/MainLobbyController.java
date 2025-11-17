@@ -76,8 +76,6 @@ public class MainLobbyController implements MessageListener {
         if (playerInfo != null && currentUser != null && !currentUser.isBlank()) {
             playerInfo.setText("Xin chào, " + currentUser);
         }
-        // ✅ Truyền currentUser sang InviteNotificationManager
-        InviteNotificationManager.getInstance().setCurrentUsername(currentUser);
     }
 
     @FXML
@@ -192,7 +190,7 @@ public class MainLobbyController implements MessageListener {
     private void logout(ActionEvent event) { // ✅ SỬA: import ActionEvent
         System.out.println("[MainLobbyController] Logging out...");
         try {
-            Message msg = new Message("LOGOUT", "CLIENT", null);
+            Message msg = new Message("LOGOUT", currentUser, null);
             network.send(msg);
             System.out.println("[MainLobbyController] Logout request sent.");
         } catch (IOException e) {
@@ -263,11 +261,19 @@ public class MainLobbyController implements MessageListener {
                             try {
                                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
                                 Parent root = loader.load();
-                                Stage stage = (Stage) btnLogout.getScene().getWindow();
-                                stage.setScene(new Scene(root));
+
+                                LoginController controller = loader.getController();
+                                controller.setNetwork(network);
+                                // ✅ Set primaryStage cho loginController nếu cần
+                                controller.setPrimaryStage(primaryStage);
+
+                                // ✅ Dùng trực tiếp primaryStage
+                                primaryStage.setScene(new Scene(root));
+                                primaryStage.setTitle("Login");
+                                primaryStage.show();
                             } catch (Exception ex) {
                                 ex.printStackTrace();
-                                showAlert("Lỗi", "Không thể trở về màn hình đăng nhập." + ex.getMessage());
+                                showAlert("Lỗi", "Không thể trở về màn hình đăng nhập: " + ex.getMessage());
                             }
                         } else {
                             showAlert("Lỗi Đăng Xuất", status.getContent());

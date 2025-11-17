@@ -7,26 +7,31 @@ import java.util.concurrent.ConcurrentHashMap;
 import dto.PlayerRank;
 
 public class OnlineUserManager {
-    public static ConcurrentHashMap<String, ClientHandler> onlineUsers = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<String, String> userStatus = new ConcurrentHashMap<>(); // username -> status
-    public static ConcurrentHashMap<String, PlayerRank> userList = new ConcurrentHashMap<>();
-    
-	public static void setUserList(List<PlayerRank> userList) {
-		userList.forEach(u -> OnlineUserManager.userList.put(u.getName(), u));
-	}
+    private static ConcurrentHashMap<String, ClientHandler> onlineUsers = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, String> userStatus = new ConcurrentHashMap<>(); // username -> status
+    private static ConcurrentHashMap<String, PlayerRank> userList = new ConcurrentHashMap<>();
 
-	public static void addOnlineUser(String username, ClientHandler handler) {
+    public static void setUserList(List<PlayerRank> userList) {
+        userList.forEach(u -> OnlineUserManager.userList.put(u.getName(), u));
+    }
+
+    public static void addOnlineUser(String username, ClientHandler handler) {
         if (username != null && handler != null) {
             onlineUsers.put(username, handler);
             userStatus.put(username, "ONLINE");
             setUserStatus(username, "ONLINE");
         }
     }
-    
+
     public static void removeOnlineUser(String username) {
         if (username != null) {
             onlineUsers.remove(username);
             userStatus.remove(username);
+            userList.computeIfPresent(username, (key, existingPlayerRank) -> {
+                existingPlayerRank.setStatus("OFFLINE");
+                return existingPlayerRank;
+            });
+
         }
     }
 
@@ -66,11 +71,34 @@ public class OnlineUserManager {
         String status = userStatus.get(username);
         return status != null && status.equals("ONLINE");
     }
-    public static List<PlayerRank> getListUser(){
-    	List<PlayerRank> pl = new ArrayList<>();
-    	for(String x: userList.keySet()) {
-    		pl.add(userList.get(x));
-    	}
-    	return pl;
+    public static List<PlayerRank> getListUser(ClientHandler handler){
+        List<PlayerRank> pl = new ArrayList<>();
+        for(String x: userList.keySet()) {
+
+            if(x.equals(handler.getUsername())) {
+                System.out.println("Ban than");
+                continue;
+            }
+            // Return a copy to avoid exposing internal mutable objects to serialization races
+            PlayerRank original = userList.get(x);
+            if (original != null) {
+                PlayerRank copy = new PlayerRank(original.getName(), original.getStatus(), original.getElo(), original.getWins());
+                pl.add(copy);
+                System.out.println(copy.getName()+ " " + copy.getStatus());
+            }
+        }
+        pl.sort((x, y) -> {
+            boolean xIsOnline = "ONLINE".equals(x.getStatus());
+            boolean yIsOnline = "ONLINE".equals(y.getStatus());
+
+            if (xIsOnline && !yIsOnline) {
+                return -1; // x đứng trước y (vì x online, y offline)
+            } else if (!xIsOnline && yIsOnline) {
+                return 1;  // y đứng trước x (vì y online, x offline)
+            } else {
+                return 0;  // Cả hai cùng online hoặc cùng offline, coi như bằng nhau
+            }
+        });
+        return pl;
     }
 }

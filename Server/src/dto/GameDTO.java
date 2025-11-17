@@ -1,9 +1,9 @@
-package client.model;
+package dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Game implements Serializable {
+public class GameDTO implements Serializable {
     private static final long serialVersionUID = 99L;
     private String id;
     private String userId_1;
@@ -13,11 +13,11 @@ public class Game implements Serializable {
     private int winnerId;
     private int scoreDiff;
     private LocalDateTime time;
-    public Game() {
+    public GameDTO() {
     }
 
-    public Game(String id, String userId_1, String userId_2, String userResult_1, String userResult_2, int winnerId,
-                int scoreDiff) {
+    public GameDTO(String id, String userId_1, String userId_2, String userResult_1, String userResult_2, int winnerId,
+                int scoreDiff, LocalDateTime time) {
         this.id = id;
         this.userId_1 = userId_1;
         this.userId_2 = userId_2;
@@ -25,6 +25,7 @@ public class Game implements Serializable {
         this.userResult_2 = userResult_2;
         this.winnerId = winnerId;
         this.scoreDiff = scoreDiff;
+        this.time = time;
     }
     public LocalDateTime getTime() {
         return time;

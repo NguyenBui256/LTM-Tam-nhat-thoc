@@ -35,3 +35,5 @@ bin/
 
 /out
 /classes
+/Server/.idea
+/Client/.idea

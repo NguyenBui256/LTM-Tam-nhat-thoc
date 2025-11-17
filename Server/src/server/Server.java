@@ -12,9 +12,6 @@ public class Server {
     public static void main(String[] args) {
     	List<PlayerRank> userlist = userdao.getAllUser();
     	OnlineUserManager.setUserList(userlist);
-    	for(PlayerRank x: OnlineUserManager.getListUser()) {
-    		System.out.println(x.getName());
-    	}
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server started on port: " + PORT);
             while (true) {

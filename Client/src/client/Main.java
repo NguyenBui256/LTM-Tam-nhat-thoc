@@ -15,7 +15,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         // 🖧 Thông tin server
-        String host = "localhost";  // đổi lại IP server thật
+        String host = "127.0.0.1";  // đổi lại IP server thật
         int port = 2206;
 
         Network network = null;

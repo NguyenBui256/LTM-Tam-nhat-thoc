@@ -147,7 +147,7 @@ public class LeaderboardController implements MessageListener {
 
     private void requestRanking() {
         try {
-            Message msg = new Message("GET_RANKING", "CLIENT", null);
+            Message msg = new Message("GET_RANKING", currentUser, null);
             System.out.println("[LeaderboardController] Sending request for ranking");
             network.send(msg);
         } catch (IOException e) {
