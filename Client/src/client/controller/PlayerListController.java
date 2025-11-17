@@ -80,6 +80,9 @@ public class PlayerListController implements MessageListener {
 
         setupCustomCells();
         setupPagination();
+        // register pagination listener once
+        pagination.currentPageIndexProperty().addListener(
+            (obs, oldIdx, newIdx) -> updateTable(newIdx.intValue()));
         backButton.setOnAction(e -> onBackClicked());
 
         // Highlight the current user's row with a different background
@@ -103,8 +106,11 @@ public class PlayerListController implements MessageListener {
     public void setNetwork(Network network) {
         this.network = network;
         if (network != null) {
+            System.out.println("[PlayerListController] setNetwork called. currentUser=" + this.currentUser);
             network.addMessageListener(this);
+            System.out.println("[PlayerListController] registered as MessageListener");
             requestOnlinePlayers();
+            System.out.println("[PlayerListController] requested online players");
         } else {
             System.err.println("[PlayerListController] Network is null — skipping online request.");
         }
@@ -171,6 +177,7 @@ public class PlayerListController implements MessageListener {
     private void sendInvite(PlayerRankView player) {
         try {
             Message msg = new Message("INVITE", "CLIENT", new InviteRequest(currentUser, player.getName()));
+            System.out.println("[PlayerListController] Sending INVITE from " + currentUser + " to " + player.getName());
             network.send(msg);
             showAlert(Alert.AlertType.INFORMATION, "Mời đấu",
                     "Đã gửi lời mời đến " + player.getName());
@@ -185,6 +192,9 @@ public class PlayerListController implements MessageListener {
     public void onMessageReceived(Message msg) {
         if (msg == null)
             return;
+
+        System.out.println("[PlayerListController] onMessageReceived -> command=" + msg.getCommand()
+                + " | content=" + String.valueOf(msg.getContent()));
 
         switch (msg.getCommand()) {
             case "ONLINE_PLAYERS_RESPONSE" -> handlePlayerList(msg);
@@ -228,13 +238,18 @@ public class PlayerListController implements MessageListener {
         try {
             @SuppressWarnings("unchecked")
             List<PlayerRank> players = (List<PlayerRank>) list;
+            System.out.println("[PlayerListController] handlePlayerList received " + players.size() + " players");
+            players.forEach(p -> System.out.println("[PlayerListController]  - " + p.getName() + " : " + p.getStatus()));
             List<PlayerRankView> uiPlayers = players.stream()
                     .map(p -> new PlayerRankView(p.getName(), p.getStatus(), p.getElo(), p.getWins()))
                     .collect(Collectors.toList());
 
             Platform.runLater(() -> {
                 allPlayers.setAll(uiPlayers);
+                sortPlayers();
                 setupPagination();
+                if (playerTable != null) playerTable.refresh();
+                System.out.println("[PlayerListController] UI player list updated. total=" + allPlayers.size());
             });
         } catch (ClassCastException e) {
             System.err.println("Cannot cast to List<PlayerRank>: " + e.getMessage());
@@ -252,7 +267,15 @@ public class PlayerListController implements MessageListener {
             allPlayers.stream()
                     .filter(p -> p.getName().equals(name))
                     .findFirst()
-                    .ifPresent(p -> p.setStatus(newStatus));
+                    .ifPresent(p -> {
+                        String old = p.getStatus();
+                        p.setStatus(newStatus);
+                        System.out.println("[PlayerListController] status updated for " + name + " : " + old + " -> " + newStatus);
+                    });
+            // sắp xếp và cập nhật UI hoàn toàn trong FX thread
+            sortPlayers();
+            updateTable(pagination.getCurrentPageIndex()); // refresh
+            if (playerTable != null) playerTable.refresh();
         });
     }
 
@@ -266,9 +289,7 @@ public class PlayerListController implements MessageListener {
     private void setupPagination() {
         int pageCount = Math.max(1, (int) Math.ceil((double) allPlayers.size() / rowsPerPage));
         pagination.setPageCount(pageCount);
-        pagination.currentPageIndexProperty().addListener(
-                (obs, oldIdx, newIdx) -> updateTable(newIdx.intValue()));
-        updateTable(0);
+        updateTable(Math.min(pagination.getCurrentPageIndex(), Math.max(0, pageCount - 1)));
     }
 
     private void updateTable(int pageIndex) {
@@ -293,8 +314,10 @@ public class PlayerListController implements MessageListener {
             // Truyền Stage để InviteNotificationManager có thể hiển thị popup
             Stage stage = (Stage) backButton.getScene().getWindow();
             controller.setPrimaryStage(stage);
-            if (network != null)
+            if (network != null) {
+                System.out.println("[PlayerListController] onBackClicked: removing message listener");
                 network.removeMessageListener(this);
+            }
 
             stage.setScene(new Scene(root));
             stage.setTitle("Main Lobby");
@@ -308,6 +331,7 @@ public class PlayerListController implements MessageListener {
     // --- Tiện ích ---
     private void requestOnlinePlayers() {
         try {
+            System.out.println("[PlayerListController] requestOnlinePlayers: sending GET_ONLINE_PLAYERS");
             network.send(new Message("GET_ONLINE_PLAYERS", "CLIENT", null));
         } catch (IOException e) {
             System.err.println("Error sending GET_ONLINE_PLAYERS: " + e.getMessage());
@@ -323,4 +347,28 @@ public class PlayerListController implements MessageListener {
             alert.showAndWait();
         });
     }
+    
+    private void sortPlayers() {
+        allPlayers.sort((a, b) -> {
+            // Ưu tiên ONLINE > WAITING > các trạng thái khác
+            int priorityA = statusPriority(a.getStatus());
+            int priorityB = statusPriority(b.getStatus());
+
+            if (priorityA != priorityB) 
+                return priorityA - priorityB;
+
+            return a.getName().compareToIgnoreCase(b.getName()); // fallback sort alphabet
+        });
+    }
+
+    private int statusPriority(String status) {
+        if (status == null) return 99;
+
+        return switch (status.toUpperCase()) {
+            case "ONLINE" -> 0;
+            case "WAITING" -> 1;
+            default -> 2;  // BUSY, OFFLINE, IN_GAME...
+        };
+    }
+
 }

@@ -189,12 +189,13 @@ public class MatchHistoryController implements MessageListener {
                     myScore < oppScore ? "Thua" : "Hòa";
 
             String score = String.valueOf(myScore);
-
+            String eloChange = "";
+            
             MatchRecord record = new MatchRecord(
                     opponent,
                     matchResult,
                     score,
-                    String.valueOf(g.getScoreDiff()),
+                    String.valueOf(myScore-oppScore),
                     String.valueOf(oppScore)
             );
 

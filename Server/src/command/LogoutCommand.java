@@ -2,6 +2,9 @@ package src.command;
 
 import src.ClientHandler;
 import src.OnlineUserManager;
+
+import java.util.Map;
+
 import common.StatusType;
 import dto.Message;
 import dto.Status;
@@ -12,6 +15,11 @@ public class LogoutCommand implements Command {
         String username = handler.getUsername();
         OnlineUserManager.removeOnlineUser(username);
         handler.sendMessage(new Message("LOGOUT_RESPONSE", "SERVER", new Status(StatusType.SUCCESS, "Logout success")));
+        for (ClientHandler h : OnlineUserManager.getAllHandlers()) {
+            if (h != handler) {
+            	h.sendMessage(new Message("PLAYER_STATUS_CHANGE","SERVER", Map.of("name", username, "status", "OFFLINE")));
+            }
+        }
         //handler.close();
     }
 }

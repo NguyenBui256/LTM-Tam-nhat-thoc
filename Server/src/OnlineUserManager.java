@@ -27,6 +27,11 @@ public class OnlineUserManager {
         if (username != null) {
             onlineUsers.remove(username);
             userStatus.remove(username);
+            userList.computeIfPresent(username, (key, existingPlayerRank) -> {
+                existingPlayerRank.setStatus("OFFLINE");
+                return existingPlayerRank;
+            });
+
         }
     }
 
@@ -66,11 +71,34 @@ public class OnlineUserManager {
         String status = userStatus.get(username);
         return status != null && status.equals("ONLINE");
     }
-    public static List<PlayerRank> getListUser(){
+    public static List<PlayerRank> getListUser(ClientHandler handler){
     	List<PlayerRank> pl = new ArrayList<>();
     	for(String x: userList.keySet()) {
-    		pl.add(userList.get(x));
-    	}
+    		
+    		if(x.equals(handler.getUsername())) {
+    			System.out.println("Ban than");
+    			continue;
+    		}
+     		// Return a copy to avoid exposing internal mutable objects to serialization races
+     		PlayerRank original = userList.get(x);
+     		if (original != null) {
+     			PlayerRank copy = new PlayerRank(original.getName(), original.getStatus(), original.getElo(), original.getWins());
+     			pl.add(copy);
+     			System.out.println(copy.getName()+ " " + copy.getStatus());
+     		}
+    	}	
+    	pl.sort((x, y) -> {
+    	    boolean xIsOnline = "ONLINE".equals(x.getStatus());
+    	    boolean yIsOnline = "ONLINE".equals(y.getStatus());
+
+    	    if (xIsOnline && !yIsOnline) {
+    	        return -1; // x đứng trước y (vì x online, y offline)
+    	    } else if (!xIsOnline && yIsOnline) {
+    	        return 1;  // y đứng trước x (vì y online, x offline)
+    	    } else {
+    	        return 0;  // Cả hai cùng online hoặc cùng offline, coi như bằng nhau
+    	    }
+    	});
     	return pl;
     }
 }

@@ -43,7 +43,12 @@ public class LoginController implements MessageListener {
     private Network network;
     // Tên người chơi hiện tại (được gán khi nhấn Login)
     private String currentUser;
+    
+    @FXML
+    public void initialize() {
+    	loginButton.setDefaultButton(true);
 
+    }
     public void setNetwork(Network network) {
         this.network = network;
         if (this.network != null) {
@@ -203,4 +208,10 @@ public class LoginController implements MessageListener {
             }
         }
     }
+    private Stage primaryStage;
+
+	public void setPrimaryStage(Stage stage) {
+		this.primaryStage = stage;
+		
+	}
 }
