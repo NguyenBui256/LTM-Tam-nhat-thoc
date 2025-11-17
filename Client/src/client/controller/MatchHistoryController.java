@@ -197,7 +197,7 @@ public class MatchHistoryController implements MessageListener {
                     opponent,
                     matchResult,
                     score,
-                    String.valueOf(myScore-oppScore),
+                    String.valueOf((myScore-oppScore)/2 + 1),
                     String.valueOf(oppScore)
             );
 

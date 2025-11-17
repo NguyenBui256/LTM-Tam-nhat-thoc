@@ -142,7 +142,7 @@ public class GameDAO extends DAO {
     public Map<String, Integer> getWinsForAllUsers() {
         // Count wins by joining game.winnerId to user.id
         String sql = "SELECT u.username, COALESCE(COUNT(g.id),0) AS wins "
-                + "FROM user u LEFT JOIN game g ON g.winnerId = u.id "
+                + "FROM user u LEFT JOIN games g ON g.winnerId = u.username "
                 + "GROUP BY u.id";
         Map<String, Integer> map = new HashMap<>();
         try (PreparedStatement ps = conn.prepareStatement(sql);
