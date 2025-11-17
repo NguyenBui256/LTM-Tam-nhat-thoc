@@ -39,6 +39,7 @@ public class ChallengeInviteController implements MessageListener {
     private String inviter;
     private InviteRequest inviteRequest;
     private Stage primaryStage;
+    private String currentUser;
 
     // Gọi từ InviteNotificationManager
     public void setInviterInfo(String inviter, String elo, String message) {
@@ -61,7 +62,7 @@ public class ChallengeInviteController implements MessageListener {
         this.inviter = req.getInviter();
         Platform.runLater(() -> {
             playerName.setText(inviter);
-            playerElo.setText("");
+            playerElo.setText(""); // TODO: real ELO
             inviteText.setText(inviter + " đã mời bạn tham gia trận đấu. Bạn có muốn chấp nhận?");
             avatarImage.setImage(new Image(getClass().getResourceAsStream("/images/user-interface.png")));
             if (!acceptButton.getScene().getWindow().isShowing()) {
@@ -89,7 +90,7 @@ public class ChallengeInviteController implements MessageListener {
     private void sendResponse(String command) {
         if (network != null && inviteRequest != null) {
             try {
-                Message msg = new Message(command, "CLIENT", inviteRequest);
+                Message msg = new Message(command, this.currentUser, inviteRequest);
                 network.send(msg);
             } catch (IOException e) {
                 System.err.println("Lỗi gửi phản hồi lời mời: " + e.getMessage());
@@ -136,22 +137,25 @@ public class ChallengeInviteController implements MessageListener {
                                 if (network != null)
                                     controller.setNetwork(network);
 
-                                // determine players from inviteRequest if possible
                                 String inviterName = null;
                                 String invitedName = null;
                                 if (inviteRequest != null) {
                                     inviterName = inviteRequest.getInviter();
                                     invitedName = inviteRequest.getInvited();
-                                } else if (inviter != null) {
-                                    inviterName = inviter;
+                                } else {
+                                    System.err.println("Invite request thiếu 1 trong 2 người chơi. Hủy bỏ");
                                 }
 
                                 // assume this controller is shown to the invited user, so current = invitedName
-                                if (invitedName != null) {
-                                    controller.setPlayers(invitedName, inviterName);
-                                } else if (inviterName != null) {
+                                if (invitedName != null && inviterName != null) {
+                                    controller.setPlayers(inviterName, invitedName);
+                                    // ✅ Set currentUser for GameController (the invited user)
+                                    controller.setCurrentUser(invitedName);
+                                    System.out.println("[LOG]: invitedName: " + invitedName + ", inviter: " + inviterName + ", opponent: " + invitedName);
+                                } else {
                                     // fallback: set inviter as current and no opponent
-                                    controller.setPlayers(inviterName, null);
+                                    System.err.println("Không tìm thấy ID của đối thủ");
+                                    return;
                                 }
 
                                 primaryStage.setScene(new Scene(root));
@@ -206,5 +210,81 @@ public class ChallengeInviteController implements MessageListener {
                 }
             });
         }
+    }
+
+    public ImageView getAvatarImage() {
+        return avatarImage;
+    }
+
+    public void setAvatarImage(ImageView avatarImage) {
+        this.avatarImage = avatarImage;
+    }
+
+    public Label getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(Label playerName) {
+        this.playerName = playerName;
+    }
+
+    public Label getPlayerElo() {
+        return playerElo;
+    }
+
+    public void setPlayerElo(Label playerElo) {
+        this.playerElo = playerElo;
+    }
+
+    public Text getInviteText() {
+        return inviteText;
+    }
+
+    public void setInviteText(Text inviteText) {
+        this.inviteText = inviteText;
+    }
+
+    public Button getAcceptButton() {
+        return acceptButton;
+    }
+
+    public void setAcceptButton(Button acceptButton) {
+        this.acceptButton = acceptButton;
+    }
+
+    public Button getDeclineButton() {
+        return declineButton;
+    }
+
+    public void setDeclineButton(Button declineButton) {
+        this.declineButton = declineButton;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public String getInviter() {
+        return inviter;
+    }
+
+    public void setInviter(String inviter) {
+        this.inviter = inviter;
+    }
+
+    public InviteRequest getInviteRequest() {
+        return inviteRequest;
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public String getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(String currentUser) {
+        this.currentUser = currentUser;
     }
 }

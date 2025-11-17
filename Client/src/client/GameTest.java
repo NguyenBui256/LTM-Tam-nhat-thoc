@@ -24,8 +24,8 @@ public class GameTest extends Application implements MessageListener {
     private Network networkB;
     private Stage stageA;
     private Stage stageB;
-    private boolean isPlayerALoggedIn = false;
-    private boolean isPlayerBLoggedIn = false;
+    private boolean isPlayerALoggedIn = true;
+    private boolean isPlayerBLoggedIn = true;
 
     @Override
     public void start(Stage primaryStage) {
@@ -125,8 +125,9 @@ public class GameTest extends Application implements MessageListener {
             Parent root = loader.load();
 
             GameController controller = loader.getController();
+            controller.setPrimaryStage(stageA);
             controller.setNetwork(network);
-            controller.setUsername("admin");  // Tên đăng nhập hợp lệ
+            controller.setUsername("duma");  // Tên đăng nhập hợp lệ
 
             stage.setTitle("🎮 Người chơi A");
             stage.setScene(new Scene(root, 800, 600));
@@ -156,6 +157,7 @@ public class GameTest extends Application implements MessageListener {
             Parent root = loader.load();
 
             GameController controller = loader.getController();
+            controller.setPrimaryStage(stageB);
             controller.setNetwork(network);
             controller.setUsername("test");  // Tên display, không phải tên login
 
@@ -180,10 +182,10 @@ public class GameTest extends Application implements MessageListener {
         try {
             System.out.println("\n🔐 [Người A] Đang login...");
 
-            LoginRequest loginReq = new LoginRequest("admin", "1234");
+            LoginRequest loginReq = new LoginRequest("duma", "1234");
             Message loginMsg = new Message(
                 CommandType.LOGIN.toString(),
-                "admin",
+                "duma",
                 loginReq
             );
 
@@ -226,13 +228,13 @@ public class GameTest extends Application implements MessageListener {
         try {
             System.out.println("\n📤 [Người A] Gửi lời mời tới Người B...");
 
-            // Tạo yêu cầu lời mời: inviter="admin", invited="test"
-            InviteRequest inviteReq = new InviteRequest("admin", "test");
+            // Tạo yêu cầu lời mời: inviter="duma", invited="test"
+            InviteRequest inviteReq = new InviteRequest("duma", "test");
 
             // Tạo message
             Message inviteMsg = new Message(
                 CommandType.INVITE.toString(),
-                "admin",
+                "duma",
                 inviteReq
             );
 
@@ -254,25 +256,17 @@ public class GameTest extends Application implements MessageListener {
     public void onMessageReceived(Message msg) {
         Platform.runLater(() -> {
             System.out.println("[TEST] Nhận message: cmd=" + msg.getCommand() + ", sender=" + msg.getSender() + ", content=" + msg.getContent());
-
-            if ("LOGIN_RESPONSE".equals(msg.getCommand())) {
-                // Detect A vs B by sender username
-                if ("admin".equals(msg.getContent())) {
-                    System.out.println("✅ [Người A] Login thành công!");
-                    isPlayerALoggedIn = true;
-                } else if ("test".equals(msg.getContent())) {
-                    System.out.println("✅ [Người B] Login thành công!");
-                    isPlayerBLoggedIn = true;
-                }
-            } else if ("INVITE".equals(msg.getCommand())) {
-                if (msg.getContent() instanceof Status) {
-                    Status inviteStatus = (Status) msg.getContent();
-                    System.out.println("\n🔔 [Người B] Nhận được lời mời từ: " + inviteStatus.getContent());
+            if ("INVITE".equals(msg.getCommand())) {
+                System.out.println("Có nhận được lời mời");
+                if (msg.getContent() instanceof InviteRequest) {
+                    InviteRequest req = (InviteRequest) msg.getContent();
+                    System.out.println("\n🔔 [Người B] Nhận được lời mời từ: " + req.getInviter());
                     // Tự động chấp nhận lời mời sau 1 giây
                     new Thread(() -> {
                         try {
-                            Thread.sleep(1000);
-                            acceptInviteFromB();
+                            Thread.sleep(2000);
+                            System.out.println("B Bắt đầu gửi accept invite");
+                            acceptInviteFromB(req);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -281,27 +275,27 @@ public class GameTest extends Application implements MessageListener {
             } else if ("GAME_ROOM_CREATED".equals(msg.getCommand())) {
                 System.out.println("\n✅ Phòng game được tạo! Sẵn sàng bắt đầu...");
             } else if ("INVITE_RESPONSE".equals(msg.getCommand())) {
-                System.out.println("\n📬 [Người A] INVITE_RESPONSE: " + msg.getContent());
+                System.out.println("\n📬 [Người A] INVITE_RESPONSE: " + ((Status) msg.getContent()).getContent());
             } else if ("ACCEPT_RESPONSE".equals(msg.getCommand())) {
-                System.out.println("\n✔️ [Người B] ACCEPT_RESPONSE: " + msg.getContent());
+                System.out.println("\n✔️ [Người B] ACCEPT_RESPONSE: " + ((Status) msg.getContent()).getContent());
             }
         });
     }
 
     /**
      * Người B chấp nhận lời mời từ A
-     * Content phải là username của người mời (admin)
+     * Content phải là username của người mời (duma)
      */
-    private void acceptInviteFromB() {
+    private void acceptInviteFromB(InviteRequest req) {
         try {
             System.out.println("\n✅ [Người B] Chấp nhận lời mời từ Người A...");
 
             // Tạo message chấp nhận
-            // Content phải là username của inviter (admin)
+            // Content phải là username của inviter (duma)
             Message acceptMsg = new Message(
                 CommandType.ACCEPT.toString(),
                 "test",
-                "admin"  // Content = username của người mời
+                req  // Content = username của người mời
             );
 
             // Gửi qua network của B

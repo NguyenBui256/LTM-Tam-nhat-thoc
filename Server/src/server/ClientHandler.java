@@ -56,7 +56,7 @@ public class ClientHandler extends Thread implements Serializable {
 
     private void handleCommand(Message msg) throws Exception {
         CommandType type = CommandType.valueOf(msg.getCommand());
-        System.out.println(type);
+        System.out.println("[CLIENT CALLED]: " + msg.getSender() + " - " + type);
         Command command;
         switch (type) {
             case REGISTRY:

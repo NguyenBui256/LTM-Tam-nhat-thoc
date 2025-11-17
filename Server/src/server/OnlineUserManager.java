@@ -7,9 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import dto.PlayerRank;
 
 public class OnlineUserManager {
-    private static ConcurrentHashMap<String, ClientHandler> onlineUsers = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, String> userStatus = new ConcurrentHashMap<>(); // username -> status
-    private static ConcurrentHashMap<String, PlayerRank> userList = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, ClientHandler> onlineUsers = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, String> userStatus = new ConcurrentHashMap<>(); // username -> status
+    public static ConcurrentHashMap<String, PlayerRank> userList = new ConcurrentHashMap<>();
     
 	public static void setUserList(List<PlayerRank> userList) {
 		userList.forEach(u -> OnlineUserManager.userList.put(u.getName(), u));

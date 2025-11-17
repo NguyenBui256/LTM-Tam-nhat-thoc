@@ -50,7 +50,7 @@ public class PlayerListController implements MessageListener {
 
     public void setCurrentUser(String currentUser) {
         this.currentUser = currentUser;
-        System.out.println("[PlayerListController] currentUser set to: " + currentUser);
+        System.out.println("[PlayerListController] currentUser set to: " + this.currentUser);
         if (playerTable != null)
             playerTable.refresh();
     }
@@ -220,11 +220,15 @@ public class PlayerListController implements MessageListener {
                 if (this.network != null)
                     controller.setNetwork(this.network);
                 // pass player names if we know the opponent
+                System.out.println("[LOG] PlayerListController set cho GameController username: " + this.currentUser);
                 if (opponentFinal != null)
                     controller.setPlayers(this.currentUser, opponentFinal);
 
                 Stage stage = (Stage) backButton.getScene().getWindow();
                 InviteNotificationManager.getInstance().setPrimaryStage(stage);
+                // ✅ Truyền currentUser sang InviteNotificationManager
+                System.out.println("[PlayerListController] Truyền sang INM: " + this.currentUser);
+                InviteNotificationManager.getInstance().setCurrentUsername(this.currentUser);
                 stage.setScene(new Scene(root));
                 stage.setTitle("Game");
                 stage.show();

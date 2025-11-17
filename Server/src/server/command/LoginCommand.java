@@ -21,7 +21,7 @@ public class LoginCommand implements Command {
         if (OnlineUserManager.isOnline(username)) {
             handler.sendMessage(new Message("LOGIN_RESPONSE", "SERVER", new Status(StatusType.ERROR, "User is already logged in")));
         } else {
-        	if(! userdao.checkLogin(username, password)) {
+        	if(!userdao.checkLogin(username, password)) {
         		handler.sendMessage(new Message("LOGIN_RESPONSE","SERVER", new Status(StatusType.ERROR,"Password or username is incorrect!")));
         	}
             handler.setUsername(username);

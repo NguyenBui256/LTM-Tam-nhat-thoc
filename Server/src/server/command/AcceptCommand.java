@@ -16,13 +16,14 @@ public class AcceptCommand implements Command {
         InviteRequest req = (InviteRequest) msg.getContent();
         String accepter = req.getInvited(); // Người nhận lời mời (bên accept)
         String inviter = req.getInviter(); // Người đã gửi lời mời (bên send)
-
+        System.out.println("[SERVER] Trận đấu giữa: " + inviter + " và " + accepter);
         String roomId = GameRoomManager.createGameRoom(inviter, accepter);
         GameRoom room = GameRoomManager.getGameRoom(roomId);
 
         OnlineUserManager.setUserStatus(inviter, "IN_GAME");
         OnlineUserManager.setUserStatus(accepter, "IN_GAME");
         // Thông báo toàn bộ client cập nhật trạng thái cả hai
+        System.out.println("[SERVER] Cập nhật trạng thái cả 2 người chơi");
         for (ClientHandler client : OnlineUserManager.getAllHandlers()) {
             client.sendMessage(new Message("PLAYER_STATUS_CHANGE", "SERVER", java.util.Map.of(
                     "name", inviter,
@@ -32,14 +33,15 @@ public class AcceptCommand implements Command {
                     "status", "IN_GAME")));
         }
         // Thông báo riêng cho inviter biết đã được accept
+        System.out.println("[SERVER] Thông báo riêng cho inviter biết đã được accept");
         ClientHandler inviterHandler = OnlineUserManager.getHandler(inviter);
-        if (inviterHandler != null) {
-            inviterHandler.sendMessage(new Message("ACCEPT_NOTIFY", "SERVER", accepter + " đã chấp nhận lời mời."));
-            inviterHandler.sendMessage(new Message("GAME_ROOM_CREATED", "SERVER", room));
-        }
-        // Start the game immediately after accepting
-        GameManager.getInstance().startGame(inviter, inviterHandler, accepter, handler, roomId);
+        // Send GAME_ROOM_CREATED to both player
+        inviterHandler.sendMessage(new Message("ACCEPT_NOTIFY", "SERVER", accepter + " đã chấp nhận lời mời."));
+        inviterHandler.sendMessage(new Message("ACCEPT_RESPONSE", "SERVER", new Status(StatusType.SUCCESS, "Accepted")));
+        inviterHandler.sendMessage(new Message("GAME_ROOM_CREATED", "SERVER", room));
         handler.sendMessage(new Message("GAME_ROOM_CREATED", "SERVER", room));
-        handler.sendMessage(new Message("ACCEPT_RESPONSE", "SERVER", new Status(StatusType.SUCCESS, "Accepted")));
+
+        // Start the game AFTER both players received GAME_ROOM_CREATED
+        GameManager.getInstance().startGame(inviter, inviterHandler, accepter, handler, roomId);
     }
 }

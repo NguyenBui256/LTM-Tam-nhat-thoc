@@ -146,7 +146,7 @@ public class GameManager {
         int diff = Math.abs(score1 - score2);
         int winnerId = score1 > score2 ? 1 : (score2 > score1 ? 2 : 0);
         String winner = winnerId == 1 ? s.getP1() : winnerId == 2 ? s.getP2() : "Draw";
-        int eloChange = diff / 2;
+        int eloChange = (diff / 2) + 1;
         int eloChange1 = winnerId == 1 ? eloChange : winnerId == 0 ? 0 : -eloChange;
         int eloChange2 = winnerId == 2 ? eloChange : winnerId == 0 ? 0 : -eloChange;
 
@@ -159,6 +159,10 @@ public class GameManager {
         LeaderboardEntry e1 = leaderboard.getOrDefault(s.getP1(), new LeaderboardEntry(s.getP1()));
         LeaderboardEntry e2 = leaderboard.getOrDefault(s.getP2(), new LeaderboardEntry(s.getP2()));
         e1.totalPoints += score1; e2.totalPoints += score2;
+        if(e1.totalPoints < 0)
+            e1.totalPoints = 0;
+        if(e2.totalPoints < 0)
+            e2.totalPoints = 0;
         if (winnerId == 1) { e1.wins++; }
         else if (winnerId == 2) { e2.wins++; }
         leaderboard.put(s.getP1(), e1); leaderboard.put(s.getP2(), e2);
