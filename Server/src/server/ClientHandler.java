@@ -95,6 +95,9 @@ public class ClientHandler extends Thread implements Serializable {
             case MOVE:
                 command = new MoveCommand();
                 break;
+            case QUIT_GAME:
+                command = new QuitGameCommand();
+                break;
             default:
                 throw new IllegalArgumentException("Unknown command");
         }

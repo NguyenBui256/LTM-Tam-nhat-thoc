@@ -2,6 +2,7 @@ package client.controller;
 
 import client.network.MessageListener;
 import client.network.Network;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,8 +13,12 @@ import dto.GameUpdate;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -36,6 +41,9 @@ public class GameController implements MessageListener {
 
     @FXML
     private Pane boardPane;
+
+    @FXML
+    private javafx.scene.control.Button exitButton;
 
     // Player Baskets (You) - Left side
     @FXML
@@ -61,11 +69,15 @@ public class GameController implements MessageListener {
 
     // === KHÓA PHÍM KHI ĐANG XỬ LÝ HẠT ===
     private boolean isProcessing = false;
+    
+    // === TRẠNG THÁI TRÒ CHƠI ===
+    private boolean gameFinished = false;
 
-    // === Network ===
+    // === Network & Stage ===
     private Network network;
     private String gameId;
-    private String username;
+    private Stage primaryStage;
+    //    private String username;
     
     // === Player Info ===
     private String currentPlayerName;
@@ -76,6 +88,11 @@ public class GameController implements MessageListener {
     // === Initialize ===
     public void initialize() {
         System.out.println("[LOG]: " + currentPlayerName + "   initialize() được gọi");
+
+        // Setup exit button
+        if (exitButton != null) {
+            exitButton.setOnAction(e -> onExitGameClicked());
+        }
 
         Platform.runLater(() -> {
             System.out.println(
@@ -97,7 +114,7 @@ public class GameController implements MessageListener {
             // Gửi yêu cầu tạo game mới
             //            Message createMsg = new Message(
             //                CommandType.CREATE_GAME.toString(),
-            //                username,
+            //                currentPlayerName,
             //                gameId
             //            );
             //            try {
@@ -123,15 +140,8 @@ public class GameController implements MessageListener {
         this.gameId = gameId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-        // Set current user on network for invite notifications
-        if (this.network != null) {
-            this.network.setCurrentUser(username);
-        }
-    }
-
     public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
         InviteNotificationManager.getInstance().setPrimaryStage(stage);
         InviteNotificationManager.getInstance().setNetwork(this.network);
     }
@@ -328,7 +338,7 @@ public class GameController implements MessageListener {
         // Gửi MOVE command đến server
         int actualSeedType = seeds.get(selectedSeedIndex);
         System.out.println(
-            "[CLIENT LOG] Player " + username + " picks seed#" + selectedSeedIndex + 
+            "[CLIENT LOG] Player " + currentPlayerName + " picks seed#" + selectedSeedIndex +
             " (actual type: " + actualSeedType + ") as type " + basketType + 
             " = " + (basketType == actualSeedType ? "✓ CORRECT" : "✗ WRONG")
         );
@@ -410,10 +420,16 @@ public class GameController implements MessageListener {
     }
 
     // === Message Listener ===
-    @Override
-    public void onMessageReceived(Message msg) {
-        Platform.runLater(() -> {
-            if ("START_GAME".equals(msg.getCommand())) {
+     @Override
+     public void onMessageReceived(Message msg) {
+         Platform.runLater(() -> {
+             // Handle opponent disconnection
+             if ("OPPONENT_QUIT".equals(msg.getCommand())) {
+                 handleOpponentQuit();
+                 return;
+             }
+             
+             if ("START_GAME".equals(msg.getCommand())) {
                 // Handle start game from server
                 if (msg.getContent() instanceof GameStart gs) {
                     System.out.println(
@@ -424,7 +440,7 @@ public class GameController implements MessageListener {
                     opponentName = gs.getOpponentName();
                     
                     // Debug logging to check username vs currentPlayerName
-                    System.out.println("[DEBUG START_GAME] username=" + username + ", currentPlayerName=" + currentPlayerName +
+                    System.out.println("[DEBUG START_GAME] username=" + currentPlayerName + ", currentPlayerName=" + currentPlayerName +
                         ", opponentName=" + opponentName + ", gs.getCurrentPlayerName()=" + gs.getCurrentPlayerName() +
                         ", gs.getOpponentName()=" + gs.getOpponentName());
                     
@@ -678,7 +694,7 @@ public class GameController implements MessageListener {
                     int yourScore, opponentScoreValue;
                     
                     // Debug logging to understand the issue
-                    System.out.println("[DEBUG SCORE] " + currentPlayerName + " - username=" + username +
+                    System.out.println("[DEBUG SCORE] " + currentPlayerName +
                         ", update.getCurrentPlayerName()=" + update.getCurrentPlayerName() +
                         ", update.getCurrentPlayerScore()=" + update.getCurrentPlayerScore() +
                         ", update.getOpponentScore()=" + update.getOpponentScore());
@@ -734,7 +750,7 @@ public class GameController implements MessageListener {
         alert.setTitle("Kết thúc trò chơi");
         
         // Debug logging for END_GAME
-        System.out.println("[DEBUG END_GAME] " + currentPlayerName + " - username=" + username +
+        System.out.println("[DEBUG END_GAME] " + currentPlayerName +
             ", currentPlayerName=" + currentPlayerName + ", opponentName=" + opponentName +
             ", winner=" + winner + ", yourScore=" + yourScore + ", opponentScore=" + opponentScoreValue +
             ", yourEloChange=" + yourEloChange);
@@ -849,7 +865,7 @@ public class GameController implements MessageListener {
         content += "</div></div>" +
             "<div class='players-container'>" +
             "<div class='player-card " + (isCurrentUserWin ? "player-winner" : isDraw ? "player-draw" : "player-loser") + "'>" +
-            "<div class='player-name'>" + username + " (Bạn)</div>" +
+            "<div class='player-name'>" + currentPlayerName + " (Bạn)</div>" +
             "<div class='player-score'>" + yourScore + " điểm</div>" +
             "<div class='player-elo " + getEloClass(yourEloChange) + "'>" + getEloText(yourEloChange) + "</div>" +
             "</div>" +
@@ -872,8 +888,12 @@ public class GameController implements MessageListener {
         webView.setPrefSize(480, 320);
         
         alert.getDialogPane().setContent(webView);
+        gameFinished = true;
         alert.showAndWait();
-    }
+        
+        // Khi đóng dialog, quay về danh sách người chơi
+        returnToPlayerList();
+        }
     
     // === Helper methods cho Elo ===
     private String getEloClass(String eloChange) {
@@ -919,6 +939,98 @@ public class GameController implements MessageListener {
         } catch (Exception e) {
             return "Elo: ?";
         }
+    }
+
+    // === XỬ LÝ THOÁT GAME ===
+    private void onExitGameClicked() {
+        if (gameFinished) {
+            // Nếu game đã kết thúc, quay về danh sách người chơi ngay
+            returnToPlayerList();
+        } else {
+            // Nếu game đang chơi, hỏi xác nhận
+            Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmDialog.setTitle("Thoát trò chơi");
+            confirmDialog.setHeaderText(null);
+            confirmDialog.setContentText("Bạn chắc chắn muốn thoát? Trò chơi sẽ bị dừng lại.");
+            
+            var result = confirmDialog.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                quitGame();
+            }
+        }
+    }
+
+    private void quitGame() {
+        System.out.println("[CLIENT LOG] Player " + currentPlayerName + " is quitting game " + gameId);
+        
+        try {
+            // Gửi QUIT_GAME message đến server
+            Message quitMsg = new Message(
+                CommandType.QUIT_GAME.toString(),
+                currentPlayerName,
+                gameId
+            );
+            network.send(quitMsg);
+            System.out.println("[CLIENT LOG] Sent QUIT_GAME message for gameId=" + gameId);
+        } catch (Exception e) {
+            System.out.println("[CLIENT LOG] Error sending QUIT_GAME: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        // Quay về danh sách người chơi
+        Platform.runLater(this::returnToPlayerList);
+    }
+
+    private void returnToPlayerList() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/player_list.fxml"));
+            Parent root = loader.load();
+            PlayerListController controller = loader.getController();
+            
+            if (this.network != null) {
+                controller.setNetwork(this.network);
+                controller.setCurrentUser(this.currentPlayerName);
+            }
+            
+            // Use stored primaryStage instead of trying to get from UI element
+            if (primaryStage != null) {
+                primaryStage.setScene(new Scene(root));
+                primaryStage.setTitle("Danh sách người chơi");
+                primaryStage.show();
+            } else {
+                // Fallback: try to get stage from exitButton if primaryStage is not set
+                Stage stage = (Stage) exitButton.getScene().getWindow();
+                if (stage != null) {
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("Danh sách người chơi");
+                    stage.show();
+                } else {
+                    System.err.println("[CLIENT LOG] Cannot get stage reference");
+                    return;
+                }
+            }
+            
+            System.out.println("[CLIENT LOG] Returned to player list");
+        } catch (IOException e) {
+            System.out.println("[CLIENT LOG] Error loading player list: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleOpponentQuit() {
+        System.out.println("[CLIENT LOG] Opponent quit the game");
+        gameFinished = true;
+        
+        // Show notification that opponent quit
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Đối thủ rời khỏi trò chơi");
+        alert.setHeaderText(null);
+        alert.setContentText("Đối thủ của bạn đã rời khỏi trò chơi. Bạn được coi là người chiến thắng.");
+        
+        alert.showAndWait();
+        
+        // Return to player list
+        returnToPlayerList();
     }
 
     public void setPlayers(String currentUser, String opponent) {
@@ -1117,10 +1229,6 @@ public class GameController implements MessageListener {
 
     public String getGameId() {
         return gameId;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
     public String getCurrentPlayerName() {

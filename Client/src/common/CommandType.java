@@ -11,6 +11,7 @@ public enum CommandType {
     END_GAME,
     REMATCH,
     MOVE,
+    QUIT_GAME,
     GET_LEADERBOARD,
     GET_HISTORY,
     GET_RANKING,

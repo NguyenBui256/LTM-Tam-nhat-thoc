@@ -10,8 +10,9 @@ public enum CommandType {
     START_GAME,
     END_GAME,
     REMATCH,
-    MOVE
-    ,GET_LEADERBOARD,
+    MOVE,
+    QUIT_GAME,
+    GET_LEADERBOARD,
     GET_HISTORY,
     GET_RANKING,
     GET_ONLINE_PLAYERS,

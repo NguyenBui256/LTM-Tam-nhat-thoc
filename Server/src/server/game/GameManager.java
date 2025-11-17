@@ -209,6 +209,103 @@ public class GameManager {
         }
     }
 
+    public void handleQuitGame(String username, String gameId) {
+        System.out.println("[LOG] handleQuitGame() CALLED - user=" + username + ", gameId=" + gameId);
+        GameSession s = sessions.getOrDefault(gameId, null);
+        if (s == null) {
+            System.out.println("[LOG] ❌ ERROR: GameSession not found for gameId=" + gameId);
+            return;
+        }
+
+        synchronized (s) {
+            // Determine who quit and who is the opponent
+            String quitter = username;
+            String opponent;
+            if (s.getP1().equals(quitter)) {
+                opponent = s.getP2();
+            } else if (s.getP2().equals(quitter)) {
+                opponent = s.getP1();
+            } else {
+                System.out.println("[LOG] ❌ ERROR: username " + username + " is neither P1 nor P2");
+                return;
+            }
+
+            // Get current scores before finalizing
+            int quitterScore = s.getScores().getOrDefault(quitter, 0);
+            int opponentScore = s.getScores().getOrDefault(opponent, 0);
+
+            // Update scores: quitter gets -1, opponent keeps their score
+            s.getScores().put(quitter, -1);
+            
+            System.out.println("[LOG] Game quit by " + quitter + ". Setting their score to -1, " + opponent + " score: " + opponentScore);
+
+            // Calculate ELO changes as if opponent won
+            int diff = Math.abs(opponentScore - (-1)); // opponentScore vs -1
+            int eloChange = (diff / 2) + 1;
+            
+            // Quitter loses ELO, opponent gains ELO
+            int quitterEloChange = -eloChange;
+            int opponentEloChange = eloChange;
+
+            // Persist to database
+            try {
+                if (gameDAO == null) gameDAO = new GameDAO();
+                boolean ok = gameDAO.updateGame(gameId, -1, opponentScore);
+                if (!ok) System.out.println("[LOG] Failed to update game in DB");
+            } catch (Exception e) {
+                System.out.println("[LOG] DB error: " + e.getMessage());
+            }
+
+            // Update leaderboard
+            LeaderboardEntry quitterEntry = leaderboard.getOrDefault(quitter, new LeaderboardEntry(quitter));
+            LeaderboardEntry opponentEntry = leaderboard.getOrDefault(opponent, new LeaderboardEntry(opponent));
+            
+            quitterEntry.totalPoints += -1;
+            if (quitterEntry.totalPoints < 0) quitterEntry.totalPoints = 0;
+            
+            opponentEntry.totalPoints += opponentScore;
+            if (opponentEntry.totalPoints < 0) opponentEntry.totalPoints = 0;
+            
+            opponentEntry.wins++; // Opponent wins because quitter quit
+            leaderboard.put(quitter, quitterEntry);
+            leaderboard.put(opponent, opponentEntry);
+
+            // Send messages to both players
+            String quitterContent = "gameId=" + gameId + ",winner=" + opponent +
+                ",yourScore=-1,opponentScore=" + opponentScore +
+                ",yourEloChange=" + quitterEloChange + ",opponentEloChange=" + (-quitterEloChange);
+
+            String opponentContent = "gameId=" + gameId + ",winner=" + opponent +
+                ",yourScore=" + opponentScore + ",opponentScore=-1" +
+                ",yourEloChange=" + opponentEloChange + ",opponentEloChange=" + (-opponentEloChange);
+
+            System.out.println("[LOG] Sending END_GAME (quit) to quitter (" + quitter + "): " + quitterContent);
+            System.out.println("[LOG] Sending END_GAME (quit) to opponent (" + opponent + "): " + opponentContent);
+
+            try {
+                if (s.getP1().equals(quitter) && s.getP1Handler() != null) {
+                    s.getP1Handler().sendMessage(new Message("END_GAME", "SERVER", quitterContent));
+                } else if (s.getP2().equals(quitter) && s.getP2Handler() != null) {
+                    s.getP2Handler().sendMessage(new Message("END_GAME", "SERVER", quitterContent));
+                }
+                
+                if (s.getP1().equals(opponent) && s.getP1Handler() != null) {
+                    s.getP1Handler().sendMessage(new Message("END_GAME", "SERVER", opponentContent));
+                } else if (s.getP2().equals(opponent) && s.getP2Handler() != null) {
+                    s.getP2Handler().sendMessage(new Message("END_GAME", "SERVER", opponentContent));
+                }
+                
+                System.out.println("[LOG] Sent END_GAME messages to both players");
+            } catch (Exception e) {
+                System.out.println("[LOG] Error sending END_GAME messages: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        // Remove the session
+        sessions.remove(gameId);
+    }
+
     public Map<String, LeaderboardEntry> getLeaderboard() { return leaderboard; }
 
 }
