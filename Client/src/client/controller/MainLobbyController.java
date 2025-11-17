@@ -2,6 +2,7 @@ package client.controller;
 
 import client.network.MessageListener;
 import client.network.Network;
+import dto.GameRoom;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -76,6 +77,8 @@ public class MainLobbyController implements MessageListener {
         if (playerInfo != null && currentUser != null && !currentUser.isBlank()) {
             playerInfo.setText("Xin chào, " + currentUser);
         }
+        // ✅ Truyền currentUser sang InviteNotificationManager
+        InviteNotificationManager.getInstance().setCurrentUsername(currentUser);
     }
 
     @FXML
@@ -209,33 +212,6 @@ public class MainLobbyController implements MessageListener {
         if (msg == null)
             return;
         switch (msg.getCommand()) {
-            case "ACCEPT_NOTIFY" -> {
-                String content = msg.getContent() instanceof String ? (String) msg.getContent()
-                        : "Đối phương đã chấp nhận lời mời. Vào phòng chờ...";
-                Platform.runLater(() -> {
-                    try {
-                        try {
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/waiting_room.fxml"));
-                            Parent root = loader.load();
-                            WaitingRoomController controller = loader.getController();
-                            // Optionally pass network to waiting room: controller.setNetwork(network);
-                            primaryStage.setScene(new Scene(root));
-                            primaryStage.setTitle("Waiting Room");
-                            primaryStage.show();
-                        } catch (IOException e) {
-                            System.err.println("Lỗi load waiting_room.fxml: " + e.getMessage());
-                        }
-                    } catch (Exception e) {
-                        // fallback to simple alert/notification
-                        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                                javafx.scene.control.Alert.AlertType.INFORMATION);
-                        alert.setTitle("Đã chấp nhận lời mời");
-                        alert.setHeaderText(null);
-                        alert.setContentText(content);
-                        alert.showAndWait();
-                    }
-                });
-            }
             case "REJECT_NOTIFY" -> {
                 String content = msg.getContent() instanceof String ? (String) msg.getContent()
                         : "Đối phương đã từ chối lời mời.";

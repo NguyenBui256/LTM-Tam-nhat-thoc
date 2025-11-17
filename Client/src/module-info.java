@@ -11,6 +11,7 @@ module BTL_LTM {
     requires javafx.base;
     requires javafx.web;
 	requires java.sql;
+//    requires BTL_LTM;
     opens client to javafx.graphics, javafx.fxml;
     opens client.controller to javafx.fxml;
     exports client;
