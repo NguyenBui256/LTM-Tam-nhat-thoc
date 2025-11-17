@@ -7,58 +7,52 @@
 <?import javafx.scene.control.Pagination?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.MatchHistoryController">
+<AnchorPane prefHeight="600.0" prefWidth="800.0"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="client.controller.MatchHistoryController">
 
-    <VBox alignment="TOP_CENTER" spacing="10" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+    <VBox alignment="TOP_CENTER" spacing="15"
+          AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
-        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="header-bar">
-            <ImageView fitHeight="50" fitWidth="50">
-                <image>
-                    <Image url="@../images/user-interface.png" />
-                </image>
-            </ImageView>
-            <Label styleClass="player-name" text="Xin chào, Ngọc Ánh" />
-            <Label styleClass="player-elo" text="Elo: 1250" />
-            <Label styleClass="player-rank" text="Hạng: #28" />
-            <Region HBox.hgrow="ALWAYS" />
+        <padding>
+            <Insets top="20" right="40" bottom="20" left="40"/>
+        </padding>
+
+        <HBox alignment="CENTER_LEFT">
             <Button fx:id="backButton" styleClass="back-button" text="⟲ Quay lại" />
         </HBox>
 
-        <VBox alignment="CENTER" spacing="10">
-            <Label styleClass="title" text="Lịch sử đấu" />
-        </VBox>
+        <Label styleClass="title" text="Lịch sử đấu" />
 
-        <VBox alignment="CENTER" spacing="10">
-            <padding>
-                <Insets left="50.0" right="50.0" />
-            </padding>
-
-            <TableView fx:id="matchTable" prefHeight="350.0" style="-fx-border-color: #e0cda9; -fx-border-radius: 10; -fx-background-radius: 10; -fx-background-color: #fff8f0;" stylesheets="@../css/MatchHistory.css">
+        <VBox alignment="CENTER" spacing="10" VBox.vgrow="ALWAYS">
+            <TableView fx:id="matchTable" prefHeight="350.0" VBox.vgrow="ALWAYS">
                 <columns>
-                    <TableColumn fx:id="opponentColumn" prefWidth="75.0" text="Đối thủ" />
-                    <TableColumn fx:id="resultColumn" prefWidth="75.0" text="Kết quả" />
-                    <TableColumn fx:id="scoreColumn" prefWidth="75.0" text="Điểm số" />
-                    <TableColumn fx:id="eloChangeColumn" prefWidth="75.0" text="Thay đổi Elo" />
+                    <TableColumn fx:id="opponentColumn" text="Đối thủ" />
+                    <TableColumn fx:id="resultColumn" text="Kết quả" />
+                    <TableColumn fx:id="scoreColumn" text="Điểm số" />
+                    <TableColumn fx:id="eloChangeColumn" text="Thay đổi Elo" />
                 </columns>
                 <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                 </columnResizePolicy>
             </TableView>
+        </VBox>
 
-            <Pagination fx:id="pagination" maxPageIndicatorCount="3" pageCount="3" />
-            <Label fx:id="totalLabel" styleClass="footer" text="Tổng số trận đấu: 0" />
+        <VBox alignment="CENTER" spacing="5">
+            <Pagination fx:id="pagination" maxPageIndicatorCount="5" pageCount="1" />
+            <Label fx:id="totalLabel" styleClass="footer-text" text="Tổng số trận đấu: 0" />
         </VBox>
 
     </VBox>
+
     <stylesheets>
-        <URL value="@../css/MatchHistory.css" />
         <URL value="@../css/bg.css" />
+        <URL value="@../css/MatchHistory.css" />
     </stylesheets>
 </AnchorPane>

@@ -11,7 +11,7 @@
 <AnchorPane prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/bg.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.PlayerListController">
 
     <children>
-        <Text fill="#992c1c" layoutX="151.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Danh sách người chơi online">
+        <Text fill="#5d4037" layoutX="151.0" layoutY="83.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.5), 0, 0, 1, 1);; -fx-padding: 0 0 10 0;" text="Danh sách người chơi online">
             <font>
                 <Font name="Segoe UI Bold" size="36.0" />
             </font>
@@ -29,6 +29,6 @@
 
         <Pagination fx:id="pagination" prefHeight="35.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="250.0" AnchorPane.rightAnchor="250.0" />
 
-        <Button fx:id="backButton" layoutX="37.0" layoutY="23.0" mnemonicParsing="false" onAction="#onBackClicked" prefHeight="26.0" prefWidth="77.0" style="-fx-background-radius: 20; -fx-background-color: pink;" text="Quay lại" />
+        <Button fx:id="backButton" layoutX="37.0" layoutY="16.0" mnemonicParsing="false" onAction="#onBackClicked" prefHeight="27.0" prefWidth="101.0" style="-fx-background-color: #b6762c; -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 15;" text="⟲ Quay lại" />
     </children>
 </AnchorPane>

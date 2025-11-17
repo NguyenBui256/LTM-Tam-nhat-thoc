@@ -10,9 +10,9 @@ public abstract class DAO {
     public DAO() {
         try {
 
-        	String url = "jdbc:mysql://localhost:3306/ltm";
+        	String url = "jdbc:mysql://127.0.0.1:3307/ltm";
         	String user = "root";
-        	String pass = "12345678";
+        	String pass = "nam2110do";
             conn = DriverManager.getConnection(url, user, pass);
         } catch (SQLException e) {
             System.err.println("Database connection failed: " + e.getMessage());
