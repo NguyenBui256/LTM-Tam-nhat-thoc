@@ -258,6 +258,22 @@ public class PlayerListController implements MessageListener {
     private void handleAcceptNotify(Message msg) {
         String text = msg.getContent() instanceof String ? (String) msg.getContent()
                 : "Đối phương đã chấp nhận lời mời.";
+//        Platform.runLater(() -> {
+//            try {
+//                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/waiting_room.fxml"));
+//                Parent root = loader.load();
+//                WaitingRoomController controller = loader.getController();
+//                if (this.network != null)
+//                    controller.setNetwork(this.network);
+//                Stage stage = (Stage) backButton.getScene().getWindow();
+//                InviteNotificationManager.getInstance().setPrimaryStage(stage);
+//                stage.setScene(new Scene(root));
+//                stage.setTitle("Waiting Room");
+//                stage.show();
+//            } catch (Exception e) {
+//                InviteNotificationManager.getInstance().showSimpleNotification(text);
+//            }
+//        });
     }
 
     private void handleRejectNotify(Message msg) {
