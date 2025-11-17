@@ -201,29 +201,79 @@ public class PlayerListController implements MessageListener {
             case "ONLINE_PLAYERS_RESPONSE" -> handlePlayerList(msg);
             case "PLAYER_STATUS_CHANGE" -> handleStatusChange(msg);
             case "ACCEPT_NOTIFY" -> handleAcceptNotify(msg);
+            case "GAME_ROOM_CREATED" -> handleGameRoomCreated(msg);
             case "REJECT_NOTIFY" -> handleRejectNotify(msg);
         }
+    }
+
+    // ✅ Xử lý GAME_ROOM_CREATED từ server cho người gửi lời mời (inviter)
+    private void handleGameRoomCreated(Message msg) {
+        Object content = msg.getContent();
+        if (!(content instanceof GameRoom gameRoom)) {
+            return;
+        }
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GameScene.fxml"));
+                Parent root = loader.load();
+                GameController controller = loader.getController();
+                if (this.network != null)
+                    controller.setNetwork(this.network);
+
+                // ✅ KHÔNG assume - dùng GameRoom từ server để xác định ai là ai
+                String player1 = gameRoom.getPlayer1();
+                String player2 = gameRoom.getPlayer2();
+
+                // Xác định opponent dựa trên currentUser và GameRoom
+                String opponent;
+                if (this.currentUser != null && this.currentUser.equals(player1)) {
+                    opponent = player2;
+                } else if (this.currentUser != null && this.currentUser.equals(player2)) {
+                    opponent = player1;
+                } else {
+                    System.err.println("[PlayerListController] currentUser=" + this.currentUser
+                            + " không khớp với player nào trong GameRoom (player1=" + player1 + ", player2=" + player2 + ")");
+                    InviteNotificationManager.getInstance().showSimpleNotification("Lỗi: Không tìm thấy thông tin người chơi");
+                    return;
+                }
+
+                controller.setPlayers(this.currentUser, opponent);
+                controller.setCurrentPlayerName(this.currentUser);
+                System.out.println("[PlayerListController] Game started: currentUser=" + this.currentUser
+                        + ", opponent=" + opponent + " (from GameRoom: player1=" + player1 + ", player2=" + player2 + ")");
+
+                Stage stage = (Stage) backButton.getScene().getWindow();
+                InviteNotificationManager.getInstance().setPrimaryStage(stage);
+                InviteNotificationManager.getInstance().setCurrentUsername(this.currentUser);
+                stage.setScene(new Scene(root));
+                stage.setTitle("Game");
+                stage.show();
+            } catch (IOException e) {
+                System.err.println("[PlayerListController] Lỗi load GameScene.fxml: " + e.getMessage());
+                InviteNotificationManager.getInstance().showSimpleNotification("Lỗi: Không thể tải giao diện game");
+            }
+        });
     }
 
     private void handleAcceptNotify(Message msg) {
         String text = msg.getContent() instanceof String ? (String) msg.getContent()
                 : "Đối phương đã chấp nhận lời mời.";
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/waiting_room.fxml"));
-                Parent root = loader.load();
-                WaitingRoomController controller = loader.getController();
-                if (this.network != null)
-                    controller.setNetwork(this.network);
-                Stage stage = (Stage) backButton.getScene().getWindow();
-                InviteNotificationManager.getInstance().setPrimaryStage(stage);
-                stage.setScene(new Scene(root));
-                stage.setTitle("Waiting Room");
-                stage.show();
-            } catch (Exception e) {
-                InviteNotificationManager.getInstance().showSimpleNotification(text);
-            }
-        });
+//        Platform.runLater(() -> {
+//            try {
+//                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/waiting_room.fxml"));
+//                Parent root = loader.load();
+//                WaitingRoomController controller = loader.getController();
+//                if (this.network != null)
+//                    controller.setNetwork(this.network);
+//                Stage stage = (Stage) backButton.getScene().getWindow();
+//                InviteNotificationManager.getInstance().setPrimaryStage(stage);
+//                stage.setScene(new Scene(root));
+//                stage.setTitle("Waiting Room");
+//                stage.show();
+//            } catch (Exception e) {
+//                InviteNotificationManager.getInstance().showSimpleNotification(text);
+//            }
+//        });
     }
 
     private void handleRejectNotify(Message msg) {
