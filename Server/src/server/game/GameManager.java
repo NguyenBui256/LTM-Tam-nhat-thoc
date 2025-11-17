@@ -7,6 +7,7 @@ import common.StatusType;
 import dto.*;
 import server.OnlineUserManager;
 import server.dao.GameDAO;
+import server.dao.UserDAO;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,8 +24,8 @@ import dto.GameUpdate;
 public class GameManager {
     private static GameManager instance = new GameManager();
     private Map<String, GameSession> sessions = new ConcurrentHashMap<>();
-    private Map<String, LeaderboardEntry> leaderboard = new ConcurrentHashMap<>();
     private GameDAO gameDAO;
+    private UserDAO userDAO;
 
     private GameManager() {}
 
@@ -157,18 +158,6 @@ public class GameManager {
         boolean ok = gameDAO.updateGame(s.getId(), score1, score2);
         if (!ok) throw new RuntimeException("DB update failed");
 
-        // update leaderboard
-        LeaderboardEntry e1 = leaderboard.getOrDefault(s.getP1(), new LeaderboardEntry(s.getP1()));
-        LeaderboardEntry e2 = leaderboard.getOrDefault(s.getP2(), new LeaderboardEntry(s.getP2()));
-        e1.totalPoints += score1; e2.totalPoints += score2;
-        if(e1.totalPoints < 0)
-            e1.totalPoints = 0;
-        if(e2.totalPoints < 0)
-            e2.totalPoints = 0;
-        if (winnerId == 1) { e1.wins++; }
-        else if (winnerId == 2) { e2.wins++; }
-        leaderboard.put(s.getP1(), e1); leaderboard.put(s.getP2(), e2);
-
         return new GameResult(winner, score1, score2, eloChange1, eloChange2);
     }
 
@@ -199,6 +188,33 @@ public class GameManager {
             System.out.println("[SERVER LOG] Sending END_GAME to P1 (" + s.getP1() + "): " + p1Content);
             System.out.println("[SERVER LOG] Sending END_GAME to P2 (" + s.getP2() + "): " + p2Content);
 
+            // ✅ CẬP NHẬT ELO CHO CẢ 2 NGƯỜI CHƠI
+            int p1Elo = OnlineUserManager.getPlayerElo(s.getP1());
+            int p2Elo = OnlineUserManager.getPlayerElo(s.getP2());
+            int p1EloUpdated = Math.max(0,p1Elo + result.getEloChange1());
+            int p2EloUpdated = Math.max(0,p2Elo + result.getEloChange2());
+            
+            System.out.println("[SERVER LOG] Updated ELO - P1 (" + s.getP1() + "): " + p1EloUpdated +
+                             ", P2 (" + s.getP2() + "): " + p2EloUpdated);
+            
+            // ✅ LƯU ELO VÀO DATABASE VÀ ONLINE USER MANAGER
+            try {
+                if (userDAO == null) userDAO = new UserDAO();
+                boolean p1Updated = userDAO.updateUserElo(s.getP1(), p1EloUpdated);
+                boolean p2Updated = userDAO.updateUserElo(s.getP2(), p2EloUpdated);
+                if (!p1Updated || !p2Updated) {
+                    System.err.println("[SERVER LOG] Warning: Failed to update ELO for one or both players");
+                }
+                
+                // ✅ CẬP NHẬT ELO TRONG ONLINE USER MANAGER (userList)
+                OnlineUserManager.updatePlayerElo(s.getP1(), p1EloUpdated);
+                OnlineUserManager.updatePlayerElo(s.getP2(), p2EloUpdated);
+                System.out.println("[SERVER LOG] Updated ELO in OnlineUserManager for " + s.getP1() + " and " + s.getP2());
+            } catch (Exception e) {
+                System.err.println("[SERVER LOG] Error updating ELO to database: " + e.getMessage());
+                e.printStackTrace();
+            }
+
             try {
                 if (s.getP1Handler() != null) {
                     s.getP1Handler().sendMessage(new Message("END_GAME", "SERVER", p1Content));
@@ -211,7 +227,22 @@ public class GameManager {
                 System.out.println("[SERVER] Cập nhật trạng thái cả 2 người chơi");
                 OnlineUserManager.setUserStatus(s.getP1(), "ONLINE");
                 OnlineUserManager.setUserStatus(s.getP2(), "ONLINE");
+                
+                // ✅ BROADCAST UPDATE_PLAYER_ELO đến tất cả clients
                 for (ClientHandler client : OnlineUserManager.getAllHandlers()) {
+                    // Gửi ELO update cho player 1
+                    client.sendMessage(new Message("UPDATE_PLAYER_ELO", "SERVER", java.util.Map.of(
+                            "name", s.getP1(),
+                            "newElo", p1EloUpdated,
+                            "eloChange", result.getEloChange1())));
+                    
+                    // Gửi ELO update cho player 2
+                    client.sendMessage(new Message("UPDATE_PLAYER_ELO", "SERVER", java.util.Map.of(
+                            "name", s.getP2(),
+                            "newElo", p2EloUpdated,
+                            "eloChange", result.getEloChange2())));
+                    
+                    // Gửi status change notification
                     client.sendMessage(new Message("PLAYER_STATUS_CHANGE", "SERVER", java.util.Map.of(
                             "name", s.getP1(),
                             "status", "ONLINE")));
@@ -264,6 +295,11 @@ public class GameManager {
             int quitterEloChange = -eloChange;
             int opponentEloChange = eloChange;
 
+            int quitterElo = OnlineUserManager.getPlayerElo(quitter);
+            int opponentElo = OnlineUserManager.getPlayerElo(opponent);
+            int quitterEloUpdated = Math.max(0,quitterElo + quitterEloChange);
+            int opponentEloUpdated = Math.max(0,opponentElo + opponentEloChange);
+
             // Persist to database
             try {
                 if (gameDAO == null) gameDAO = new GameDAO();
@@ -273,19 +309,26 @@ public class GameManager {
                 System.out.println("[LOG] DB error: " + e.getMessage());
             }
 
-            // Update leaderboard
-            LeaderboardEntry quitterEntry = leaderboard.getOrDefault(quitter, new LeaderboardEntry(quitter));
-            LeaderboardEntry opponentEntry = leaderboard.getOrDefault(opponent, new LeaderboardEntry(opponent));
+            System.out.println("[LOG] Updated Leaderboard - Quitter (" + quitter + "): elo=" + quitterEloUpdated +
+                             ", Opponent (" + opponent + "): elo=" + opponentEloUpdated);
             
-            quitterEntry.totalPoints += -1;
-            if (quitterEntry.totalPoints < 0) quitterEntry.totalPoints = 0;
-            
-            opponentEntry.totalPoints += opponentScore;
-            if (opponentEntry.totalPoints < 0) opponentEntry.totalPoints = 0;
-            
-            opponentEntry.wins++; // Opponent wins because quitter quit
-            leaderboard.put(quitter, quitterEntry);
-            leaderboard.put(opponent, opponentEntry);
+            // ✅ LƯU ELO VÀO DATABASE VÀ ONLINE USER MANAGER
+            try {
+                if (userDAO == null) userDAO = new UserDAO();
+                boolean quitterUpdated = userDAO.updateUserElo(quitter, quitterEloUpdated);
+                boolean opponentUpdated = userDAO.updateUserElo(opponent, opponentEloUpdated);
+                if (!quitterUpdated || !opponentUpdated) {
+                    System.err.println("[LOG] Warning: Failed to update ELO for one or both players");
+                }
+                
+                // ✅ CẬP NHẬT ELO TRONG ONLINE USER MANAGER (userList)
+                OnlineUserManager.updatePlayerElo(quitter, quitterEloUpdated);
+                OnlineUserManager.updatePlayerElo(opponent, opponentEloUpdated);
+                System.out.println("[LOG] Updated ELO in OnlineUserManager for " + quitter + " and " + opponent);
+            } catch (Exception e) {
+                System.err.println("[LOG] Error updating ELO to database: " + e.getMessage());
+                e.printStackTrace();
+            }
 
             // Send messages to both players
             String quitterContent = "gameId=" + gameId + ",winner=" + opponent +
@@ -316,7 +359,22 @@ public class GameManager {
                 System.out.println("[SERVER] Cập nhật trạng thái cả 2 người chơi");
                 OnlineUserManager.setUserStatus(s.getP1(), "ONLINE");
                 OnlineUserManager.setUserStatus(s.getP2(), "ONLINE");
+                
+                // ✅ BROADCAST UPDATE_PLAYER_ELO đến tất cả clients
                 for (ClientHandler client : OnlineUserManager.getAllHandlers()) {
+                    // Gửi ELO update cho quitter
+                    client.sendMessage(new Message("UPDATE_PLAYER_ELO", "SERVER", java.util.Map.of(
+                            "name", quitter,
+                            "newElo", quitterEloUpdated,
+                            "eloChange", quitterEloChange)));
+                    
+                    // Gửi ELO update cho opponent
+                    client.sendMessage(new Message("UPDATE_PLAYER_ELO", "SERVER", java.util.Map.of(
+                            "name", opponent,
+                            "newElo", opponentEloUpdated,
+                            "eloChange", opponentEloChange)));
+                    
+                    // Gửi status change notification
                     client.sendMessage(new Message("PLAYER_STATUS_CHANGE", "SERVER", java.util.Map.of(
                             "name", s.getP1(),
                             "status", "ONLINE")));
@@ -334,13 +392,4 @@ public class GameManager {
         sessions.remove(gameId);
     }
 
-    public Map<String, LeaderboardEntry> getLeaderboard() { return leaderboard; }
-
-}
-
-class LeaderboardEntry {
-    String username;
-    int totalPoints = 0;
-    int wins = 0;
-    LeaderboardEntry(String u) { username = u; }
 }

@@ -210,6 +210,7 @@ public class PlayerListController implements MessageListener {
             case "ACCEPT_NOTIFY" -> handleAcceptNotify(msg);
             case "GAME_ROOM_CREATED" -> handleGameRoomCreated(msg);
             case "REJECT_NOTIFY" -> handleRejectNotify(msg);
+            case "UPDATE_PLAYER_ELO" -> handleUpdatePlayerElo(msg);
         }
     }
 
@@ -334,6 +335,42 @@ public class PlayerListController implements MessageListener {
             // sắp xếp và cập nhật UI hoàn toàn trong FX thread
             sortPlayers();
             updateTable(pagination.getCurrentPageIndex()); // refresh
+            if (playerTable != null) playerTable.refresh();
+        });
+    }
+
+    // ✅ Xử lý UPDATE_PLAYER_ELO từ server - cập nhật realtime ELO khi game kết thúc
+    private void handleUpdatePlayerElo(Message msg) {
+        if (!(msg.getContent() instanceof Map<?, ?> data))
+            return;
+
+        String name = (String) data.get("name");
+        Object newEloObj = data.get("newElo");
+        Object eloChangeObj = data.get("eloChange");
+        
+        if (name == null || newEloObj == null) {
+            System.err.println("[PlayerListController] Invalid UPDATE_PLAYER_ELO data");
+            return;
+        }
+
+        int newElo = ((Number) newEloObj).intValue();
+        int eloChange = eloChangeObj != null ? ((Number) eloChangeObj).intValue() : 0;
+
+        System.out.println("[PlayerListController] UPDATE_PLAYER_ELO: " + name + " elo=" + newElo + " (change=" + eloChange + ")");
+        
+        Platform.runLater(() -> {
+            allPlayers.stream()
+                    .filter(p -> p.getName().equals(name))
+                    .findFirst()
+                    .ifPresent(p -> {
+                        int oldElo = p.getElo();
+                        p.setElo(newElo);
+                        System.out.println("[PlayerListController] ELO updated for " + name + " : " + oldElo + " -> " + newElo + 
+                                         " (change=" + eloChange + ")");
+                    });
+            // Sắp xếp lại theo ELO (thường các danh sách sắp xếp theo ELO)
+            sortPlayers();
+            updateTable(pagination.getCurrentPageIndex());
             if (playerTable != null) playerTable.refresh();
         });
     }

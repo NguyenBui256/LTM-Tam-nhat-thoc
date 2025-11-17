@@ -34,8 +34,5 @@ public class LeaderboardCommand implements Command {
                 return;
             }
         }
-
-        // fallback to in-memory leaderboard
-        handler.sendMessage(new Message("LEADERBOARD", "SERVER", GameManager.getInstance().getLeaderboard()));
     }
 }

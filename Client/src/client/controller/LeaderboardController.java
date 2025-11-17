@@ -19,6 +19,7 @@ import dto.PlayerStatus;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class LeaderboardController implements MessageListener {
 
@@ -180,6 +181,9 @@ public class LeaderboardController implements MessageListener {
                     showAlert("Lỗi Phản Hồi", "Danh sách xếp hạng từ server không hợp lệ.");
                 });
             }
+        } else if (msg != null && "UPDATE_PLAYER_ELO".equals(msg.getCommand())) {
+            // ✅ Xử lý UPDATE_PLAYER_ELO để cập nhật realtime ELO trong bảng xếp hạng
+            handleUpdatePlayerElo(msg);
         } else {
             System.out.println(
                     "[LeaderboardController] Ignored message: command=" + (msg != null ? msg.getCommand() : "null"));
@@ -220,6 +224,41 @@ public class LeaderboardController implements MessageListener {
         allPlayers.sort(Comparator.comparingInt(PlayerStatus::getElo).reversed());
         updateFiltered(searchField.getText());
         System.out.println("[LeaderboardController] Sorted by Elo");
+    }
+
+    // ✅ Xử lý UPDATE_PLAYER_ELO từ server - cập nhật realtime ELO trong leaderboard
+    private void handleUpdatePlayerElo(Message msg) {
+        if (!(msg.getContent() instanceof Map<?, ?> data))
+            return;
+
+        String name = (String) data.get("name");
+        Object newEloObj = data.get("newElo");
+        Object eloChangeObj = data.get("eloChange");
+        
+        if (name == null || newEloObj == null) {
+            System.err.println("[LeaderboardController] Invalid UPDATE_PLAYER_ELO data");
+            return;
+        }
+
+        int newElo = ((Number) newEloObj).intValue();
+        int eloChange = eloChangeObj != null ? ((Number) eloChangeObj).intValue() : 0;
+
+        System.out.println("[LeaderboardController] UPDATE_PLAYER_ELO: " + name + " elo=" + newElo + " (change=" + eloChange + ")");
+        
+        Platform.runLater(() -> {
+            allPlayers.stream()
+                    .filter(p -> p.getUsername().equals(name))
+                    .findFirst()
+                    .ifPresent(p -> {
+                        int oldElo = p.getElo();
+                        p.setElo(newElo);
+                        System.out.println("[LeaderboardController] ELO updated for " + name + " : " + oldElo + " -> " + newElo + 
+                                         " (change=" + eloChange + ")");
+                    });
+            // Sắp xếp lại theo ELO
+            sortByElo();
+            if (leaderboardTable != null) leaderboardTable.refresh();
+        });
     }
 
     private int getIndex(PlayerStatus player) {

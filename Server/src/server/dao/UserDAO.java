@@ -137,4 +137,23 @@ public class UserDAO extends DAO {
         return users;
     }
 
+    // ✅ THÊM: Cập nhật ELO của người chơi
+    public boolean updateUserElo(String username, int newElo) {
+        // Đảm bảo ELO không âm
+        if (newElo < 0) newElo = 0;
+        
+        String sql = "UPDATE user SET elo = ? WHERE username = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, newElo);
+            ps.setString(2, username);
+            int updated = ps.executeUpdate();
+            System.out.println("[UserDAO] Updated ELO for user " + username + " to " + newElo + " (" + updated + " row(s) affected)");
+            return updated > 0;
+        } catch (SQLException e) {
+            System.err.println("[UserDAO] Error updating ELO for user " + username + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

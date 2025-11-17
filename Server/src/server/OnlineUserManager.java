@@ -15,6 +15,14 @@ public class OnlineUserManager {
         userList.forEach(u -> OnlineUserManager.userList.put(u.getName(), u));
     }
 
+    public static int getPlayerElo(String username) {
+        PlayerRank pr = userList.getOrDefault(username, null);
+        if(pr == null)
+            return 0;
+        else
+            return pr.getElo();
+    }
+
     public static void addOnlineUser(String username, ClientHandler handler) {
         if (username != null && handler != null) {
             onlineUsers.put(username, handler);
@@ -72,33 +80,43 @@ public class OnlineUserManager {
         return status != null && status.equals("ONLINE");
     }
     public static List<PlayerRank> getListUser(ClientHandler handler){
-        List<PlayerRank> pl = new ArrayList<>();
-        for(String x: userList.keySet()) {
+         List<PlayerRank> pl = new ArrayList<>();
+         for(String x: userList.keySet()) {
 
-            if(x.equals(handler.getUsername())) {
-                System.out.println("Ban than");
-                continue;
-            }
-            // Return a copy to avoid exposing internal mutable objects to serialization races
-            PlayerRank original = userList.get(x);
-            if (original != null) {
-                PlayerRank copy = new PlayerRank(original.getName(), original.getStatus(), original.getElo(), original.getWins());
-                pl.add(copy);
-                System.out.println(copy.getName()+ " " + copy.getStatus());
-            }
+             if(x.equals(handler.getUsername())) {
+                 System.out.println("Ban than");
+                 continue;
+             }
+             // Return a copy to avoid exposing internal mutable objects to serialization races
+             PlayerRank original = userList.get(x);
+             if (original != null) {
+                 PlayerRank copy = new PlayerRank(original.getName(), original.getStatus(), original.getElo(), original.getWins());
+                 pl.add(copy);
+                 System.out.println(copy.getName()+ " " + copy.getStatus());
+             }
+         }
+         pl.sort((x, y) -> {
+             boolean xIsOnline = "ONLINE".equals(x.getStatus());
+             boolean yIsOnline = "ONLINE".equals(y.getStatus());
+
+             if (xIsOnline && !yIsOnline) {
+                 return -1; // x đứng trước y (vì x online, y offline)
+             } else if (!xIsOnline && yIsOnline) {
+                 return 1;  // y đứng trước x (vì y online, x offline)
+             } else {
+                 return 0;  // Cả hai cùng online hoặc cùng offline, coi như bằng nhau
+             }
+         });
+         return pl;
+     }
+
+    // ✅ Cập nhật ELO cho player trong userList (dùng khi game kết thúc)
+    public static void updatePlayerElo(String username, int newElo) {
+        if (username != null) {
+            userList.computeIfPresent(username, (key, playerRank) -> {
+                playerRank.setElo(newElo);
+                return playerRank;
+            });
         }
-        pl.sort((x, y) -> {
-            boolean xIsOnline = "ONLINE".equals(x.getStatus());
-            boolean yIsOnline = "ONLINE".equals(y.getStatus());
-
-            if (xIsOnline && !yIsOnline) {
-                return -1; // x đứng trước y (vì x online, y offline)
-            } else if (!xIsOnline && yIsOnline) {
-                return 1;  // y đứng trước x (vì y online, x offline)
-            } else {
-                return 0;  // Cả hai cùng online hoặc cùng offline, coi như bằng nhau
-            }
-        });
-        return pl;
     }
 }

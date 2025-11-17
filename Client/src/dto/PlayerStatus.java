@@ -51,4 +51,16 @@ public class PlayerStatus implements Serializable {
     public void setCurrentRoomId(String currentRoomId) {
         this.currentRoomId = currentRoomId;
     }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setElo(int elo) {
+        this.elo = elo;
+    }
 }
