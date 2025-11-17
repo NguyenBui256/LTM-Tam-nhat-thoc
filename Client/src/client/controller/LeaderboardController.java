@@ -36,8 +36,7 @@ public class LeaderboardController implements MessageListener {
     private Pagination pagination;
     @FXML
     private ToggleButton scoreTab;
-    @FXML
-    private ToggleButton winTab;
+
     @FXML
     private TextField searchField;
     @FXML
@@ -124,7 +123,7 @@ public class LeaderboardController implements MessageListener {
 
         // Tab sắp xếp
         scoreTab.setOnAction(e -> onScoreTabClicked());
-        winTab.setOnAction(e -> onWinTabClicked());
+
 
         // Nút quay lại
         backButton.setOnAction(e -> onBackClicked());
@@ -199,19 +198,7 @@ public class LeaderboardController implements MessageListener {
     private void onScoreTabClicked() {
         sortByElo();
         scoreTab.setSelected(true);
-        winTab.setSelected(false);
         System.out.println("[LeaderboardController] Sorted by Elo");
-    }
-
-    @FXML
-    private void onWinTabClicked() {
-        // sortByWins(); // Bỏ vì PlayerStatus không có trường wins
-        winTab.setSelected(true);
-        scoreTab.setSelected(false);
-        System.out.println("[LeaderboardController] Win tab clicked (no sorting due to missing wins data)");
-        Platform.runLater(() -> {
-            showAlert("Thông Báo", "Sắp xếp theo số trận thắng chưa được hỗ trợ.");
-        });
     }
 
     // Pagination removed — using scroll to show all rows

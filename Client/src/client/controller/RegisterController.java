@@ -4,6 +4,7 @@ package client.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -19,6 +20,9 @@ public class RegisterController {
 
     @FXML
     private TextField usernameField;
+
+    @FXML
+    private TextField ingameField;
 
     @FXML
     private TextField emailField;
@@ -45,12 +49,13 @@ public class RegisterController {
     @FXML
     protected void onRegisterClicked(ActionEvent event) {
         String username = usernameField.getText();
+        String name = ingameField.getText();
         String email = emailField.getText();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
 
         // 1. Kiểm tra dữ liệu đầu vào (Validation)
-        if (!validateInput(username, email, password, confirmPassword)) {
+        if (!validateInput(username, name, email, password, confirmPassword)) {
             return; // Dừng lại nếu dữ liệu không hợp lệ
         }
 
@@ -76,9 +81,9 @@ public class RegisterController {
      *
      * @return true nếu hợp lệ, false nếu không hợp lệ.
      */
-    private boolean validateInput( String username, String email, String password, String confirmPassword) {
+    private boolean validateInput( String username, String name,String email, String password, String confirmPassword) {
         // Kiểm tra xem có trường nào bị bỏ trống không
-        if (username.isBlank() || email.isBlank() || password.isBlank()) {
+        if (username.isBlank() || name.isBlank() || email.isBlank() || password.isBlank()) {
             showError("Vui lòng điền đầy đủ thông tin!");
             return false;
         }
@@ -119,7 +124,7 @@ public class RegisterController {
 
     private void switchToLogin(ActionEvent event) throws IOException {
         // Lấy Stage (cửa sổ) hiện tại từ sự kiện
-        Stage stage = (Stage) ((Hyperlink) event.getSource()).getScene().getWindow();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
         // Tải file FXML của màn hình đăng nhập
         // !!! LƯU Ý: Hãy chắc chắn rằng đường dẫn này là chính xác trong dự án của bạn !!!

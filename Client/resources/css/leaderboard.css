@@ -1,51 +1,142 @@
+/* ==================== 1. Tiêu đề (Title) ==================== */
 .title {
-    -fx-font-family: "UTM Bebas";
     -fx-font-size: 32px;
-    -fx-text-fill: #2e3a59;
     -fx-font-weight: bold;
-    -fx-padding: 20 0 10 0;
+    -fx-text-fill: #5D4037;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.5), 0, 0, 1, 1);
+    -fx-alignment: CENTER;
+    -fx-padding: 0 0 10 0;
 }
 
+/* ==================== 2. Các nút điều khiển ==================== */
 .tab-button {
-    -fx-background-color: #f3f0e7;
-    -fx-text-fill: #5a3e1b;
+    -fx-background-color: #E6CEAC;
+    -fx-text-fill: #5D4037;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-background-radius: 20;
+    -fx-background-radius: 20px;
+    -fx-cursor: hand;
     -fx-padding: 8 20;
+    -fx-border-color: #C78D44;
+    -fx-border-radius: 20px;
 }
-
+.tab-button:hover { -fx-background-color: #D7B888; }
 .tab-button:selected {
-    -fx-background-color: #ffd37b;
-    -fx-text-fill: #3e1c00;
+    -fx-background-color: #C78D44;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
 }
 
 .search-field {
-    -fx-background-radius: 20;
-    -fx-padding: 6 15;
-    -fx-background-color: #fff;
-    -fx-border-color: #d0c4a7;
-    -fx-border-radius: 20;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 20px;
+    -fx-border-color: #C78D44;
+    -fx-border-radius: 20px;
+    -fx-border-width: 1.5px;
+    -fx-prompt-text-fill: #A1887F;
+    -fx-text-fill: #5D4037;
+    -fx-font-size: 13px;
+    -fx-padding: 8 15;
 }
+.search-field:focused { -fx-border-color: #689F38; }
 
 .back-button {
-    -fx-background-color: #6d4c41;
+    -fx-background-color: #C78D44;
     -fx-text-fill: white;
-    -fx-background-radius: 20;
-    -fx-padding: 6 16;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-background-radius: 20px;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
 }
+.back-button:hover { -fx-background-color: #A16E34; }
+
+/* ==================== 3. TableView GIAO DIỆN NÂU GỖ (QUAN TRỌNG) ==================== */
 
 .table-view {
-    -fx-background-color: rgba(255, 255, 255, 0.9);
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-border-color: #e0d8c3;
+    /* Nền bảng trong suốt nhẹ màu kem */
+    -fx-background-color: rgba(255, 252, 245, 0.85);
+    -fx-background-radius: 15px;
+    /* Viền ngoài bảng trùng màu header */
+    -fx-border-color: #BCAAA4;
+    -fx-border-width: 2px;
+    -fx-border-radius: 15px;
+    -fx-padding: 0; /* Bỏ padding để header dính sát viền */
 }
 
-.table-column {
-    -fx-alignment: CENTER-LEFT;
+/* --- PHẦN HEADER (Thanh tiêu đề) --- */
+.table-view .column-header-background {
+    /* Tạo màu gradient nâu vàng giống trong ảnh mẫu */
+    -fx-background-color: linear-gradient(to bottom, #CD9B55, #A67B3D);
+    /* Bo tròn 2 góc trên */
+    -fx-background-radius: 13px 13px 0 0;
+    -fx-background-insets: 0;
 }
 
-.pagination {
-    -fx-padding: 10 0 20 0;
+.table-view .column-header {
+    /* Để trong suốt để hiện màu nền của column-header-background */
+    -fx-background-color: transparent;
+    -fx-size: 45px; /* Chiều cao header */
+    -fx-border-width: 0; /* Bỏ đường kẻ giữa các cột */
 }
 
+/* Text trong Header */
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-alignment: CENTER;
+}
+
+/* Xử lý góc thừa bên phải (nếu có) */
+.table-view .filler {
+    -fx-background-color: transparent;
+}
+
+/* --- Dòng dữ liệu (Body) --- */
+.table-view .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #E6CEAC transparent; /* Kẻ ngang mờ */
+}
+
+/* Khi di chuột vào dòng */
+.table-view .table-row-cell:hover {
+    -fx-background-color: rgba(205, 155, 85, 0.1);
+}
+
+.table-view .table-cell {
+    -fx-text-fill: #5D4037; /* Chữ màu nâu đất */
+    -fx-alignment: CENTER;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Dòng chữ "No content in table" */
+.table-view .placeholder .label {
+    -fx-text-fill: #5D4037;
+}
+
+/* ==================== 4. Phân trang ==================== */
+.pagination { -fx-padding: 10 0 0 0; }
+.pagination .page-information { -fx-visibility: hidden; -fx-pref-height: 0; -fx-max-height: 0; }
+.pagination .toggle-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #C78D44;
+    -fx-text-fill: #5D4037;
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-cursor: hand;
+}
+.pagination .toggle-button:hover { -fx-background-color: #E6CEAC; }
+.pagination .toggle-button:selected {
+    -fx-background-color: #689F38;
+    -fx-text-fill: white;
+    -fx-border-color: #689F38;
+    -fx-font-weight: bold;
+}
+.pagination .pagination-control .left-arrow,
+.pagination .pagination-control .right-arrow {
+    -fx-background-color: #C78D44;
+}
