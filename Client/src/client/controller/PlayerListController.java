@@ -45,6 +45,7 @@ public class PlayerListController implements MessageListener {
     private final int rowsPerPage = 8;
     private final ObservableList<PlayerRankView> allPlayers = FXCollections.observableArrayList();
     private Network network;
+    private Stage primaryStage;
     // Tên người chơi hiện tại (được truyền từ LoginController ->
     // MainLobbyController -> PlayerListController)
     private String currentUser;
@@ -53,6 +54,12 @@ public class PlayerListController implements MessageListener {
         this.currentUser = currentUser;
         System.out.println("[PlayerListController] currentUser set to: " + currentUser);
         if (playerTable != null) playerTable.refresh();
+    }
+
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+        // Gắn close handler - sẽ kiểm tra currentUser khi đóng cửa sổ
+        ControllerHelper.setupWindowCloseHandler(stage, this.currentUser, this.network);
     }
 
     // --- Khởi tạo ---
@@ -245,6 +252,7 @@ public class PlayerListController implements MessageListener {
                 Stage stage = (Stage) backButton.getScene().getWindow();
                 InviteNotificationManager.getInstance().setPrimaryStage(stage);
                 InviteNotificationManager.getInstance().setCurrentUsername(this.currentUser);
+                controller.setPrimaryStage(stage);
                 stage.setScene(new Scene(root));
                 stage.setTitle("Game");
                 stage.show();
@@ -362,7 +370,7 @@ public class PlayerListController implements MessageListener {
             if (network != null && network.getCurrentUser() != null) {
                 controller.setCurrentUser(network.getCurrentUser());
             }
-            // Truyền Stage để InviteNotificationManager có thể hiển thị popup
+            // Truyền Stage để InviteNotificationManager có thể hiển thị popup và xử lý close window
             Stage stage = (Stage) backButton.getScene().getWindow();
             controller.setPrimaryStage(stage);
             if (network != null) {

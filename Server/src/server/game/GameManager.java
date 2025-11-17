@@ -3,7 +3,9 @@ package server.game;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import common.StatusType;
 import dto.*;
+import server.OnlineUserManager;
 import server.dao.GameDAO;
 import java.time.Instant;
 import java.util.*;
@@ -173,6 +175,10 @@ public class GameManager {
     public void endGame(String username, String gameId) {
         System.out.println("[SERVER LOG] endGame called for user: " + username + ", gameId: " + gameId);
         GameSession s = sessions.get(gameId);
+        String statusPlayer1 = OnlineUserManager.getUserStatus(s.getP1());
+        String statusPlayer2 = OnlineUserManager.getUserStatus(s.getP2());
+        if(!statusPlayer1.equals("IN_GAME") || !statusPlayer2.equals("IN_GAME"))
+            return;
         if (s == null) {
             System.out.println("[SERVER LOG] GameSession not found for gameId: " + gameId);
             return;
@@ -201,6 +207,17 @@ public class GameManager {
                 if (s.getP2Handler() != null) {
                     s.getP2Handler().sendMessage(new Message("END_GAME", "SERVER", p2Content));
                     System.out.println("[SERVER LOG] Sent END_GAME to P2: " + s.getP2());
+                }
+                System.out.println("[SERVER] Cập nhật trạng thái cả 2 người chơi");
+                OnlineUserManager.setUserStatus(s.getP1(), "ONLINE");
+                OnlineUserManager.setUserStatus(s.getP2(), "ONLINE");
+                for (ClientHandler client : OnlineUserManager.getAllHandlers()) {
+                    client.sendMessage(new Message("PLAYER_STATUS_CHANGE", "SERVER", java.util.Map.of(
+                            "name", s.getP1(),
+                            "status", "ONLINE")));
+                    client.sendMessage(new Message("PLAYER_STATUS_CHANGE", "SERVER", java.util.Map.of(
+                            "name", s.getP2(),
+                            "status", "ONLINE")));
                 }
             } catch (Exception e) {
                 System.out.println("[SERVER LOG] Error sending END_GAME: " + e.getMessage());
@@ -296,6 +313,17 @@ public class GameManager {
                 }
                 
                 System.out.println("[LOG] Sent END_GAME messages to both players");
+                System.out.println("[SERVER] Cập nhật trạng thái cả 2 người chơi");
+                OnlineUserManager.setUserStatus(s.getP1(), "ONLINE");
+                OnlineUserManager.setUserStatus(s.getP2(), "ONLINE");
+                for (ClientHandler client : OnlineUserManager.getAllHandlers()) {
+                    client.sendMessage(new Message("PLAYER_STATUS_CHANGE", "SERVER", java.util.Map.of(
+                            "name", s.getP1(),
+                            "status", "ONLINE")));
+                    client.sendMessage(new Message("PLAYER_STATUS_CHANGE", "SERVER", java.util.Map.of(
+                            "name", s.getP2(),
+                            "status", "ONLINE")));
+                }
             } catch (Exception e) {
                 System.out.println("[LOG] Error sending END_GAME messages: " + e.getMessage());
                 e.printStackTrace();

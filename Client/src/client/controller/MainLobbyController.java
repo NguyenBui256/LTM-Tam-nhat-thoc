@@ -43,6 +43,8 @@ public class MainLobbyController implements MessageListener {
         this.primaryStage = stage;
         // Khởi tạo InviteNotificationManager khi có Stage
         InviteNotificationManager.getInstance().setPrimaryStage(stage);
+        // Gắn close handler - sẽ kiểm tra currentUser sau này khi đã được set
+        ControllerHelper.setupWindowCloseHandler(stage, this.currentUser, this.network);
         System.out.println("[MainLobbyController] PrimaryStage set & InviteManager ready!");
     }
 
@@ -113,10 +115,8 @@ public class MainLobbyController implements MessageListener {
             controller.setNetwork(this.network);
             // Truyền tên user hiện tại sang PlayerListController (nếu có)
             controller.setCurrentUser(this.currentUser);
-            // ✅ Truyền Stage cho controller mới nếu cần
-            if (controller instanceof HasPrimaryStage) { // Interface tùy chọn
-                ((HasPrimaryStage) controller).setPrimaryStage(primaryStage);
-            }
+            // ✅ Gắn primaryStage để xử lý close window với logout
+            controller.setPrimaryStage(primaryStage);
             System.out.println("[MainLobbyController] player_list.fxml loaded successfully.");
 
             network.removeMessageListener(this);
@@ -192,17 +192,7 @@ public class MainLobbyController implements MessageListener {
 
     private void logout(ActionEvent event) { // ✅ SỬA: import ActionEvent
         System.out.println("[MainLobbyController] Logging out...");
-        try {
-            Message msg = new Message("LOGOUT", currentUser, null);
-            network.send(msg);
-            System.out.println("[MainLobbyController] Logout request sent.");
-        } catch (IOException e) {
-            System.err.println("[MainLobbyController] Error sending logout request: " + e.getMessage());
-            e.printStackTrace();
-            Platform.runLater(() -> {
-                showAlert("Lỗi Đăng Xuất", "Không thể gửi yêu cầu đăng xuất đến server: " + e.getMessage());
-            });
-        }
+        ControllerHelper.performLogout(currentUser, network);
     }
 
     @Override

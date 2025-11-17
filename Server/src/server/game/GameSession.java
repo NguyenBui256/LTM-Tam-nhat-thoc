@@ -5,6 +5,7 @@ import java.util.*;
 import dto.GameUpdate;
 
 import server.ClientHandler;
+import server.OnlineUserManager;
 
 public class GameSession implements Serializable {
     private final String id;
@@ -32,7 +33,10 @@ public class GameSession implements Serializable {
                 Thread.sleep(30000); // 30 seconds
                 // Time up, end game
                 System.out.println("[SERVER LOG] Game " + id + " time up, ending game");
-                GameManager.getInstance().endGame(p1, id);
+                String statusPlayer1 = OnlineUserManager.getUserStatus(getP1());
+                String statusPlayer2 = OnlineUserManager.getUserStatus(getP2());
+                if(statusPlayer1.equals("IN_GAME") && statusPlayer2.equals("IN_GAME"))
+                    GameManager.getInstance().endGame(p1, id);
             } catch (InterruptedException e) {
                 // Timer interrupted, game ended early
             }

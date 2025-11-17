@@ -103,6 +103,7 @@ public class LoginController implements MessageListener {
             Platform.runLater(() -> {
                 if (status != null && status.getType() == StatusType.SUCCESS) {
                     System.out.println("[LoginController] Login successful, loading main_lobby.fxml...");
+
                     try {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_lobby.fxml"));
                         Parent root = loader.load();
@@ -212,6 +213,7 @@ public class LoginController implements MessageListener {
 
     public void setPrimaryStage(Stage stage) {
         this.primaryStage = stage;
-
+        // Gắn close handler - không có currentUser ở LoginController
+        ControllerHelper.setupWindowCloseHandler(stage, null, this.network);
     }
 }

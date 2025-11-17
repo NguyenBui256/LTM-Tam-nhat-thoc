@@ -144,6 +144,8 @@ public class GameController implements MessageListener {
         this.primaryStage = stage;
         InviteNotificationManager.getInstance().setPrimaryStage(stage);
         InviteNotificationManager.getInstance().setNetwork(this.network);
+        // Gắn close handler - sẽ kiểm tra currentPlayerName khi đóng cửa sổ
+        ControllerHelper.setupWindowCloseHandler(stage, this.currentPlayerName, this.network);
     }
 
     // === VẼ HẠT LÊN BÀN (TRÁNH CHỒNG LẤN) ===
@@ -422,6 +424,7 @@ public class GameController implements MessageListener {
     // === Message Listener ===
      @Override
      public void onMessageReceived(Message msg) {
+         System.out.println("[CLIENT LOG] Received from Server: " + msg.getCommand());
          Platform.runLater(() -> {
              // Handle opponent disconnection
              if ("OPPONENT_QUIT".equals(msg.getCommand())) {
@@ -737,7 +740,17 @@ public class GameController implements MessageListener {
                         timerLabel.setText("Game Over");
                         boardPane.setDisable(true);
 
-                        // Dialog will be shown in END_GAME message
+                        // TODO: Gửi END_GAME cho Server
+                        Message quitMsg = new Message(
+                                CommandType.END_GAME.toString(),
+                                currentPlayerName,
+                                gameId
+                        );
+                        try {
+                            network.send(quitMsg);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }
@@ -893,7 +906,7 @@ public class GameController implements MessageListener {
         
         // Khi đóng dialog, quay về danh sách người chơi
         returnToPlayerList();
-        }
+    }
     
     // === Helper methods cho Elo ===
     private String getEloClass(String eloChange) {
@@ -986,14 +999,15 @@ public class GameController implements MessageListener {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/player_list.fxml"));
             Parent root = loader.load();
             PlayerListController controller = loader.getController();
-            
+
             if (this.network != null) {
-                controller.setNetwork(this.network);
                 controller.setCurrentUser(this.currentPlayerName);
+                controller.setNetwork(this.network);
             }
             
             // Use stored primaryStage instead of trying to get from UI element
             if (primaryStage != null) {
+                controller.setPrimaryStage(primaryStage);
                 primaryStage.setScene(new Scene(root));
                 primaryStage.setTitle("Danh sách người chơi");
                 primaryStage.show();
@@ -1001,6 +1015,7 @@ public class GameController implements MessageListener {
                 // Fallback: try to get stage from exitButton if primaryStage is not set
                 Stage stage = (Stage) exitButton.getScene().getWindow();
                 if (stage != null) {
+                    controller.setPrimaryStage(stage);
                     stage.setScene(new Scene(root));
                     stage.setTitle("Danh sách người chơi");
                     stage.show();
