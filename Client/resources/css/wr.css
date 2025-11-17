@@ -1,0 +1,112 @@
+/* --- Nền chính và Font chữ --- */
+.root-pane {
+    -fx-background-image: url('../images/your-background-image.jpg'); /* THAY THẾ BẰNG ẢNH NỀN CỦA BẠN */
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-font-family: 'Arial';
+}
+
+/* --- Tiêu đề "PHÒNG CHỜ" --- */
+.title-label {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0.5, 0, 2);
+}
+
+/* --- Thẻ thông tin người chơi --- */
+.player-card {
+    -fx-pref-width: 230px;
+    -fx-pref-height: 300px;
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-background-radius: 20px;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;
+    -fx-padding: 20px;
+    -fx-alignment: center;
+    -fx-spacing: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 15, 0, 0, 0);
+}
+
+
+
+/* --- Tên người chơi --- */
+.player-name {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* --- Điểm ELO --- */
+.player-elo {
+    -fx-font-size: 14px;
+    -fx-text-fill: #cccccc;
+}
+
+/* --- Nhãn trạng thái (chung) --- */
+.status-label {
+    -fx-pref-width: 120px;
+    -fx-padding: 8px 15px;
+    -fx-background-radius: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+}
+
+/* --- Trạng thái "Sẵn sàng" --- */
+.ready {
+    -fx-background-color: #28a745; /* Màu xanh lá */
+    -fx-effect: dropshadow(gaussian, #28a745, 10, 0.5, 0, 0);
+}
+
+/* --- Trạng thái "Đang chờ" --- */
+.waiting {
+    -fx-background-color: #ffc107; /* Màu vàng cam */
+    -fx-effect: dropshadow(gaussian, #ffc107, 10, 0.5, 0, 0);
+}
+
+/* --- Icon "VS" --- */
+.vs-image {
+    -fx-effect: dropshadow(gaussian, rgba(255,100,100,0.8), 20, 0.6, 0, 0);
+}
+
+/* --- Thông báo chờ ở giữa --- */
+.waiting-message {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-radius: 25px;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
+    -fx-alignment: center;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-radius: 25px;
+}
+
+
+/* --- Nút "Thoát phòng" --- */
+.exit-button {
+    -fx-pref-width: 150px;
+    -fx-pref-height: 45px;
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #d9534f, #c9302c);
+    -fx-background-radius: 25px;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.exit-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #e06965, #d64541);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* --- Thông tin game ở cuối --- */
+.game-info {
+    -fx-font-size: 12px;
+    -fx-text-fill: #bbbbbb;
+    -fx-alignment: center;
+}

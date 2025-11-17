@@ -1,0 +1,110 @@
+/* ==================== Toàn bộ TableView ==================== */
+
+.title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #5D4037;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.5), 0, 0, 1, 1);
+    -fx-alignment: CENTER;
+    -fx-padding: 0 0 10 0;
+}
+
+.table-view {
+    /* Nền của bảng: màu kem sáng, ấm hơn để hợp màu lúa */
+    -fx-background-color: rgba(255, 252, 245, 0.9);
+    -fx-background-radius: 20px; /* Giữ nguyên */
+    -fx-border-color: #C78D44;
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
+    -fx-padding: 5; /* Giữ nguyên */
+}
+
+/* ==================== Tiêu đề cột (Header) ==================== */
+.table-view .column-header-background {
+    /* Nền dòng tiêu đề: Màu nâu gỗ chủ đạo */
+    -fx-background-color: #C78D44; /* ĐỔI: Từ hồng sang nâu */
+    -fx-background-radius: 15px 15px 0 0; /* Giữ nguyên */
+    -fx-background-insets: 0;
+}
+
+.table-view .column-header {
+    /* Từng ô tiêu đề cột */
+    -fx-background-color: transparent;
+    -fx-size: 40px; /* Giữ nguyên */
+}
+
+.table-view .column-header .label {
+    /* Chữ của tiêu đề cột */
+    -fx-text-fill: white; /* Giữ nguyên màu trắng cho nổi bật trên nền nâu */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+}
+
+/* ==================== Các dòng và ô dữ liệu ==================== */
+.table-view .table-row-cell {
+    /* Nền từng dòng */
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #E6CEAC transparent; /* ĐỔI: Kẻ ngang màu nâu nhạt */
+    -fx-border-width: 1;
+}
+
+
+.table-view .table-cell {
+    /* Từng ô dữ liệu */
+    -fx-text-fill: #5D4037; /* ĐỔI: Màu nâu đất đậm (thay vì tím than) */
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER;
+    -fx-border-color: transparent; /* Giữ nguyên */
+    -fx-padding: 8px;
+    -fx-font-weight: bold;
+}
+
+/* ==================== Trạng thái và Nút hành động ==================== */
+
+/* Trạng thái "Đang rỗi" */
+.status-label-available {
+    -fx-background-color: #689F38; /* ĐỔI: Xanh lá tông trầm (Olive) cho tự nhiên hơn */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 15px;
+    -fx-background-radius: 20px;
+}
+
+/* Trạng thái "Đang bận" */
+.status-label-busy {
+    -fx-background-color: #D32F2F; /* ĐỔI: Đỏ gạch (đậm hơn đỏ tươi cũ) */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 15px;
+    -fx-background-radius: 20px;
+}
+
+/* Nút "Mời đấu" có thể nhấn */
+.action-button-invite {
+    -fx-background-color: #689F38; /* ĐỔI: Đồng bộ với màu xanh "Đang rỗi" */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-cursor: hand;
+}
+
+.action-button-invite:hover {
+    -fx-background-color: #558B2F; /* ĐỔI: Xanh đậm hơn khi di chuột */
+}
+
+/* Nút "Mời đấu" bị vô hiệu hóa */
+.action-button-disabled {
+    -fx-background-color: #D7CCC8; /* ĐỔI: Màu xám nâu nhạt */
+    -fx-text-fill: #8D6E63; /* ĐỔI: Chữ nâu nhạt */
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-opacity: 0.7; /* Giữ nguyên */
+}
+
+.back-button {
+    -fx-background-color: #b6762c;
+    -fx-text-fill: white;
+    -fx-padding: 5 15;
+    -fx-background-radius: 15;
+}

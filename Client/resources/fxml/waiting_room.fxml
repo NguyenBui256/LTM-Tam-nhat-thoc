@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" styleClass="root-pane" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.WaitingRoomController">
+
+    <Label styleClass="title-label" text="PHÒNG CHỜ" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0" />
+
+    <VBox fx:id="player1Box" layoutX="50.0" layoutY="150.0" styleClass="player-card">
+        <StackPane prefHeight="114.0" prefWidth="178.0" styleClass="avatar-container">
+            <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@../images/user.png" />
+                </image>
+            </ImageView>
+        </StackPane>
+        <Label fx:id="player1Name" styleClass="player-name" text="Nguyen Van A" />
+        <Label fx:id="player1Elo" styleClass="player-elo" text="ELO: 1250" />
+        <Label fx:id="player1Status" styleClass="status-label, ready" text="Đã sẵn sàng" />
+    </VBox>
+
+    <VBox fx:id="player2Box" layoutX="520.0" layoutY="150.0" styleClass="player-card">
+        <StackPane styleClass="avatar-container">
+            <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@../images/user.png" />
+                </image>
+            </ImageView>
+        </StackPane>
+        <Label fx:id="player2Name" styleClass="player-name" text="Tran Thi B" />
+        <Label fx:id="player2Elo" styleClass="player-elo" text="ELO: 1320" />
+        <Label fx:id="player2Status" text="Đã sẵn sàng">
+         <styleClass>
+            <String fx:value="status-label" />
+            <String fx:value="ready" />
+         </styleClass></Label>
+    </VBox>
+
+    <ImageView fitHeight="80.0" fitWidth="80.0" layoutX="360.0" layoutY="260.0" pickOnBounds="true" preserveRatio="true" styleClass="vs-image">
+        <image>
+            <Image url="@../images/versus.png" />
+        </image>
+    </ImageView>
+
+    <Label fx:id="waitingLabel" layoutX="275.0" layoutY="450.0" styleClass="waiting-message" text="Trận đấu sẽ được bắt đầu sau 5s" />
+
+    <Button layoutX="325.0" layoutY="498.0" onAction="#onExitRoom" styleClass="exit-button" text="Thoát phòng" />
+   <stylesheets>
+      <URL value="@../css/wr.css" />
+      <URL value="@../css/bg2.css" />
+   </stylesheets>
+
+</AnchorPane>
