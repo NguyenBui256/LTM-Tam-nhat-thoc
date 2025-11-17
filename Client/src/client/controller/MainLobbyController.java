@@ -76,6 +76,8 @@ public class MainLobbyController implements MessageListener {
         if (playerInfo != null && currentUser != null && !currentUser.isBlank()) {
             playerInfo.setText("Xin chào, " + currentUser);
         }
+        // ✅ Truyền currentUser sang InviteNotificationManager
+        InviteNotificationManager.getInstance().setCurrentUsername(currentUser);
     }
 
     @FXML

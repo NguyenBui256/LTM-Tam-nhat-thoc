@@ -23,8 +23,12 @@ public class InviteNotificationManager {
     private Stage primaryStage;
     private final List<Popup> activePopups = new ArrayList<>();
     private Network network;
+    private static String currentUsername;
 
-    private InviteNotificationManager() {
+    public InviteNotificationManager() {
+    }
+
+    private InviteNotificationManager(String currentUsername) {
     }
 
     public static InviteNotificationManager getInstance() {
@@ -160,14 +164,12 @@ public class InviteNotificationManager {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/InvitePopup.fxml"));
             Parent root = loader.load();
             ChallengeInviteController controller = loader.getController();
+            controller.setCurrentUser(currentUsername);
             controller.setInviteRequest(req);
-            controller.setNetwork(this.network); // Truyền luôn network vào
+            // ✅ setNetwork() sẽ add listener (xem ChallengeInviteController.setNetwork())
+            controller.setNetwork(this.network);
             // truyền primary stage cho controller để nó có thể chuyển màn hình chính
             controller.setPrimaryStage(this.primaryStage);
-            // Đăng ký controller để nó nhận được ACCEPT_RESPONSE / REJECT_RESPONSE
-            if (this.network != null) {
-                this.network.addMessageListener(controller);
-            }
             Stage dialogStage = new Stage();
             dialogStage.setScene(new Scene(root));
             dialogStage.setTitle("Lời mời từ " + inviter);
@@ -234,5 +236,29 @@ public class InviteNotificationManager {
                 hidePopup(popup);
             }
         });
+    }
+
+    public static void setInstance(InviteNotificationManager instance) {
+        InviteNotificationManager.instance = instance;
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public List<Popup> getActivePopups() {
+        return activePopups;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public static String getCurrentUsername() {
+        return currentUsername;
+    }
+
+    public void setCurrentUsername(String currentUsername) {
+        InviteNotificationManager.currentUsername = currentUsername;
     }
 }

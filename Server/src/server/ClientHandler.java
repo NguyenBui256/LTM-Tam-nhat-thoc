@@ -7,7 +7,7 @@ import dto.Message;
 import java.io.*;
 import java.net.Socket;
 
-public class ClientHandler extends Thread {
+public class ClientHandler extends Thread implements Serializable {
     private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
@@ -16,6 +16,7 @@ public class ClientHandler extends Thread {
     public ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
         this.out = new ObjectOutputStream(socket.getOutputStream());
+        this.out.flush(); // Write stream header immediately
         this.in = new ObjectInputStream(socket.getInputStream());
     }
 
@@ -29,6 +30,7 @@ public class ClientHandler extends Thread {
 
     public void sendMessage(Message msg) throws IOException {
         out.writeObject(msg);
+        out.flush();
     }
 
     public void close() throws IOException {
@@ -37,7 +39,6 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
-    	
         try {
             while (!socket.isClosed()) {
                 Message msg = (Message) in.readObject();
@@ -55,7 +56,7 @@ public class ClientHandler extends Thread {
 
     private void handleCommand(Message msg) throws Exception {
         CommandType type = CommandType.valueOf(msg.getCommand());
-        System.out.println(type);
+        System.out.println("[CLIENT CALLED]: " + msg.getSender() + " - " + type);
         Command command;
         switch (type) {
             case REGISTRY:
@@ -90,6 +91,12 @@ public class ClientHandler extends Thread {
                 break;
             case GET_ONLINE_PLAYERS:
                 command = new GetRanking();
+                break;
+            case MOVE:
+                command = new MoveCommand();
+                break;
+            case QUIT_GAME:
+                command = new QuitGameCommand();
                 break;
             default:
                 throw new IllegalArgumentException("Unknown command");

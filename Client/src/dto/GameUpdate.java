@@ -39,7 +39,7 @@ public class GameUpdate implements Serializable {
     public String getOpponentName() { return opponentName; }
     public int getCurrentPlayerScore() { return currentPlayerScore; }
     public int getOpponentScore() { return opponentScore; }
-    
+
     // === Setters ===
     public void setSeeds(List<Integer> seeds) { this.seeds = seeds; }
     public void setLastIndex(int lastIndex) { this.lastIndex = lastIndex; }

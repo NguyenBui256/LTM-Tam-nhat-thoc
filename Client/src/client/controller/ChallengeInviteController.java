@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import dto.Message;
 import dto.InviteRequest;
 import dto.Status;
+import dto.GameRoom;
 import common.StatusType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -39,6 +40,7 @@ public class ChallengeInviteController implements MessageListener {
     private String inviter;
     private InviteRequest inviteRequest;
     private Stage primaryStage;
+    private String currentUser;
 
     // Gọi từ InviteNotificationManager
     public void setInviterInfo(String inviter, String elo, String message) {
@@ -54,6 +56,10 @@ public class ChallengeInviteController implements MessageListener {
 
     public void setNetwork(Network network) {
         this.network = network;
+        // ✅ Add listener để nhận GAME_ROOM_CREATED từ server
+        if (this.network != null) {
+            this.network.addMessageListener(this);
+        }
     }
 
     public void setInviteRequest(InviteRequest req) {
@@ -61,7 +67,7 @@ public class ChallengeInviteController implements MessageListener {
         this.inviter = req.getInviter();
         Platform.runLater(() -> {
             playerName.setText(inviter);
-            playerElo.setText("");
+            playerElo.setText(""); // TODO: real ELO
             inviteText.setText(inviter + " đã mời bạn tham gia trận đấu. Bạn có muốn chấp nhận?");
             avatarImage.setImage(new Image(getClass().getResourceAsStream("/images/user-interface.png")));
             if (!acceptButton.getScene().getWindow().isShowing()) {
@@ -89,7 +95,7 @@ public class ChallengeInviteController implements MessageListener {
     private void sendResponse(String command) {
         if (network != null && inviteRequest != null) {
             try {
-                Message msg = new Message(command, "CLIENT", inviteRequest);
+                Message msg = new Message(command, this.currentUser, inviteRequest);
                 network.send(msg);
             } catch (IOException e) {
                 System.err.println("Lỗi gửi phản hồi lời mời: " + e.getMessage());
@@ -108,63 +114,77 @@ public class ChallengeInviteController implements MessageListener {
         if (msg == null)
             return;
 
+        // ✅ Người nhận lời mời sẽ nhận GAME_ROOM_CREATED từ server
         switch (msg.getCommand()) {
-            case "ACCEPT_RESPONSE" -> handleAccept(msg);
+            case "GAME_ROOM_CREATED" -> handleGameRoomCreated(msg);
             case "REJECT_RESPONSE" -> handleReject(msg);
         }
     }
 
-    private void handleAccept(Message msg) {
+    // ✅ Xử lý GAME_ROOM_CREATED từ server (không assume ai là mời hay được mời)
+    private void handleGameRoomCreated(Message msg) {
         if (msg == null)
             return;
         Object content = msg.getContent();
-        if (content instanceof Status st) {
-            if (st.getType() == StatusType.SUCCESS) {
-                // Close dialog and navigate to waiting room (owner stage)
-                Platform.runLater(() -> {
-                    try {
-                        // close this invite dialog
-                        closeDialog();
+        if (content instanceof GameRoom gameRoom) {
+            Platform.runLater(() -> {
+                try {
+                    closeDialog();
 
-                        // switch main stage to waiting room if available
-                        if (primaryStage != null) {
-                            try {
-                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/waiting_room.fxml"));
-                                Parent root = loader.load();
-                                WaitingRoomController controller = loader.getController();
-                                // Optionally pass network to waiting room: controller.setNetwork(network);
-                                primaryStage.setScene(new Scene(root));
-                                primaryStage.setTitle("Waiting Room");
-                                primaryStage.show();
-                            } catch (IOException e) {
-                                System.err.println("Lỗi load waiting_room.fxml: " + e.getMessage());
-                                InviteNotificationManager.getInstance()
-                                        .showSimpleNotification("Đã chấp nhận. Vào phòng chờ...");
-                            }
-                        } else {
-                            InviteNotificationManager.getInstance()
-                                    .showSimpleNotification("Đã chấp nhận. Vào phòng chờ...");
-                        }
-                        // Unregister listener now that we've handled server response
+                    if (primaryStage != null) {
                         try {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GameScene.fxml"));
+                            Parent root = loader.load();
+                            GameController controller = loader.getController();
                             if (network != null)
-                                network.removeMessageListener(this);
-                        } catch (Exception ignore) {
+                                controller.setNetwork(network);
+
+                            // ✅ KHÔNG assume - dùng GameRoom từ server để xác định ai là ai
+                            String player1 = gameRoom.getPlayer1();
+                            String player2 = gameRoom.getPlayer2();
+                            String currentUser = this.currentUser; // Được set từ InviteNotificationManager
+
+                            // Xác định opponent dựa trên currentUser và GameRoom
+                            String opponent;
+                            if (currentUser != null && currentUser.equals(player1)) {
+                                opponent = player2;
+                            } else if (currentUser != null && currentUser.equals(player2)) {
+                                opponent = player1;
+                            } else {
+                                System.err.println("[ChallengeInviteController] currentUser=" + currentUser 
+                                    + " không khớp với player nào trong GameRoom (player1=" + player1 + ", player2=" + player2 + ")");
+                                InviteNotificationManager.getInstance()
+                                        .showSimpleNotification("Lỗi: Không tìm thấy thông tin người chơi");
+                                return;
+                            }
+
+                            controller.setPlayers(currentUser, opponent);
+                            controller.setCurrentPlayerName(currentUser);
+                            System.out.println("[ChallengeInviteController] Game started: currentUser=" + currentUser 
+                                + ", opponent=" + opponent + " (from GameRoom: player1=" + player1 + ", player2=" + player2 + ")");
+
+                            primaryStage.setScene(new Scene(root));
+                            primaryStage.setTitle("Game");
+                            primaryStage.show();
+                        } catch (IOException e) {
+                            System.err.println("[ChallengeInviteController] Lỗi load GameScene.fxml: " + e.getMessage());
+                            InviteNotificationManager.getInstance()
+                                    .showSimpleNotification("Lỗi: Không thể tải giao diện game");
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } else {
+                        InviteNotificationManager.getInstance()
+                                .showSimpleNotification("Lỗi: Không tìm thấy cửa sổ chính");
                     }
-                });
-            } else {
-                Platform.runLater(() -> {
-                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                            javafx.scene.control.Alert.AlertType.ERROR);
-                    alert.setTitle("Không thể chấp nhận");
-                    alert.setHeaderText(null);
-                    alert.setContentText(st.getContent());
-                    alert.showAndWait();
-                });
-            }
+                    // Unregister listener now that we've handled server response
+                    try {
+                        if (network != null)
+                            network.removeMessageListener(this);
+                    } catch (Exception ignore) {
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
     }
 
@@ -185,5 +205,81 @@ public class ChallengeInviteController implements MessageListener {
                 }
             });
         }
+    }
+
+    public ImageView getAvatarImage() {
+        return avatarImage;
+    }
+
+    public void setAvatarImage(ImageView avatarImage) {
+        this.avatarImage = avatarImage;
+    }
+
+    public Label getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(Label playerName) {
+        this.playerName = playerName;
+    }
+
+    public Label getPlayerElo() {
+        return playerElo;
+    }
+
+    public void setPlayerElo(Label playerElo) {
+        this.playerElo = playerElo;
+    }
+
+    public Text getInviteText() {
+        return inviteText;
+    }
+
+    public void setInviteText(Text inviteText) {
+        this.inviteText = inviteText;
+    }
+
+    public Button getAcceptButton() {
+        return acceptButton;
+    }
+
+    public void setAcceptButton(Button acceptButton) {
+        this.acceptButton = acceptButton;
+    }
+
+    public Button getDeclineButton() {
+        return declineButton;
+    }
+
+    public void setDeclineButton(Button declineButton) {
+        this.declineButton = declineButton;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public String getInviter() {
+        return inviter;
+    }
+
+    public void setInviter(String inviter) {
+        this.inviter = inviter;
+    }
+
+    public InviteRequest getInviteRequest() {
+        return inviteRequest;
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public String getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(String currentUser) {
+        this.currentUser = currentUser;
     }
 }

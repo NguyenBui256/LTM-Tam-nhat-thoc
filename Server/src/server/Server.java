@@ -8,7 +8,7 @@ import server.dao.UserDAO;
 import dto.PlayerRank;
 public class Server {
 	private static UserDAO userdao = new UserDAO();
-	private static final Integer PORT =  2206;
+	private static final int PORT = 2206;
     public static void main(String[] args) {
     	List<PlayerRank> userlist = userdao.getAllUser();
     	OnlineUserManager.setUserList(userlist);

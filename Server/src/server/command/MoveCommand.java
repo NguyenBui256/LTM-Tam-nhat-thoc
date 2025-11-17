@@ -2,22 +2,16 @@ package server.command;
 
 import server.ClientHandler;
 import dto.Message;
+import dto.MoveRequest;
 import server.game.GameManager;
 
 public class MoveCommand implements Command {
     @Override
     public void execute(ClientHandler handler, Message msg) throws Exception {
-        // content expected to be String "gameId:seedIndex:choice"
         Object content = msg.getContent();
-        if (content instanceof String) {
-            String s = (String) content;
-            String[] parts = s.split(":");
-            if (parts.length >= 3) {
-                String gameId = parts[0];
-                int seedIndex = Integer.parseInt(parts[1]);
-                int choice = Integer.parseInt(parts[2]);
-                GameManager.getInstance().handleMove(handler.getUsername(), gameId, seedIndex, choice);
-            }
+        if (content instanceof MoveRequest req) {
+            System.out.println("[LOG] Received MOVE: gameId=" + req.getGameId() + ", selectedSeedIndex=" + req.getSelectedSeedIndex() + ", basketType=" + req.getBasketType());
+            GameManager.getInstance().handleMove(msg.getSender(), req.getGameId(), req.getSelectedSeedIndex(), req.getBasketType());
         }
     }
 }

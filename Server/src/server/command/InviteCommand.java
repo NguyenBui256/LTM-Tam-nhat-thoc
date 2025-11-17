@@ -21,13 +21,6 @@ public class InviteCommand implements Command {
             handler.sendMessage(new Message("INVITE_RESPONSE", "SERVER", new Status(StatusType.ERROR, "User busy")));
             return;
         }
-        OnlineUserManager.setUserStatus(inviter, "WAITING");
-        // Thông báo cho toàn bộ client biết người inviter đã chuyển sang WAITING
-        for (ClientHandler client : OnlineUserManager.getAllHandlers()) {
-            client.sendMessage(new Message("PLAYER_STATUS_CHANGE", "SERVER", java.util.Map.of(
-                    "name", inviter,
-                    "status", "WAITING")));
-        }
         ClientHandler invitedHandler = OnlineUserManager.getHandler(invited);
         invitedHandler
                 .sendMessage(new Message("INVITE", "SERVER", req)); // Gửi đúng đối tượng InviteRequest
