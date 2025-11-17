@@ -166,13 +166,10 @@ public class InviteNotificationManager {
             ChallengeInviteController controller = loader.getController();
             controller.setCurrentUser(currentUsername);
             controller.setInviteRequest(req);
-            controller.setNetwork(this.network); // Truyền luôn network vào
+            // ✅ setNetwork() sẽ add listener (xem ChallengeInviteController.setNetwork())
+            controller.setNetwork(this.network);
             // truyền primary stage cho controller để nó có thể chuyển màn hình chính
             controller.setPrimaryStage(this.primaryStage);
-            // Đăng ký controller để nó nhận được ACCEPT_RESPONSE / REJECT_RESPONSE
-            if (this.network != null) {
-                this.network.addMessageListener(controller);
-            }
             Stage dialogStage = new Stage();
             dialogStage.setScene(new Scene(root));
             dialogStage.setTitle("Lời mời từ " + inviter);

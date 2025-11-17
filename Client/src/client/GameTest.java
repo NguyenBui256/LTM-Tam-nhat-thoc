@@ -127,7 +127,7 @@ public class GameTest extends Application implements MessageListener {
             GameController controller = loader.getController();
             controller.setPrimaryStage(stageA);
             controller.setNetwork(network);
-            controller.setUsername("duma");  // Tên đăng nhập hợp lệ
+            controller.setCurrentPlayerName("duma");  // Tên đăng nhập hợp lệ
 
             stage.setTitle("🎮 Người chơi A");
             stage.setScene(new Scene(root, 800, 600));
@@ -159,7 +159,7 @@ public class GameTest extends Application implements MessageListener {
             GameController controller = loader.getController();
             controller.setPrimaryStage(stageB);
             controller.setNetwork(network);
-            controller.setUsername("test");  // Tên display, không phải tên login
+            controller.setCurrentPlayerName("test");  // Tên display, không phải tên login
 
             stage.setTitle("🎮 Người chơi B");
             stage.setScene(new Scene(root, 800, 600));

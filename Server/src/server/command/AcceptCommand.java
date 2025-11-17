@@ -41,7 +41,18 @@ public class AcceptCommand implements Command {
         inviterHandler.sendMessage(new Message("GAME_ROOM_CREATED", "SERVER", room));
         handler.sendMessage(new Message("GAME_ROOM_CREATED", "SERVER", room));
 
-        // Start the game AFTER both players received GAME_ROOM_CREATED
-        GameManager.getInstance().startGame(inviter, inviterHandler, accepter, handler, roomId);
+        // ✅ Delay trước khi start game để client kip add listener
+        // Clients cần thời gian để load FXML, set controller, add listener
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);  // Wait 1 second
+                System.out.println("[SERVER] Bắt đầu game sau delay 1 giây");
+                // Start the game AFTER both players received GAME_ROOM_CREATED and added listeners
+                GameManager.getInstance().startGame(inviter, inviterHandler, accepter, handler, roomId);
+            } catch (InterruptedException e) {
+                System.err.println("[SERVER] Lỗi delay start game: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

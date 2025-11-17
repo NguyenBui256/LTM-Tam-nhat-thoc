@@ -339,7 +339,7 @@ public class GameController implements MessageListener {
         );
         Message moveMsg = new Message(
             CommandType.MOVE.toString(),
-            username,
+            currentPlayerName,
             req
         );
         try {
@@ -925,5 +925,233 @@ public class GameController implements MessageListener {
         this.currentPlayerName = currentUser;
         this.opponentName = opponent;
         System.out.println("[GameController] Players set: you=" + currentUser + " opponent=" + opponent);
+    }
+
+    public Label getScoreYou() {
+        return scoreYou;
+    }
+
+    public void setScoreYou(Label scoreYou) {
+        this.scoreYou = scoreYou;
+    }
+
+    public Label getScoreOpponent() {
+        return scoreOpponent;
+    }
+
+    public void setScoreOpponent(Label scoreOpponent) {
+        this.scoreOpponent = scoreOpponent;
+    }
+
+    public Label getTimerLabel() {
+        return timerLabel;
+    }
+
+    public void setTimerLabel(Label timerLabel) {
+        this.timerLabel = timerLabel;
+    }
+
+    public Pane getBoardPane() {
+        return boardPane;
+    }
+
+    public void setBoardPane(Pane boardPane) {
+        this.boardPane = boardPane;
+    }
+
+    public VBox getRiceBasket() {
+        return riceBasket;
+    }
+
+    public void setRiceBasket(VBox riceBasket) {
+        this.riceBasket = riceBasket;
+    }
+
+    public VBox getPaddyBasket() {
+        return paddyBasket;
+    }
+
+    public void setPaddyBasket(VBox paddyBasket) {
+        this.paddyBasket = paddyBasket;
+    }
+
+    public VBox getCornBasket() {
+        return cornBasket;
+    }
+
+    public void setCornBasket(VBox cornBasket) {
+        this.cornBasket = cornBasket;
+    }
+
+    public Label getRiceCount() {
+        return riceCount;
+    }
+
+    public void setRiceCount(Label riceCount) {
+        this.riceCount = riceCount;
+    }
+
+    public Label getPaddyCount() {
+        return paddyCount;
+    }
+
+    public void setPaddyCount(Label paddyCount) {
+        this.paddyCount = paddyCount;
+    }
+
+    public Label getCornCount() {
+        return cornCount;
+    }
+
+    public void setCornCount(Label cornCount) {
+        this.cornCount = cornCount;
+    }
+
+    public VBox getRiceBasketOpp() {
+        return riceBasketOpp;
+    }
+
+    public void setRiceBasketOpp(VBox riceBasketOpp) {
+        this.riceBasketOpp = riceBasketOpp;
+    }
+
+    public VBox getPaddyBasketOpp() {
+        return paddyBasketOpp;
+    }
+
+    public void setPaddyBasketOpp(VBox paddyBasketOpp) {
+        this.paddyBasketOpp = paddyBasketOpp;
+    }
+
+    public VBox getCornBasketOpp() {
+        return cornBasketOpp;
+    }
+
+    public void setCornBasketOpp(VBox cornBasketOpp) {
+        this.cornBasketOpp = cornBasketOpp;
+    }
+
+    public Label getRiceCountOpp() {
+        return riceCountOpp;
+    }
+
+    public void setRiceCountOpp(Label riceCountOpp) {
+        this.riceCountOpp = riceCountOpp;
+    }
+
+    public Label getPaddyCountOpp() {
+        return paddyCountOpp;
+    }
+
+    public void setPaddyCountOpp(Label paddyCountOpp) {
+        this.paddyCountOpp = paddyCountOpp;
+    }
+
+    public Label getCornCountOpp() {
+        return cornCountOpp;
+    }
+
+    public void setCornCountOpp(Label cornCountOpp) {
+        this.cornCountOpp = cornCountOpp;
+    }
+
+    public List<Integer> getSeeds() {
+        return seeds;
+    }
+
+    public void setSeeds(List<Integer> seeds) {
+        this.seeds = seeds;
+    }
+
+    public List<ImageView> getSeedImages() {
+        return seedImages;
+    }
+
+    public void setSeedImages(List<ImageView> seedImages) {
+        this.seedImages = seedImages;
+    }
+
+    public List<Boolean> getSeedTaken() {
+        return seedTaken;
+    }
+
+    public void setSeedTaken(List<Boolean> seedTaken) {
+        this.seedTaken = seedTaken;
+    }
+
+    public ImageView getSelectedSeed() {
+        return selectedSeed;
+    }
+
+    public void setSelectedSeed(ImageView selectedSeed) {
+        this.selectedSeed = selectedSeed;
+    }
+
+    public int getSelectedSeedIndex() {
+        return selectedSeedIndex;
+    }
+
+    public void setSelectedSeedIndex(int selectedSeedIndex) {
+        this.selectedSeedIndex = selectedSeedIndex;
+    }
+
+    public Random getRandom() {
+        return random;
+    }
+
+    public void setRandom(Random random) {
+        this.random = random;
+    }
+
+    public boolean isProcessing() {
+        return isProcessing;
+    }
+
+    public void setProcessing(boolean processing) {
+        isProcessing = processing;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public String getGameId() {
+        return gameId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getCurrentPlayerName() {
+        return currentPlayerName;
+    }
+
+    public void setCurrentPlayerName(String currentPlayerName) {
+        this.currentPlayerName = currentPlayerName;
+    }
+
+    public String getOpponentName() {
+        return opponentName;
+    }
+
+    public void setOpponentName(String opponentName) {
+        this.opponentName = opponentName;
+    }
+
+    public int getCurrentPlayerScore() {
+        return currentPlayerScore;
+    }
+
+    public void setCurrentPlayerScore(int currentPlayerScore) {
+        this.currentPlayerScore = currentPlayerScore;
+    }
+
+    public int getOpponentScore() {
+        return opponentScore;
+    }
+
+    public void setOpponentScore(int opponentScore) {
+        this.opponentScore = opponentScore;
     }
 }

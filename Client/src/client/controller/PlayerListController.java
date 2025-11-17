@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import dto.InviteRequest;
 import dto.Message;
 import dto.PlayerRank;
+import dto.GameRoom;
 
 import java.io.IOException;
 import java.util.List;
@@ -190,27 +191,17 @@ public class PlayerListController implements MessageListener {
         switch (msg.getCommand()) {
             case "ONLINE_PLAYERS_RESPONSE" -> handlePlayerList(msg);
             case "PLAYER_STATUS_CHANGE" -> handleStatusChange(msg);
-            case "ACCEPT_NOTIFY" -> handleAcceptNotify(msg);
+            case "GAME_ROOM_CREATED" -> handleGameRoomCreated(msg);
             case "REJECT_NOTIFY" -> handleRejectNotify(msg);
         }
     }
 
-    private void handleAcceptNotify(Message msg) {
+    // ✅ Xử lý GAME_ROOM_CREATED từ server cho người gửi lời mời (inviter)
+    private void handleGameRoomCreated(Message msg) {
         Object content = msg.getContent();
-        String text = content instanceof String ? (String) content : "Đối phương đã chấp nhận lời mời.";
-
-        // Try to extract opponent from InviteRequest if present
-        String opponent = null;
-        if (content instanceof InviteRequest ir) {
-            if (currentUser != null && currentUser.equals(ir.getInviter()))
-                opponent = ir.getInvited();
-            else
-                opponent = ir.getInviter();
+        if (!(content instanceof GameRoom gameRoom)) {
+            return;
         }
-
-        // Make effectively-final copies for use inside the lambda
-        final String opponentFinal = opponent;
-        final String textFinal = text;
 
         Platform.runLater(() -> {
             try {
@@ -219,21 +210,38 @@ public class PlayerListController implements MessageListener {
                 GameController controller = loader.getController();
                 if (this.network != null)
                     controller.setNetwork(this.network);
-                // pass player names if we know the opponent
-                System.out.println("[LOG] PlayerListController set cho GameController username: " + this.currentUser);
-                if (opponentFinal != null)
-                    controller.setPlayers(this.currentUser, opponentFinal);
+
+                // ✅ KHÔNG assume - dùng GameRoom từ server để xác định ai là ai
+                String player1 = gameRoom.getPlayer1();
+                String player2 = gameRoom.getPlayer2();
+
+                // Xác định opponent dựa trên currentUser và GameRoom
+                String opponent;
+                if (this.currentUser != null && this.currentUser.equals(player1)) {
+                    opponent = player2;
+                } else if (this.currentUser != null && this.currentUser.equals(player2)) {
+                    opponent = player1;
+                } else {
+                    System.err.println("[PlayerListController] currentUser=" + this.currentUser 
+                        + " không khớp với player nào trong GameRoom (player1=" + player1 + ", player2=" + player2 + ")");
+                    InviteNotificationManager.getInstance().showSimpleNotification("Lỗi: Không tìm thấy thông tin người chơi");
+                    return;
+                }
+
+                controller.setPlayers(this.currentUser, opponent);
+                controller.setCurrentPlayerName(this.currentUser);
+                System.out.println("[PlayerListController] Game started: currentUser=" + this.currentUser 
+                    + ", opponent=" + opponent + " (from GameRoom: player1=" + player1 + ", player2=" + player2 + ")");
 
                 Stage stage = (Stage) backButton.getScene().getWindow();
                 InviteNotificationManager.getInstance().setPrimaryStage(stage);
-                // ✅ Truyền currentUser sang InviteNotificationManager
-                System.out.println("[PlayerListController] Truyền sang INM: " + this.currentUser);
                 InviteNotificationManager.getInstance().setCurrentUsername(this.currentUser);
                 stage.setScene(new Scene(root));
                 stage.setTitle("Game");
                 stage.show();
-            } catch (Exception e) {
-                InviteNotificationManager.getInstance().showSimpleNotification(textFinal);
+            } catch (IOException e) {
+                System.err.println("[PlayerListController] Lỗi load GameScene.fxml: " + e.getMessage());
+                InviteNotificationManager.getInstance().showSimpleNotification("Lỗi: Không thể tải giao diện game");
             }
         });
     }
