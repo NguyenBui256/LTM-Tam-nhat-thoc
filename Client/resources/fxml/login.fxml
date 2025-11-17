@@ -17,9 +17,9 @@
 
     <children>
         <!-- Khung đăng nhập chính -->
-        <AnchorPane layoutX="200.0" layoutY="75.0" prefHeight="450.0" prefWidth="400.0" styleClass="login-frame" stylesheets="@../css/login.css">
+        <AnchorPane layoutX="200.0" layoutY="64.0" prefHeight="450.0" prefWidth="400.0" styleClass="login-frame" stylesheets="@../css/login.css">
             <children>
-                <VBox alignment="TOP_CENTER" layoutX="80.0" layoutY="39.0" spacing="10.0">
+                <VBox alignment="TOP_CENTER" layoutX="102.0" layoutY="43.0" spacing="10.0">
 
                     <ImageView fitHeight="67.0" fitWidth="69.0" pickOnBounds="true" preserveRatio="true">
                         <image>

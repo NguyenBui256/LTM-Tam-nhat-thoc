@@ -124,7 +124,7 @@ public class MatchHistoryController implements MessageListener {
 
                         if (eloValue > 0) {
                             // 1. Thêm dấu "+" cho đẹp
-                            setText("+" + item);
+                            setText(item);
                             // 2. Thêm class màu xanh
                             getStyleClass().add("cell-win");
 
@@ -186,18 +186,16 @@ public class MatchHistoryController implements MessageListener {
             int myScore = Integer.parseInt(isUser1 ? g.getUserResult_1() : g.getUserResult_2());
             int oppScore = Integer.parseInt(isUser1 ? g.getUserResult_2() : g.getUserResult_1());
 
-            String matchResult =
-                    myScore > oppScore ? "Thắng" :
-                            myScore < oppScore ? "Thua" : "Hòa";
+            String matchResult = myScore > oppScore ? "Thắng" : myScore < oppScore ? "Thua" : "Hòa";
 
             String score = String.valueOf(myScore);
-            String eloChange = "";
+            String eloMark = myScore > oppScore ? "+" : myScore < oppScore ? "-" : "";
 
             MatchRecord record = new MatchRecord(
                     opponent,
                     matchResult,
                     score,
-                    String.valueOf((myScore-oppScore)/2 + 1),
+                    eloMark + (Math.abs(myScore - oppScore) / 2 + 1),
                     String.valueOf(oppScore)
             );
 

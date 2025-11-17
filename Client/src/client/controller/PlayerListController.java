@@ -32,8 +32,6 @@ public class PlayerListController implements MessageListener {
     @FXML
     private TableColumn<PlayerRankView, Integer> eloColumn;
     @FXML
-    private TableColumn<PlayerRankView, Integer> winsColumn;
-    @FXML
     private TableColumn<PlayerRankView, String> statusColumn;
     @FXML
     private TableColumn<PlayerRankView, Void> actionColumn;
@@ -42,7 +40,7 @@ public class PlayerListController implements MessageListener {
     @FXML
     private Button backButton;
 
-    private final int rowsPerPage = 8;
+    private final int rowsPerPage = 7;
     private final ObservableList<PlayerRankView> allPlayers = FXCollections.observableArrayList();
     private Network network;
     private Stage primaryStage;
@@ -83,7 +81,6 @@ public class PlayerListController implements MessageListener {
             }
         });
         eloColumn.setCellValueFactory(new PropertyValueFactory<>("elo"));
-        winsColumn.setCellValueFactory(new PropertyValueFactory<>("wins"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         setupCustomCells();
