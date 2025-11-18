@@ -774,99 +774,111 @@ public class GameController implements MessageListener {
         
         // Tạo nội dung HTML với thiết kế đẹp hơn
         String content = "<html>" +
-            "<head>" +
-            "<style>" +
-            "body { " +
-            "  font-family: 'Segoe UI', Arial, sans-serif; " +
-            "  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); " +
-            "  margin: 0; " +
-            "  padding: 20px; " +
-            "  color: white; " +
-            "} " +
-            ".game-result { " +
-            "  text-align: center; " +
-            "  margin-bottom: 25px; " +
-            "} " +
-            ".result-title { " +
-            "  font-size: 28px; " +
-            "  font-weight: bold; " +
-            "  margin-bottom: 10px; " +
-            "  text-shadow: 2px 2px 4px rgba(0,0,0,0.3); " +
-            "} " +
-            ".win { color: #4CAF50; } " +
-            ".lose { color: #F44336; } " +
-            ".draw { color: #FF9800; } " +
-            ".players-container { " +
-            "  display: flex; " +
-            "  justify-content: space-between; " +
-            "  margin-bottom: 20px; " +
-            "} " +
-            ".player-card { " +
-            "  background: rgba(255,255,255,0.1); " +
-            "  border-radius: 15px; " +
-            "  padding: 15px; " +
-            "  width: 45%; " +
-            "  backdrop-filter: blur(10px); " +
-            "  border: 2px solid rgba(255,255,255,0.2); " +
-            "  box-shadow: 0 8px 32px rgba(0,0,0,0.1); " +
-            "} " +
-            ".player-winner { " +
-            "  background: rgba(76,175,80,0.2); " +
-            "  border-color: #4CAF50; " +
-            "  box-shadow: 0 0 20px rgba(76,175,80,0.3); " +
-            "} " +
-            ".player-loser { " +
-            "  background: rgba(244,67,54,0.2); " +
-            "  border-color: #F44336; " +
-            "} " +
-            ".player-draw { " +
-            "  background: rgba(255,152,0,0.2); " +
-            "  border-color: #FF9800; " +
-            "} " +
-            ".player-name { " +
-            "  font-size: 18px; " +
-            "  font-weight: bold; " +
-            "  margin-bottom: 8px; " +
-            "} " +
-            ".player-score { " +
-            "  font-size: 24px; " +
-            "  font-weight: bold; " +
-            "  margin-bottom: 8px; " +
-            "} " +
-            ".player-elo { " +
-            "  font-size: 16px; " +
-            "  font-weight: bold; " +
-            "  padding: 5px 10px; " +
-            "  border-radius: 20px; " +
-            "  display: inline-block; " +
-            "} " +
-            ".elo-plus { " +
-            "  background: rgba(76,175,80,0.3); " +
-            "  color: #4CAF50; " +
-            "} " +
-            ".elo-minus { " +
-            "  background: rgba(244,67,54,0.3); " +
-            "  color: #F44336; " +
-            "} " +
-            ".elo-neutral { " +
-            "  background: rgba(255,255,255,0.2); " +
-            "  color: white; " +
-            "} " +
-            ".vs-divider { " +
-            "  display: flex; " +
-            "  align-items: center; " +
-            "  justify-content: center; " +
-            "  font-size: 20px; " +
-            "  font-weight: bold; " +
-            "  color: rgba(255,255,255,0.7); " +
-            "} " +
-            "</style>" +
-            "</head>" +
-            "<body>" +
-            "<div class='game-result'>" +
-            "<div class='result-title " + (isDraw ? "draw" : isCurrentUserWin ? "win" : "lose") + "'>";
-        
-        // Tiêu đề kết quả
+                "<head>" +
+                "<style>" +
+                "body { " +
+                "  font-family: 'Segoe UI', Arial, sans-serif; " +
+                "  background-color: #FFF9ED; " + /* Nền màu kem giấy */
+                "  margin: 0; " +
+                "  padding: 20px; " +
+                "  color: #5D4037; " + /* Chữ màu nâu đất */
+                "} " +
+                ".game-result { " +
+                "  text-align: center; " +
+                "  margin-bottom: 20px; " +
+                "  border-bottom: 2px dashed #C78D44; " + /* Đường kẻ phân cách nét đứt màu gỗ */
+                "  padding-bottom: 15px; " +
+                "} " +
+                ".result-title { " +
+                "  font-size: 32px; " +
+                "  font-weight: bold; " +
+                "  margin-bottom: 5px; " +
+                "  text-transform: uppercase; " +
+                "} " +
+                /* Màu sắc dân gian hơn */
+                ".win { color: #2E7D32; } " + /* Xanh lá rừng */
+                ".lose { color: #C62828; } " + /* Đỏ gạch */
+                ".draw { color: #A1887F; } " + /* Nâu nhạt */
+
+                ".players-container { " +
+                "  display: flex; " +
+                "  justify-content: space-between; " +
+                "  align-items: center; " + /* Căn giữa theo chiều dọc */
+                "  margin-top: 30px; " + /* Tăng khoảng cách trên */
+                "  margin-bottom: 20px; " +
+                "} " +
+                ".player-card { " +
+                "  background: #FFFFFF; " + /* Nền trắng */
+                "  border-radius: 12px; " +
+                "  padding: 15px; " +
+                "  width: 42%; " +
+                "  border: 2px solid #E0E0E0; " + /* Viền mặc định nhạt */
+                "  box-shadow: 4px 4px 0px rgba(199, 141, 68, 0.2); " + /* Bóng đổ cứng màu gỗ */
+                "  text-align: center; " +
+                "} " +
+
+                /* Style riêng cho người Thắng/Thua/Hòa */
+                ".player-winner { " +
+                "  background: #F1F8E9; " + /* Nền xanh rất nhạt */
+                "  border-color: #2E7D32; " + /* Viền xanh đậm */
+                "} " +
+                ".player-loser { " +
+                "  background: #FFEBEE; " + /* Nền đỏ rất nhạt */
+                "  border-color: #EF9A9A; " + /* Viền đỏ nhạt */
+                "} " +
+                ".player-draw { " +
+                "  background: #EFEBE9; " +
+                "  border-color: #A1887F; " +
+                "} " +
+
+                ".player-name { " +
+                "  font-size: 16px; " +
+                "  font-weight: bold; " +
+                "  margin-bottom: 5px; " +
+                "  color: #3E2723; " + /* Tên người chơi màu nâu đen */
+                "} " +
+                ".player-score { " +
+                "  font-size: 28px; " +
+                "  font-weight: 900; " +
+                "  margin-bottom: 10px; " +
+                "  color: #5D4037; " + /* Điểm số màu nâu đất */
+                "} " +
+                ".player-elo { " +
+                "  font-size: 14px; " +
+                "  font-weight: bold; " +
+                "  padding: 4px 12px; " +
+                "  border-radius: 15px; " +
+                "  display: inline-block; " +
+                "} " +
+
+                /* Badge Elo style phẳng, màu trầm */
+                ".elo-plus { " +
+                "  background: #C8E6C9; " + /* Nền xanh nhạt */
+                "  color: #1B5E20; " + /* Chữ xanh đậm */
+                "} " +
+                ".elo-minus { " +
+                "  background: #FFCDD2; " + /* Nền đỏ nhạt */
+                "  color: #B71C1C; " + /* Chữ đỏ đậm */
+                "} " +
+                ".elo-neutral { " +
+                "  background: #D7CCC8; " + /* Nền nâu xám nhạt */
+                "  color: #5D4037; " + /* Chữ nâu đất */
+                "} " +
+
+                ".vs-divider { " +
+                "  font-size: 24px; " +
+                "  font-weight: bold; " +
+                "  color: #C78D44; " + /* Chữ VS là màu gỗ */
+                "  font-family: 'Segoe UI', serif;" +
+                "} " +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+
+                "<div class='game-result'>" +
+                "<div class='result-title " + (isDraw ? "draw" : isCurrentUserWin ? "win" : "lose") + "'>";
+
+// Tiêu đề kết quả
         if (isDraw) {
             content += "HÒA";
         } else if (isCurrentUserWin) {
@@ -874,22 +886,26 @@ public class GameController implements MessageListener {
         } else {
             content += "THẤT BẠI";
         }
-        
+
         content += "</div></div>" +
-            "<div class='players-container'>" +
-            "<div class='player-card " + (isCurrentUserWin ? "player-winner" : isDraw ? "player-draw" : "player-loser") + "'>" +
-            "<div class='player-name'>" + currentPlayerName + " (Bạn)</div>" +
-            "<div class='player-score'>" + yourScore + " điểm</div>" +
-            "<div class='player-elo " + getEloClass(yourEloChange) + "'>" + getEloText(yourEloChange) + "</div>" +
-            "</div>" +
-            "<div class='vs-divider'>VS</div>" +
-            "<div class='player-card " + (!isCurrentUserWin && !isDraw ? "player-winner" : isDraw ? "player-draw" : "player-loser") + "'>" +
-            "<div class='player-name'>" + opponentName + " (Đối thủ)</div>" +
-            "<div class='player-score'>" + opponentScoreValue + " điểm</div>" +
-            "<div class='player-elo " + getOpponentEloClass(yourEloChange) + "'>" + getOpponentEloText(yourEloChange) + "</div>" +
-            "</div>" +
-            "</div>" +
-            "</body></html>";
+                "<div class='players-container'>" +
+                // Thẻ của BẠN
+                "<div class='player-card " + (isCurrentUserWin ? "player-winner" : isDraw ? "player-draw" : "player-loser") + "'>" +
+                "<div class='player-name'>" + currentPlayerName + " (Bạn)</div>" +
+                "<div class='player-score'>" + yourScore + "</div>" +
+                "<div class='player-elo " + getEloClass(yourEloChange) + "'>" + getEloText(yourEloChange) + "</div>" +
+                "</div>" +
+
+                "<div class='vs-divider'>VS</div>" +
+
+                // Thẻ của ĐỐI THỦ
+                "<div class='player-card " + (!isCurrentUserWin && !isDraw ? "player-winner" : isDraw ? "player-draw" : "player-loser") + "'>" +
+                "<div class='player-name'>" + opponentName + "</div>" +
+                "<div class='player-score'>" + opponentScoreValue + "</div>" +
+                "<div class='player-elo " + getOpponentEloClass(yourEloChange) + "'>" + getOpponentEloText(yourEloChange) + "</div>" +
+                "</div>" +
+                "</div>" +
+                "</body></html>";
         
         alert.setHeaderText(null);
         alert.getDialogPane().setPrefWidth(500);
