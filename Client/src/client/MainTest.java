@@ -68,11 +68,6 @@ public class MainTest extends Application {
             controller.setNetwork(network);
             controller.setPrimaryStage(stage); // QUAN TRỌNG: truyền Stage
 
-            // TỰ ĐỘNG TEST 3 LỜI MỜI SAU KHI VÀO LOBBY
-            Platform.runLater(() -> {
-                try { Thread.sleep(1000); } catch (Exception ignored) {}
-                controller.testInvite();
-            });
 
             Scene scene = new Scene(root);
             stage.setScene(scene);

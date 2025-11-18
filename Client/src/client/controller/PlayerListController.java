@@ -187,8 +187,8 @@ public class PlayerListController implements MessageListener {
             Message msg = new Message("INVITE", currentUser, new InviteRequest(currentUser, player.getName()));
             System.out.println("[PlayerListController] Sending INVITE from " + currentUser + " to " + player.getName());
             network.send(msg);
-            showAlert(Alert.AlertType.INFORMATION, "Mời đấu",
-                    "Đã gửi lời mời đến " + player.getName());
+//            showAlert(Alert.AlertType.INFORMATION, "Mời đấu",
+//                    "Đã gửi lời mời đến " + player.getName());
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Lỗi",
                     "Không thể gửi lời mời: " + e.getMessage());
