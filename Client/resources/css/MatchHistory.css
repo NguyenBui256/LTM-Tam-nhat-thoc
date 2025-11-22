@@ -1,40 +1,61 @@
-/* ==================== 1. Tiêu đề & Nút ==================== */
-.title {
-    -fx-font-size: 32px;
+/* ==================== 1. Header Card (Thanh trên cùng) ==================== */
+.header-card {
+    -fx-background-color: rgba(255, 255, 255, 0.6); /* Nền trắng mờ */
+    -fx-background-radius: 15px;
+    -fx-border-color: #C78D44;
+    -fx-border-radius: 15px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+.player-name {
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-text-fill: #5D4037; /* Màu nâu đậm */
-    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.8), 0, 0, 0, 2);
-    -fx-padding: 0 0 10 0;
+    -fx-text-fill: #5D4037; /* Nâu đậm */
+}
+
+.avatar-container {
+    -fx-border-color: #C78D44;
+    -fx-border-width: 2px;
+    -fx-border-radius: 50%; /* Bo tròn khung ảnh */
+    -fx-padding: 2;
+    -fx-background-radius: 50%;
+    -fx-background-color: white;
 }
 
 .back-button {
-    -fx-background-color: #C78D44; /* Màu gỗ */
+    -fx-background-color: #C78D44; /* Nâu gỗ */
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-font-size: 13px;
     -fx-background-radius: 20px;
     -fx-cursor: hand;
     -fx-padding: 8 20;
-    -fx-border-color: #A1887F;
-    -fx-border-radius: 20px;
 }
-
 .back-button:hover {
-    -fx-background-color: #A16E34; /* Đậm hơn khi di chuột */
+    -fx-background-color: #A16E34;
 }
 
-/* ==================== 2. TableView (Giao diện Gỗ) ==================== */
+/* ==================== 2. Tiêu đề lớn ==================== */
+.title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #5D4037;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.8), 0, 0, 0, 2);
+    -fx-padding: 0 0 5 0;
+}
+
+/* ==================== 3. TableView (Giao diện Gỗ) ==================== */
 .table-view {
-    -fx-background-color: rgba(255, 252, 245, 0.9); /* Nền kem sáng */
+    -fx-background-color: rgba(255, 252, 245, 0.9); /* Nền kem */
     -fx-background-radius: 15px;
-    -fx-border-color: #BCAAA4; /* Viền nâu nhạt */
+    -fx-border-color: #BCAAA4;
     -fx-border-width: 2px;
     -fx-border-radius: 15px;
     /* Padding đáy để tránh lỗi hiển thị dòng cuối */
-    -fx-padding: 0 0 5 0; 
+    -fx-padding: 0 0 5 0;
 }
 
-/* Header bảng: Gradient Nâu (Điểm nhấn) */
+/* Header bảng: Gradient Nâu */
 .table-view .column-header-background {
     -fx-background-color: linear-gradient(to bottom, #CD9B55, #A67B3D);
     -fx-background-radius: 13px 13px 0 0;
@@ -50,21 +71,18 @@
 .table-view .column-header .label {
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-font-size: 15px;
+    -fx-font-size: 14px;
     -fx-alignment: CENTER;
 }
 
 /* Dòng dữ liệu */
 .table-view .table-row-cell {
     -fx-background-color: transparent;
-    -fx-border-color: transparent transparent #E6CEAC transparent; /* Kẻ ngang mờ */
+    -fx-border-color: transparent transparent #E6CEAC transparent;
 }
-
 .table-view .table-row-cell:hover {
-    -fx-background-color: rgba(205, 155, 85, 0.1); /* Highlight nhẹ khi hover */
+    -fx-background-color: rgba(205, 155, 85, 0.1);
 }
-
-/* Ẩn đường kẻ ở các dòng trống */
 .table-view .table-row-cell:empty {
     -fx-border-width: 0;
     -fx-background-color: transparent;
@@ -74,8 +92,8 @@
 .table-view .table-cell {
     -fx-text-fill: #5D4037;
     -fx-alignment: CENTER;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold; /* In đậm chữ như bạn yêu cầu */
 }
 
 .table-view .placeholder .label {
@@ -83,15 +101,13 @@
     -fx-font-style: italic;
 }
 
-/* ==================== 3. Phân trang & Footer ==================== */
+/* ==================== 4. Phân trang (Pagination) ==================== */
 .pagination {
     -fx-padding: 5 0 0 0;
 }
-/* Ẩn dòng chữ "Page 1 of X" mặc định */
-.pagination .page-information { 
-    -fx-visibility: hidden; -fx-pref-height: 0; -fx-max-height: 0; 
+.pagination .page-information {
+    -fx-visibility: hidden; -fx-pref-height: 0; -fx-max-height: 0;
 }
-
 .pagination .toggle-button {
     -fx-background-color: transparent;
     -fx-border-color: #C78D44;
@@ -101,25 +117,16 @@
     -fx-min-height: 30px;
     -fx-cursor: hand;
 }
-
-.pagination .toggle-button:hover { 
-    -fx-background-color: #E6CEAC; 
+.pagination .toggle-button:hover {
+    -fx-background-color: #E6CEAC;
 }
-
 .pagination .toggle-button:selected {
-    -fx-background-color: #689F38; /* Màu xanh lá mạ */
+    -fx-background-color: #689F38; /* Xanh lá mạ */
     -fx-text-fill: white;
     -fx-border-color: #689F38;
     -fx-font-weight: bold;
 }
-
 .pagination .pagination-control .left-arrow,
 .pagination .pagination-control .right-arrow {
     -fx-background-color: #C78D44;
-}
-
-.footer-text {
-    -fx-text-fill: #5D4037;
-    -fx-font-size: 13px;
-    -fx-font-style: italic;
 }
