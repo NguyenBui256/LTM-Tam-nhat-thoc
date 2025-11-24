@@ -83,6 +83,12 @@ public class ClientHandler extends Thread implements Serializable {
             case REMATCH:
                 command = new RematchCommand();
                 break;
+            case REMATCH_ACCEPT:
+                command = new RematchAcceptCommand();
+                break;
+            case REMATCH_REJECT:
+                command = new RematchRejectCommand();
+                break;
             case GET_HISTORY:
                 command = new GetHistoryByUsername();
                 break;

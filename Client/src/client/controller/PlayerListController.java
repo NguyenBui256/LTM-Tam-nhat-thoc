@@ -109,6 +109,12 @@ public class PlayerListController implements MessageListener {
 
     // --- Thiết lập network ---
     public void setNetwork(Network network) {
+        // Xóa listener cũ nếu đã tồn tại để tránh đăng ký nhiều lần
+        if (this.network != null) {
+            this.network.removeMessageListener(this);
+            System.out.println("[PlayerListController] Removed old listener before setting new network");
+        }
+
         this.network = network;
         if (network != null) {
             System.out.println("[PlayerListController] setNetwork called. currentUser=" + this.currentUser);
@@ -219,6 +225,13 @@ public class PlayerListController implements MessageListener {
         }
         Platform.runLater(() -> {
             try {
+                // Cleanup: Xóa listener của PlayerListController trước khi chuyển sang
+                // GameController
+                if (this.network != null) {
+                    this.network.removeMessageListener(this);
+                    System.out.println("[PlayerListController] Removed listener before switching to GameController");
+                }
+
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GameScene.fxml"));
                 Parent root = loader.load();
                 GameController controller = loader.getController();

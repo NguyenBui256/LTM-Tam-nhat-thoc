@@ -18,6 +18,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -84,6 +85,18 @@ public class GameController implements MessageListener {
     private String opponentName;
     private int currentPlayerScore = 0;
     private int opponentScore = 0;
+
+    // Alert lưu trạng thái chờ rematch
+    private Alert rematchWaitingAlert;
+    private Alert alert;
+
+    // Flag để tránh quay về player list khi đóng alert do START_GAME
+    private boolean isStartingNewGame = false;
+
+    private boolean isExitByRematch = false;
+
+    // Flag để ngăn hiển thị dialog kết quả 2 lần
+    private boolean isShowingResultDialog = false;
 
     // === Initialize ===
     public void initialize() {
@@ -422,22 +435,43 @@ public class GameController implements MessageListener {
     }
 
     // === Message Listener ===
-     @Override
-     public void onMessageReceived(Message msg) {
-         System.out.println("[CLIENT LOG] Received from Server: " + msg.getCommand());
-         Platform.runLater(() -> {
-             // Handle opponent disconnection
-             if ("OPPONENT_QUIT".equals(msg.getCommand())) {
-                 handleOpponentQuit();
-                 return;
-             }
-             
-             if ("START_GAME".equals(msg.getCommand())) {
+    @Override
+    public void onMessageReceived(Message msg) {
+        System.out.println("[CLIENT LOG] Received from Server: " + msg.getCommand());
+        Platform.runLater(() -> {
+            // Handle opponent disconnection
+            if ("OPPONENT_QUIT".equals(msg.getCommand())) {
+                handleOpponentQuit();
+                return;
+            }
+
+            if ("START_GAME".equals(msg.getCommand())) {
+                // Đóng tất cả các alert đang hiển thị trước khi bắt đầu game mới
+                isStartingNewGame = true;
+                closeAllAlerts();
+                isStartingNewGame = false;
+
                 // Handle start game from server
                 if (msg.getContent() instanceof GameStart gs) {
                     System.out.println(
-                        "[LOG]: " + currentPlayerName + "   Received START_GAME for game: " + gs.getGameId()
-                    );
+                            "[LOG]: " + currentPlayerName + "   Received START_GAME for game: " + gs.getGameId());
+                    // === Reset state (Rematch or fresh start) ===
+                    if (boardPane != null)
+                        boardPane.getChildren().clear();
+                    seedImages.clear();
+                    seedTaken.clear();
+                    selectedSeed = null;
+                    selectedSeedIndex = -1;
+                    currentPlayerScore = 0;
+                    opponentScore = 0;
+                    if (scoreYou != null)
+                        scoreYou.setText("0");
+                    if (scoreOpponent != null)
+                        scoreOpponent.setText("0");
+                    if (timerLabel != null)
+                        timerLabel.setText("00:30");
+                    gameFinished = false;
+                    isShowingResultDialog = false; // Reset flag khi bắt đầu game mới
                     setGameId(gs.getGameId());
                     currentPlayerName = gs.getCurrentPlayerName();
                     opponentName = gs.getOpponentName();
@@ -466,7 +500,21 @@ public class GameController implements MessageListener {
                 }
             } else if ("END_GAME".equals(msg.getCommand())) {
                 // Handle end game result
-                System.out.println("[CLIENT LOG] Received END_GAME message");
+                System.out.println("[CLIENT LOG] Received END_GAME message (isShowingResultDialog="
+                        + isShowingResultDialog + ", gameFinished=" + gameFinished + ")");
+
+                // Ngăn hiển thị dialog 2 lần - kiểm tra cả gameFinished và
+                // isShowingResultDialog
+                if (isShowingResultDialog || gameFinished) {
+                    System.out
+                            .println("[CLIENT LOG] Dialog đã được hiển thị hoặc game đã kết thúc, bỏ qua END_GAME này");
+                    return;
+                }
+
+                // Đánh dấu NGAY LẬP TỨC để tránh race condition
+                isShowingResultDialog = true;
+                gameFinished = true;
+
                 if (msg.getContent() instanceof String content) {
                     System.out.println(
                         "[CLIENT LOG] END_GAME content: " + content
@@ -502,6 +550,64 @@ public class GameController implements MessageListener {
                     // Tạo thông báo kết quả đẹp hơn
                     showGameResultDialog(winner, yourScore, opponentScoreValue, yourEloChange);
                 }
+            } else if ("REMATCH_OFFER".equals(msg.getCommand())) {
+                // Opponent received an offer to rematch
+                if (msg.getContent() instanceof String requester) {
+                    Alert offer = new Alert(AlertType.CONFIRMATION);
+                    offer.setTitle("Yêu cầu tái đấu");
+                    offer.setHeaderText(null);
+                    offer.setContentText(requester + " muốn tái đấu. Bạn có đồng ý?");
+                    ButtonType acceptBtn = new ButtonType("Đồng ý", ButtonBar.ButtonData.OK_DONE);
+                    ButtonType rejectBtn = new ButtonType("Từ chối", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    offer.getButtonTypes().setAll(acceptBtn, rejectBtn);
+                    offer.showAndWait().ifPresent(bt -> {
+                        try {
+                            if (bt == acceptBtn) {
+                                Message acceptMsg = new Message(CommandType.REMATCH_ACCEPT.toString(),
+                                        currentPlayerName, gameId);
+                                isExitByRematch = true;
+                                network.send(acceptMsg);
+                            } else {
+                                Message rejectMsg = new Message(CommandType.REMATCH_REJECT.toString(),
+                                        currentPlayerName, gameId);
+                                network.send(rejectMsg);
+                                closeAllAlerts();
+                                // // Quay về danh sách nếu đang ở màn hình kết thúc
+                                // if (gameFinished)
+                                // returnToPlayerList();
+                            }
+                        } catch (Exception e) {
+                            System.out.println("[CLIENT LOG] Error sending rematch accept/reject: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    });
+                }
+            } else if ("REMATCH_WAITING".equals(msg.getCommand())) {
+                // Already showing waiting alert; optionally update text
+                if (rematchWaitingAlert != null) {
+                    rematchWaitingAlert.setContentText("Đang chờ đối thủ chấp nhận rematch...");
+                }
+            } else if ("REMATCH_ACCEPTED".equals(msg.getCommand())) {
+                gameFinished = false;
+
+                // Đảm bảo InviteNotificationManager có primaryStage
+                if (primaryStage != null) {
+                    InviteNotificationManager.getInstance().setPrimaryStage(primaryStage);
+                }
+
+                System.out.println("[CLIENT LOG] REMATCH_ACCEPTED nhận được, chờ START_GAME...");
+            } else if ("REMATCH_REJECTED".equals(msg.getCommand())) {
+                // Opponent rejected the rematch
+                if (rematchWaitingAlert != null)
+                    rematchWaitingAlert.close();
+                gameFinished = true;
+                String rejecter = msg.getContent() instanceof String ? (String) msg.getContent() : opponentName;
+                Alert rejected = new Alert(AlertType.INFORMATION);
+                rejected.setTitle("Rematch bị từ chối");
+                rejected.setHeaderText(null);
+                rejected.setContentText(rejecter + " đã từ chối tái đấu.");
+                rejected.showAndWait();
+                returnToPlayerList();
             } else if ("GAME_UPDATE".equals(msg.getCommand())) {
                 // Handle game update from server
                 if (msg.getContent() instanceof GameUpdate update) {
@@ -758,8 +864,9 @@ public class GameController implements MessageListener {
     }
 
     // === Hiển thị thông báo kết quả đẹp hơn ===
-    private void showGameResultDialog(String winner, String yourScore, String opponentScoreValue, String yourEloChange) {
-        Alert alert = new Alert(AlertType.INFORMATION);
+    private void showGameResultDialog(String winner, String yourScore, String opponentScoreValue,
+            String yourEloChange) {
+        alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Kết thúc trò chơi");
         
         // Debug logging for END_GAME
@@ -915,13 +1022,54 @@ public class GameController implements MessageListener {
         WebView webView = new WebView();
         webView.getEngine().loadContent(content);
         webView.setPrefSize(480, 320);
-        
+
+        // Thêm nút Rematch
+        ButtonType rematchButton = new ButtonType("Rematch", ButtonBar.ButtonData.OK_DONE);
+        ButtonType exitButtonType = new ButtonType("Thoát", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(rematchButton, exitButtonType);
+
+        // Đặt nội dung gồm WebView + HBox nút (Alert tự render button types)
         alert.getDialogPane().setContent(webView);
-        gameFinished = true;
-        alert.showAndWait();
-        
-        // Khi đóng dialog, quay về danh sách người chơi
-        returnToPlayerList();
+        // returnToPlayerList();
+
+        alert.showAndWait().ifPresent(result -> {
+            if (result == rematchButton) {
+                // Người chơi muốn tái đấu
+                gameFinished = false; // mở lại trạng thái chơi
+                isShowingResultDialog = false; // Reset flag để có thể hiển thị dialog game tiếp theo
+                sendRematchRequest();
+            } else {
+                // Người chơi chọn thoát
+                isShowingResultDialog = false; // Reset flag
+                if (!isExitByRematch) {
+                    returnToPlayerList();
+                } else {
+                    isExitByRematch = false;
+                }
+                // returnToPlayerList();
+            }
+        });
+    }
+
+    // === GỬI YÊU CẦU REMATCH ===
+    private void sendRematchRequest() {
+        System.out.println("[CLIENT LOG] Sending REMATCH request for gameId=" + gameId + ", players="
+                + currentPlayerName + " vs " + opponentName);
+        try {
+            // Nội dung có thể là gameId hoặc opponentName; server hiện không sử dụng nội
+            // dung
+            Message rematchMsg = new Message(CommandType.REMATCH.toString(), currentPlayerName, gameId);
+            network.send(rematchMsg);
+            // Hiển thị trạng thái chờ (sẽ đóng khi ACCEPT/REJECT)
+            rematchWaitingAlert = new Alert(AlertType.INFORMATION);
+            rematchWaitingAlert.setTitle("Đang chờ tái đấu");
+            rematchWaitingAlert.setHeaderText(null);
+            rematchWaitingAlert.setContentText("Đang chờ đối thủ chấp nhận rematch...");
+            rematchWaitingAlert.show();
+        } catch (Exception e) {
+            System.out.println("[CLIENT LOG] Error sending REMATCH: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     // === Helper methods cho Elo ===
@@ -1011,6 +1159,13 @@ public class GameController implements MessageListener {
     }
 
     private void returnToPlayerList() {
+
+        // Cleanup: Xóa listener của GameController này trước khi rời khỏi màn hình
+        if (this.network != null) {
+            this.network.removeMessageListener(this);
+            System.out.println("[GameController] Removed message listener for " + currentPlayerName);
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/player_list.fxml"));
             Parent root = loader.load();
@@ -1292,5 +1447,29 @@ public class GameController implements MessageListener {
 
     public void setOpponentScore(int opponentScore) {
         this.opponentScore = opponentScore;
+    }
+
+    /**
+     * Đóng tất cả các Alert đang hiển thị
+     */
+    private void closeAllAlerts() {
+        try {
+            // Đóng rematchWaitingAlert nếu đang mở
+            if (rematchWaitingAlert != null && rematchWaitingAlert.isShowing()) {
+                rematchWaitingAlert.close();
+                rematchWaitingAlert = null;
+            }
+
+            // Hide alert nếu đang mở (dùng hide() thay vì close() để tránh trigger
+            // callback)
+            if (alert != null && alert.isShowing()) {
+                alert.close();
+                alert = null;
+            }
+
+            System.out.println("[GameController] Đã đóng tất cả alerts");
+        } catch (Exception e) {
+            System.err.println("[GameController] Lỗi khi đóng alerts: " + e.getMessage());
+        }
     }
 }

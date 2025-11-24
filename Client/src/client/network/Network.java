@@ -104,8 +104,18 @@ public class Network {
     }
 
     private void notifyListeners(Message msg) {
-        for (MessageListener listener : listeners) {
-            listener.onMessageReceived(msg);
+        if ("END_GAME".equals(msg.getCommand())) {
+            System.out.println("[Network] Notifying " + listeners.size() + " listeners about END_GAME");
+            for (int i = 0; i < listeners.size(); i++) {
+                MessageListener listener = listeners.get(i);
+                System.out.println(
+                        "[Network] Notifying listener #" + (i + 1) + ": " + listener.getClass().getSimpleName());
+                listener.onMessageReceived(msg);
+            }
+        } else {
+            for (MessageListener listener : listeners) {
+                listener.onMessageReceived(msg);
+            }
         }
     }
 
