@@ -116,7 +116,7 @@ public class UserDAO extends DAO {
                 + "FROM \r\n"
                 + "    User u\r\n"
                 + "LEFT JOIN \r\n"
-                + "    game g ON u.id IN (g.userId_1, g.userId_2)\r\n"
+                + "    games g ON u.id IN (g.userId_1, g.userId_2)\r\n"
                 + "WHERE \r\n"
                 + "    u.username != 'admin'\r\n"
                 + "GROUP BY \r\n"
