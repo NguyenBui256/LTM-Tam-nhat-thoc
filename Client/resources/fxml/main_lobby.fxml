@@ -3,54 +3,110 @@
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="600" prefWidth="800.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controller.MainLobbyController">
 
-    <!-- Thanh trên cùng -->
     <HBox alignment="CENTER_RIGHT" prefHeight="60.0" prefWidth="900.0" spacing="20" style="-fx-background-color: rgba(255,255,255,0.85); -fx-padding: 0 20;" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0.0">
         <Label prefHeight="27.0" prefWidth="331.0" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #c43c3c;" text="🎮 Trò chơi Tấm Nhặt Thóc" HBox.hgrow="ALWAYS" />
         <Label fx:id="playerInfo" style="-fx-font-size: 16px; -fx-text-fill: #333;" text="Xin chào, ..." />
     </HBox>
 
-    <!-- Nội dung chính -->
     <HBox alignment="CENTER" spacing="30" AnchorPane.bottomAnchor="80" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="80">
         <VBox fx:id="onlineBox" alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="10" styleClass="menu-card">
             <Label style="-fx-font-size: 40px;" text="👥" />
-            <Label style="-fx-font-size: 15px; -fx-font-weight: bold;" text="Người chơi Online">
-            <font>
-               <Font name="System Bold" size="10.0" />
-            </font></Label>
-            <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Xem danh sách người chơi đang trực tuyến và thách đấu họ trong trò chơi phân loại hạt" textAlignment="CENTER" wrapText="true" />
+            <Label style="-fx-font-size: 15px; -fx-font-weight: bold;" text="Người chơi Online" />
+            <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Xem danh sách người chơi đang trực tuyến và thách đấu họ." textAlignment="CENTER" wrapText="true" />
             <Button fx:id="btnOnline" styleClass="menu-button" text="→ Xem" />
-
         </VBox>
 
         <VBox fx:id="rankingBox" alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="10" styleClass="menu-card">
             <Label style="-fx-font-size: 40px;" text="🏆" />
             <Label style="-fx-font-size: 15px; -fx-font-weight: bold;" text="Bảng Xếp Hạng" />
-            <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Khám phá những người chơi giỏi nhất và vị trí của bạn trong bảng xếp hạng toàn cầu" textAlignment="CENTER" wrapText="true" />
+            <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Khám phá những người chơi giỏi nhất toàn cầu." textAlignment="CENTER" wrapText="true" />
             <Button fx:id="btnRanking" styleClass="menu-button" text="→ Xem" />
         </VBox>
 
         <VBox fx:id="settingsBox" alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="10" styleClass="menu-card">
             <Label style="-fx-font-size: 40px;" text="⚔️" />
             <Label style="-fx-font-size: 15px; -fx-font-weight: bold;" text="Lịch sử đấu" />
-            <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Xem lại các trận đã chơi và thống kê kết quả của bạn" textAlignment="CENTER" wrapText="true" />
+            <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Xem lại các trận đã chơi và thống kê kết quả." textAlignment="CENTER" wrapText="true" />
             <Button fx:id="btnHistory" styleClass="menu-button" text="→ Xem" />
         </VBox>
     </HBox>
-    <!-- Thanh dưới cùng -->
+
     <HBox alignment="CENTER_LEFT" prefHeight="40" spacing="20" style="-fx-background-color: rgba(255,255,255,0.8); -fx-padding: 0 20;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-      <Region prefHeight="40.0" prefWidth="622.0" />
-        <Button fx:id="btnLogout" prefHeight="28.0" prefWidth="144.0" styleClass="logout-button" text="⏻ Đăng xuất" HBox.hgrow="ALWAYS" />
+        <Button fx:id="btnHelp" onAction="#showHelp" prefHeight="28.0" style="-fx-background-color: #4A90E2; -fx-text-fill: white; -fx-cursor: hand;" text="❓ Cách chơi" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="btnLogout" prefHeight="28.0" prefWidth="144.0" styleClass="logout-button" text="⏻ Đăng xuất" />
     </HBox>
-   <stylesheets>
-      <URL value="@../css/bg.css" />
-      <URL value="@../css/main_lobby.css" />
-   </stylesheets>
+
+    <StackPane fx:id="helpOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.6);" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+
+        <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" spacing="15" style="-fx-background-color: white; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 0); -fx-padding: 25;">
+
+            <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #c43c3c;" text="📜 LUẬT CHƠI &amp; TÍNH ĐIỂM" />
+            <Label style="-fx-font-size: 14px; -fx-text-fill: #555;" text="Nhìn hạt hiện ra và ấn phím số tương ứng!" />
+
+            <HBox alignment="CENTER" spacing="20" style="-fx-padding: 10 0;">
+
+                <VBox alignment="CENTER" prefWidth="110" spacing="5" style="-fx-border-color: #ddd; -fx-border-radius: 10; -fx-padding: 10; -fx-background-color: #f8f9fa;">
+                    <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/rice.png" />
+                        </image>
+                    </ImageView>
+                    <Label style="-fx-font-weight: bold; -fx-font-size: 16px;" text="GẠO" />
+                    <Label style="-fx-text-fill: #2980b9; -fx-font-weight: bold; -fx-font-size: 14px;" text="Phím [1]" />
+                    <Label style="-fx-text-fill: green; -fx-font-weight: bold; -fx-font-size: 14px;" text="+1 Điểm" />
+                </VBox>
+
+                <VBox alignment="CENTER" prefWidth="110" spacing="5" style="-fx-border-color: #ddd; -fx-border-radius: 10; -fx-padding: 10; -fx-background-color: #f8f9fa;">
+                    <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/paddy.png" />
+                        </image>
+                    </ImageView>
+                    <Label style="-fx-font-weight: bold; -fx-font-size: 16px;" text="THÓC" />
+                    <Label style="-fx-text-fill: #2980b9; -fx-font-weight: bold; -fx-font-size: 14px;" text="Phím [2]" />
+                    <Label style="-fx-text-fill: green; -fx-font-weight: bold; -fx-font-size: 14px;" text="+2 Điểm" />
+                </VBox>
+
+                <VBox alignment="CENTER" prefWidth="110" spacing="5" style="-fx-border-color: #ddd; -fx-border-radius: 10; -fx-padding: 10; -fx-background-color: #f8f9fa;">
+                    <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/corn.png" />
+                        </image>
+                    </ImageView>
+                    <Label style="-fx-font-weight: bold; -fx-font-size: 16px;" text="NGÔ" />
+                    <Label style="-fx-text-fill: #2980b9; -fx-font-weight: bold; -fx-font-size: 14px;" text="Phím [3]" />
+                    <Label style="-fx-text-fill: green; -fx-font-weight: bold; -fx-font-size: 14px;" text="+3 Điểm" />
+                </VBox>
+            </HBox>
+
+            <VBox alignment="CENTER_LEFT" spacing="8" style="-fx-background-color: #fff0f0; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #ffcccc; -fx-border-width: 1;">
+                <HBox spacing="10">
+                    <Label style="-fx-font-size: 16px;" text="❌" />
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: #c0392b; -fx-font-weight: bold;" text="Chọn sai hạt: TRỪ 1 ĐIỂM (-1)" />
+                </HBox>
+                <HBox spacing="10">
+                    <Label style="-fx-font-size: 16px;" text="🚪" />
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: #c0392b; -fx-font-weight: bold;" text="Thoát trận: XỬ THUA NGAY LẬP TỨC" />
+                </HBox>
+            </VBox>
+
+            <Button onAction="#closeHelp" prefWidth="120" style="-fx-background-color: #666; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" text="Đã hiểu" />
+        </VBox>
+    </StackPane>
+
+    <stylesheets>
+        <URL value="@../css/bg.css" />
+        <URL value="@../css/main_lobby.css" />
+    </stylesheets>
 </AnchorPane>

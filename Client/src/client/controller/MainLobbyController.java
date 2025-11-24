@@ -11,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane; // ✅ THÊM IMPORT NÀY
 import javafx.stage.Stage;
 import common.StatusType;
 import dto.Message;
@@ -33,6 +34,10 @@ public class MainLobbyController implements MessageListener {
     @FXML
     private Button btnTestInvite; // Nút test
 
+    // ✅ THÊM BIẾN CHO PHẦN HƯỚNG DẪN
+    @FXML
+    private StackPane helpOverlay;
+
     private Network network;
     private Stage primaryStage; // ✅ THÊM: Lưu Stage chính
     // Tên người chơi hiện tại được truyền từ LoginController
@@ -54,8 +59,7 @@ public class MainLobbyController implements MessageListener {
         if (this.network != null) {
             this.network.addMessageListener(this);
             System.out.println("[MainLobbyController] Network set successfully and listener registered.");
-            // Nếu Network chứa username (được set sau khi đăng nhập), truyền luôn vào
-            // controller
+            // Nếu Network chứa username (được set sau khi đăng nhập), truyền luôn vào controller
             try {
                 String nu = this.network.getCurrentUser();
                 if (nu != null && !nu.isBlank()) {
@@ -85,13 +89,32 @@ public class MainLobbyController implements MessageListener {
 
     @FXML
     public void initialize() {
-
         // 👉 Điều hướng sang các màn hình khác
         btnOnline.setOnAction(e -> openPlayerList());
         btnRanking.setOnAction(e -> openRanking());
         btnHistory.setOnAction(e -> openHistory());
         btnLogout.setOnAction(this::logout);
 
+        // ✅ THÊM: Ẩn popup hướng dẫn khi khởi động (đề phòng FXML set visible=true)
+        if (helpOverlay != null) {
+            helpOverlay.setVisible(false);
+        }
+    }
+
+    // ✅ THÊM: Hàm hiện popup hướng dẫn (gắn với nút "Cách chơi")
+    @FXML
+    void showHelp(ActionEvent event) {
+        if (helpOverlay != null) {
+            helpOverlay.setVisible(true);
+        }
+    }
+
+    // ✅ THÊM: Hàm đóng popup hướng dẫn (gắn với nút "Đóng lại")
+    @FXML
+    void closeHelp(ActionEvent event) {
+        if (helpOverlay != null) {
+            helpOverlay.setVisible(false);
+        }
     }
 
     @FXML
